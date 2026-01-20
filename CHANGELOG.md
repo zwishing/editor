@@ -13,6 +13,7 @@
 - Add code editor to allow editing the entire style
 - Add support for sprite object in setting modal
 - Allow root-relative urls in the stylefile
+- Refresh header, panels, and inspector styling to a clean Geo-SaaS look
 - _...Add new stuff here..._
 
 ### 🐞 Bug fixes

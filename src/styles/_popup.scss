@@ -13,7 +13,7 @@
 
 .maputnik-popup-layer__label {
   display: block;
-  color: vars.$color-lowgray;
+  color: vars.$color-panel-text;
   cursor: pointer;
   user-select: none;
   line-height: 1.2;
@@ -25,8 +25,8 @@
 .maputnik-popup-layer-id {
   padding-left: vars.$margin-2;
   padding-right: vars.$margin-2;
-  background-color: vars.$color-midgray;
-  color: vars.$color-white;
+  background-color: vars.$color-panel-active;
+  color: vars.$color-panel-text;
 }
 
 .maputnik-feature-property-popup {
@@ -45,7 +45,7 @@
 }
 
 .maputnik-popup-table-cell {
-  color: vars.$color-lowgray;
+  color: vars.$color-panel-text;
   padding-left: vars.$margin-2;
   padding-right: vars.$margin-2;
 }

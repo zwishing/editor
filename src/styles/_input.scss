@@ -4,21 +4,33 @@
 @use 'sass:color';
 //INPUT
 .maputnik-input {
-  height: 24px;
+  height: 28px;
   width: 100%;
   display: block;
   box-sizing: border-box;
   font-size: vars.$font-size-6;
-  line-height: 2;
+  line-height: 1.3;
   padding-left: vars.$margin-2;
   padding-right: vars.$margin-2;
-  border: none;
-  background-color: vars.$color-gray;
-  color: color.adjust(vars.$color-lowgray, $lightness: 12%);
+  border: 1px solid vars.$color-panel-border;
+  border-radius: vars.$radius-md;
+  background-color: vars.$color-panel-surface;
+  color: vars.$color-panel-text;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 
   &:invalid {
-    border: solid 1px #B71C1C;
-    border-radius: 2px;
+    border-color: #b71c1c;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border-color: vars.$color-panel-accent;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+  }
+
+  @media screen and (prefers-reduced-motion: reduce) {
+    transition-duration: 0ms;
   }
 }
 
@@ -44,6 +56,43 @@
   width: calc(100% - 4.5em);
   margin-right: 0.5em;
   flex-shrink: 0;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: vars.$color-panel-border;
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: vars.$color-panel-surface;
+    border: 2px solid vars.$color-panel-accent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-top: -6px;
+  }
+
+  &::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: vars.$color-panel-surface;
+    border: 2px solid vars.$color-panel-accent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  &::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: vars.$color-panel-border;
+  }
+
+  &::-moz-range-progress {
+    height: 4px;
+    border-radius: 2px;
+    background: vars.$color-panel-accent;
+  }
 }
 
 .maputnik-number {
@@ -54,7 +103,7 @@
 .maputnik-color {
   @extend .maputnik-input !optional; /* stylelint-disable-line */
 
-  height: 26px;
+  height: 28px;
 }
 
 .maputnik-color-wrapper {
@@ -64,7 +113,7 @@
 }
 
 .maputnik-color-swatch {
-  height: 26px;
+  height: 28px;
   width: 14px;
   flex-shrink: 0;
   flex-grow: 0;
@@ -103,15 +152,15 @@
 
   -moz-appearance: none;
   -webkit-appearance: none;
-  background: vars.$color-gray url("#{vars.$icon-down-arrow}") right center no-repeat;
-  color: vars.$color-white;
+  background: vars.$color-panel-surface url("#{vars.$icon-down-arrow}") right center no-repeat;
+  color: vars.$color-panel-text;
   background-position: calc(100% - 2px) center;
   padding-right: 20px;
 
-  height: 24px;
+  height: 28px;
 }
 [dir="rtl"] .maputnik-select {
-  background: vars.$color-gray url("#{vars.$icon-down-arrow}") left center no-repeat;
+  background: vars.$color-panel-surface url("#{vars.$icon-down-arrow}") left center no-repeat;
 }
 
 // MULTIBUTTON
@@ -124,8 +173,9 @@
 }
 
 .maputnik-button-selected {
-  background-color: color.adjust(vars.$color-midgray, $lightness: 12%);
-  color: white;
+  background-color: vars.$color-panel-active;
+  color: vars.$color-panel-text;
+  border-color: vars.$color-panel-accent;
 }
 
 // CHECKBOX
@@ -158,11 +208,11 @@
     height: 24px;
     width: 24px;
     margin-right: vars.$margin-2;
-    background-color: vars.$color-gray;
-    border-radius: 2px;
+    background-color: vars.$color-panel-surface;
+    border-radius: vars.$radius-sm;
     border-style: solid;
-    border-width: 2px;
-    border-color: vars.$color-gray;
+    border-width: 1px;
+    border-color: vars.$color-panel-border;
     transition: background-color 0.1s ease-out;
     position: absolute;
     top: 0;
@@ -181,6 +231,17 @@
 
   &:focus + &-box {
     z-index: 9;
+    box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+    border-color: vars.$color-panel-accent;
+  }
+
+  &:checked + &-box {
+    background-color: vars.$color-panel-accent;
+    border-color: vars.$color-panel-accent;
+  }
+
+  &:checked + &-box .maputnik-checkbox-icon {
+    fill: vars.$color-panel-surface;
   }
 
 
@@ -188,35 +249,35 @@
     width: 50%;
     height: 50%;
     margin-top: 1px;
-    fill: vars.$color-lowgray;
+    fill: vars.$color-panel-muted;
   }
 }
 
 // AUTOCOMPLETE
 .maputnik-autocomplete {
   &-menu {
-    border: none;
-    padding: 2px 0;
+    border: 1px solid vars.$color-panel-border;
+    padding: 4px 0;
     margin-right: 10px;
     position: absolute !important;
     overflow: auto;
     max-height: 50%;
-    background: vars.$color-gray;
+    background: vars.$color-panel-surface;
     z-index: 3;
   }
 
   &-menu-item {
     user-select: none;
-    color: vars.$color-lowgray;
+    color: vars.$color-panel-text;
     cursor: default;
     padding: vars.$margin-1;
     font-size: vars.$font-size-6;
     z-index: 3;
-    background: vars.$color-gray;
+    background: vars.$color-panel-surface;
   }
 
   &-menu-item-selected {
-    background: vars.$color-midgray;
+    background: vars.$color-panel-hover;
   }
 }
 
@@ -242,7 +303,7 @@
   margin-top: vars.$margin-3;
 
   td, th {
-    border: solid 1px vars.$color-midgray;
+    border: solid 1px vars.$color-panel-border;
     padding: 4px 6px;
     white-space: nowrap;
   }
@@ -253,7 +314,7 @@
 }
 
 .SpecDoc__values code, .SpecDoc__doc code {
-  background: vars.$color-midgray;
+  background: vars.$color-panel-hover;
   padding: 0.1em 0.3em;
-  border-radius: 2px;
+  border-radius: vars.$radius-sm;
 }

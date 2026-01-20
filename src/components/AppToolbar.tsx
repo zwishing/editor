@@ -1,6 +1,6 @@
 import React from "react";
 import classnames from "classnames";
-import {detect} from "detect-browser";
+import { detect } from "detect-browser";
 
 import {
   MdOpenInBrowser,
@@ -132,7 +132,7 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
       (document.querySelector(".maplibregl-canvas") as HTMLCanvasElement).focus();
     }
     else {
-      const el = document.querySelector("#skip-target-"+target) as HTMLButtonElement;
+      const el = document.querySelector("#skip-target-" + target) as HTMLButtonElement;
       el.focus();
     }
   };
@@ -230,22 +230,7 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
             <MdSave />
             <IconText>{t("Save")}</IconText>
           </ToolbarAction>
-          <ToolbarAction wdKey="nav:code-editor" onClick={() => this.props.onToggleModal("codeEditor")}>
-            <MdCode />
-            <IconText>{t("Code Editor")}</IconText>
-          </ToolbarAction>
-          <ToolbarAction wdKey="nav:sources" onClick={() => this.props.onToggleModal("sources")}>
-            <MdLayers />
-            <IconText>{t("Data Sources")}</IconText>
-          </ToolbarAction>
-          <ToolbarAction wdKey="nav:settings" onClick={() => this.props.onToggleModal("settings")}>
-            <MdSettings />
-            <IconText>{t("Style Settings")}</IconText>
-          </ToolbarAction>
-          <ToolbarAction wdKey="nav:global-state" onClick={() => this.props.onToggleModal("globalState")}>
-            <MdPublic />
-            <IconText>{t("Global State")}</IconText>
-          </ToolbarAction>
+          {/* Moved to Icon Rail: Data Sources, Settings, Global State */}
 
           <ToolbarSelect wdKey="nav:inspect">
             <MdFindInPage />

@@ -1,30 +1,53 @@
-$color-black: #191b20;
-$color-gray: #222429;
-$color-midgray: #303237;
-$color-lowgray: #a4a4a4;
-$color-white: #f0f0f0;
-$color-red: #cf4a4a;
-$color-green: #53b972;
-$margin-1: 3px;
-$margin-2: 5px;
-$margin-3: 10px;
-$margin-4: 30px;
-$margin-5: 40px;
-$font-size-1: 24px;
-$font-size-2: 20px;
-$font-size-3: 18px;
-$font-size-4: 16px;
-$font-size-5: 14px;
-$font-size-6: 12px;
-$font-family: Roboto, sans-serif;
+// Professional SaaS / MapTiler Palette
+$color-black: #0F172A; // Slate 900
+$color-gray: #334155; // Slate 700
+$color-midgray: #64748B; // Slate 500
+$color-lowgray: #94A3B8; // Slate 400
+$color-white: #FFFFFF;
+$color-red: #DC2626; // Red 600
+$color-green: #16A34A; // Green 600
 
-$toolbar-height: 40px;
+// Panel / UI Semantic Colors
+$color-panel-bg: #F8FAFC; // Slate 50 (Main App BG)
+$color-panel-surface: #FFFFFF; // White (Cards/Panels)
+$color-panel-border: #E2E8F0; // Slate 200 (Subtle Borders)
+$color-panel-text: #1E293B; // Slate 800 (Primary Text)
+$color-panel-muted: #64748B; // Slate 500 (Secondary Text)
+$color-panel-muted-2: #CBD5E1; // Slate 300 (Disabled/Placeholder)
+$color-panel-hover: #F1F5F9; // Slate 100 (Hover State)
+$color-panel-active: #E2E8F0; // Slate 200 (Active State)
+$color-panel-accent: #2563EB; // Brand Blue (Primary Action)
+
+$shadow-panel: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+
+// Radii
+$radius-sm: 4px;
+$radius-md: 6px; // Standard SaaS radius
+
+// Compact High-Density Spacing
+$margin-1: 2px;
+$margin-2: 6px;
+$margin-3: 10px; // Standard Gap
+$margin-4: 16px; // Section Gap
+$margin-5: 24px;
+
+$font-size-1: 18px;
+$font-size-2: 16px;
+$font-size-3: 14px; // Normal Text
+$font-size-4: 13px; // Small Labels
+$font-size-5: 12px; // Tiny Labels
+$font-size-6: 11px;
+
+$font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$font-family-mono: 'Fira Code', monospace;
+
+$toolbar-height: 48px;
 $toolbar-offset: 0;
 
-$layout-list-width: 200px;
-$layout-editor-width: 370px;
+$layout-list-width: 240px;
+$layout-editor-width: 420px;
 $layout-map-width: calc(100% - #{$layout-list-width + $layout-editor-width});
 
 // 'menu-down' from 'https://materialdesignicons.com/'
 // See <https://github.com/Templarian/MaterialDesign/blob/master/LICENSE>
-$icon-down-arrow: "data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'><path fill='white' d='M7,10L12,15L17,10H7Z' /></svg>"
+$icon-down-arrow: "data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'><path fill='%236b7280' d='M7,10L12,15L17,10H7Z' /></svg>"

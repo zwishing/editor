@@ -25,13 +25,13 @@ import { type MappedLayerErrors } from "../libs/definitions";
  */
 function setStopRefs(props: ZoomPropertyInternalProps, state: ZoomPropertyState) {
   // This is initialsed below only if required to improved performance.
-  let newRefs: {[key: number]: string} = {};
+  let newRefs: { [key: number]: string } = {};
 
-  if(props.value && (props.value as ZoomWithStops).stops) {
+  if (props.value && (props.value as ZoomWithStops).stops) {
     (props.value as ZoomWithStops).stops.forEach((_val, idx: number) => {
-      if(Object.prototype.hasOwnProperty.call(!state.refs, idx)) {
-        if(!newRefs) {
-          newRefs = {...state};
+      if (Object.prototype.hasOwnProperty.call(!state.refs, idx)) {
+        if (!newRefs) {
+          newRefs = { ...state };
         }
         newRefs[idx] = docUid("stop-");
       } else {
@@ -65,7 +65,7 @@ type ZoomPropertyInternalProps = {
 } & WithTranslation;
 
 type ZoomPropertyState = {
-  refs: {[key: number]: string}
+  refs: { [key: number]: string }
 };
 
 class ZoomPropertyInternal extends React.Component<ZoomPropertyInternalProps, ZoomPropertyState> {
@@ -74,13 +74,13 @@ class ZoomPropertyInternal extends React.Component<ZoomPropertyInternalProps, Zo
   };
 
   state = {
-    refs: {} as {[key: number]: string}
+    refs: {} as { [key: number]: string }
   };
 
   componentDidMount() {
     const newRefs = setStopRefs(this.props, this.state);
 
-    if(newRefs) {
+    if (newRefs) {
       this.setState({
         refs: newRefs
       });
@@ -89,7 +89,7 @@ class ZoomPropertyInternal extends React.Component<ZoomPropertyInternalProps, Zo
 
   static getDerivedStateFromProps(props: Readonly<ZoomPropertyInternalProps>, state: ZoomPropertyState) {
     const newRefs = setStopRefs(props, state);
-    if(newRefs) {
+    if (newRefs) {
       return {
         refs: newRefs
       };
@@ -106,13 +106,13 @@ class ZoomPropertyInternal extends React.Component<ZoomPropertyInternalProps, Zo
           data: stop
         };
       })
-    // Sort by zoom
+      // Sort by zoom
       .sort((a, b) => sortNumerically(a.data[0]!, b.data[0]!));
 
     // Fetch the new position of the stops
-    const newRefs: {[key:number]: string} = {};
+    const newRefs: { [key: number]: string } = {};
     mappedWithRef
-      .forEach((stop, idx) =>{
+      .forEach((stop, idx) => {
         newRefs[idx] = stop.ref;
       });
 
@@ -156,8 +156,10 @@ class ZoomPropertyInternal extends React.Component<ZoomPropertyInternalProps, Zo
 
   render() {
     const t = this.props.t;
-    const zoomFields = this.props.value?.stops.map((stop, idx) => {
+    const stops = (this.props.value && (this.props.value as ZoomWithStops).stops) || [];
+    const zoomFields = stops.map((stop, idx) => {
       const zoomLevel = stop[0];
+
       const value = stop[1];
       const deleteStopBtn = <DeleteStopButton onClick={this.props.onDeleteStop?.bind(this, idx)} />;
       return <tr

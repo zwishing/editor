@@ -74,6 +74,8 @@
 .maputnik-function-stop {
   padding-left: vars.$margin-2;
   padding-right: vars.$margin-2;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .maputnik-function-stop-table {
@@ -81,16 +83,17 @@
   margin-bottom: vars.$margin-2;
   box-sizing: border-box;
   width: 100%;
+  table-layout: fixed;
 
   thead th {
     padding: vars.$margin-1 vars.$margin-2;
     padding-left: 0;
-    color: vars.$color-lowgray;
+    color: vars.$color-panel-muted;
   }
 
   td, th {
     font-size: vars.$font-size-6;
-    color: vars.$color-white;
+    color: vars.$color-panel-text;
 
     // HACK
     > * {
@@ -109,7 +112,7 @@
     }
 
     &:nth-child(2) {
-      width: 6em;
+      width: auto;
     }
 
     &:nth-child(3) {
@@ -146,9 +149,9 @@
   }
 
   caption {
-    color: vars.$color-lowgray;
+    color: vars.$color-panel-muted;
     text-align: left;
-    border-top: solid 1px vars.$color-black;
+    border-top: solid 1px vars.$color-panel-border;
     font-size: vars.$font-size-6;
     height: 0px;
     overflow: hidden;

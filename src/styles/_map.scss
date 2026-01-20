@@ -25,11 +25,13 @@
 
   .ol-control {
     button {
-      background-color: rgb(28, 31, 36);
+      background-color: vars.$color-panel-surface;
+      border: 1px solid vars.$color-panel-border;
+      color: vars.$color-panel-text;
     }
 
     button:hover {
-      background-color: rgb(86, 83, 83);
+      background-color: vars.$color-panel-hover;
     }
   }
 }
@@ -41,16 +43,20 @@
 }
 
 .maputnik-ol-popup {
-  background: vars.$color-black;
+  background: vars.$color-panel-surface;
+  border: 1px solid vars.$color-panel-border;
+  color: vars.$color-panel-text;
 
 }
 
 .maputnik-coords {
   font-family: monospace;
+
   &:before {
     content: '[';
     color: #888;
   }
+
   &:after {
     content: ']';
     color: #888;
@@ -63,7 +69,9 @@
   position: absolute;
   bottom: 10px;
   left: 10px;
-  background: rgb(28, 31, 36);
+  background: vars.$color-panel-surface;
+  color: vars.$color-panel-text;
+  border: 1px solid vars.$color-panel-border;
   padding: 6px 8px;
   border-radius: 2px;
   z-index: 9999;
@@ -73,10 +81,11 @@
   position: absolute;
   right: 10px;
   top: 10px;
-  background: #1c1f24;
+  background: vars.$color-panel-surface;
+  border: 1px solid vars.$color-panel-border;
   border-radius: 2px;
   padding: 6px 8px;
-  color: vars.$color-lowgray;
+  color: vars.$color-panel-text;
   z-index: 9999;
   font-size: 12px;
   font-weight: bold;
@@ -86,4 +95,27 @@
   display: flex;
   flex: 1;
   position: relative;
+}
+
+// Geocoder Eco Theme Override
+.maplibregl-ctrl-geocoder {
+  background-color: vars.$color-panel-surface !important; // White
+  color: vars.$color-panel-text !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); // Soft shadow
+  border-radius: 999px; // Pill shape
+  border: 1px solid vars.$color-panel-border;
+  max-width: 240px; // Compact
+
+  &--input {
+    color: vars.$color-panel-text !important;
+    font-family: vars.$font-family !important;
+
+    &::placeholder {
+      color: vars.$color-panel-muted !important;
+    }
+  }
+
+  &--icon-search {
+    fill: vars.$color-green !important; // Green icon
+  }
 }

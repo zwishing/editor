@@ -9,7 +9,10 @@
   z-index: 100;
   left: 0;
   top: vars.$toolbar-offset;
-  background-color: vars.$color-black;
+  background-color: vars.$color-panel-surface;
+  border-bottom: 1px solid vars.$color-panel-border;
+  box-shadow: vars.$shadow-panel;
+  color: vars.$color-panel-text;
 }
 
 .maputnik-toolbar-logo-container {
@@ -22,7 +25,7 @@
   flex: 0 0 190px;
   width: 200px;
   text-align: left;
-  background-color: vars.$color-black;
+  background-color: transparent;
   padding: vars.$margin-2;
   height: vars.$toolbar-height;
   position: relative;
@@ -48,7 +51,7 @@
   padding: vars.$margin-3;
   font-size: vars.$font-size-5;
   cursor: pointer;
-  color: vars.$color-white;
+  color: vars.$color-panel-muted;
   text-decoration: none;
   line-height: 20px;
 
@@ -57,7 +60,15 @@
   }
 
   &:hover {
-    background-color: vars.$color-midgray;
+    background-color: vars.$color-panel-hover;
+    color: vars.$color-panel-text;
+    border-radius: vars.$radius-sm;
+  }
+
+  &:focus-visible {
+    outline: 2px solid vars.$color-panel-accent;
+    outline-offset: -2px;
+    border-radius: vars.$radius-sm;
   }
 }
 
@@ -66,20 +77,20 @@
   padding: vars.$margin-2 vars.$margin-3;
 
   .maputnik-toolbar-link-wrapper {
-    background-color: vars.$color-white;
-    border-radius: 2px;
-    padding: vars.$margin-2;
+    background-color: vars.$color-panel-accent;
+    border-radius: vars.$radius-sm;
+    padding: vars.$margin-2 vars.$margin-3;
     margin-top: vars.$margin-1;
-    color: vars.$color-black;
+    color: vars.$color-white;
     display: block;
   }
 
   &:hover {
-    background-color: vars.$color-black;
+    background-color: transparent;
   }
 
   &:hover .maputnik-toolbar-link-wrapper {
-    background-color: color.adjust(vars.$color-midgray, $lightness: 12%);
+    background-color: color.adjust(vars.$color-panel-accent, $lightness: -6%);
     color: vars.$color-white;
   }
 }
@@ -109,7 +120,9 @@
     margin: 0 6px;
     display: inline;
     width: auto;
-    border: solid 1px vars.$color-midgray;
+    border: solid 1px vars.$color-panel-border;
+    background-color: vars.$color-panel-surface;
+    color: vars.$color-panel-text;
     vertical-align: inherit;
     margin-top: -2px;
   }
@@ -143,7 +156,7 @@
   height: 100%;
   text-align: center;
   display: block;
-  background-color: vars.$color-black;
+  background-color: vars.$color-panel-surface;
   z-index: 999;
   line-height: 40px;
   left: 0;
@@ -152,6 +165,6 @@
   &:active,
   &:focus {
     width: 100%;
-    border-color: vars.$color-lowgray;
+    border-color: vars.$color-panel-border;
   }
 }

@@ -2,11 +2,14 @@
 @use "vars";
 
 @use 'sass:color';
+
 // MAP
 .maputnik-map__container {
-  background: white;
+  background: vars.$color-panel-bg; // Match theme bg
   display: flex;
   width: vars.$layout-map-width;
+  flex: 1; // Ensure map fills remaining space
+  min-width: 0; // Fix for flexbox overflow issues
 
   &--error {
     align-items: center;
@@ -48,8 +51,9 @@
 
   &-popup {
     display: none;
-    color: vars.$color-lowgray;
-    background-color: vars.$color-gray;
+    color: vars.$color-panel-text;
+    background-color: vars.$color-panel-surface;
+    border: 1px solid vars.$color-panel-border;
     padding: vars.$margin-2;
     font-size: 10px;
     position: absolute;
@@ -63,9 +67,9 @@
   &-button {
     opacity: 0;
     pointer-events: none;
-    background: vars.$color-black;
-    color: white;
-    border: none;
+    background: vars.$color-panel-hover;
+    color: vars.$color-panel-text;
+    border: 1px solid vars.$color-panel-border;
     padding: 4px;
 
     svg {
@@ -80,8 +84,8 @@
 }
 
 .maputnik-doc-inline {
-  color: vars.$color-lowgray;
-  background-color: vars.$color-gray;
+  color: vars.$color-panel-text;
+  background-color: vars.$color-panel-hover;
   padding: vars.$margin-2;
   font-size: 12px;
   margin-top: vars.$margin-3;
@@ -98,24 +102,28 @@
 .maputnik-button {
   display: inline-block;
   cursor: pointer;
-  background-color: vars.$color-midgray;
-  color: vars.$color-lowgray;
+  background-color: vars.$color-panel-surface;
+  color: vars.$color-panel-text;
   font-size: vars.$font-size-6;
   padding: vars.$margin-2;
   user-select: none;
-  border-width: 0;
-  border-radius: 2px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: vars.$color-panel-border;
+  border-radius: 999px; // Pill shaped
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); // Soft shadow
   box-sizing: border-box;
   text-decoration: none;
 
   &:hover {
-    background-color: color.adjust(vars.$color-midgray, $lightness: 12%);
-    color: vars.$color-white;
+    background-color: vars.$color-panel-hover;
+    color: vars.$color-panel-text;
+    border-color: color.adjust(vars.$color-panel-border, $lightness: -6%);
   }
 
   &:disabled {
-    background-color: color.adjust(vars.$color-midgray, $lightness: -5%);
-    color: vars.$color-midgray;
+    background-color: vars.$color-panel-hover;
+    color: vars.$color-panel-muted-2;
     cursor: not-allowed;
   }
 }
@@ -132,20 +140,28 @@
 }
 
 .maputnik-green-button {
-  background-color: vars.$color-green;
-  color: vars.$color-black;
+  background-color: vars.$color-panel-accent;
+  color: vars.$color-panel-surface;
+  border-color: vars.$color-panel-accent;
 }
 
 .maputnik-white-button {
-  background-color: vars.$color-white;
-  color: vars.$color-black;
+  background-color: vars.$color-panel-surface;
+  color: vars.$color-green; // Green text
+  border-color: vars.$color-panel-border;
+
+  &:hover {
+    background-color: vars.$color-panel-hover;
+    color: vars.$color-green;
+  }
 }
 
 .maputnik-icon-button {
   background-color: transparent;
+  border-radius: 999px; // Pill shape for icons too
 
   &:hover:not(:disabled) {
-    background-color: transparent;
+    background-color: vars.$color-panel-hover;
 
     label,
     svg {
@@ -153,7 +169,7 @@
     }
 
     svg {
-      fill: vars.$color-white;
+      fill: vars.$color-panel-text;
     }
   }
 }
@@ -163,43 +179,55 @@
   margin: vars.$margin-3;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
 
   &-label {
-    color: vars.$color-lowgray;
+    color: vars.$color-panel-muted; // Lighter gray for better visibility
+    font-weight: 500;
     user-select: none;
-    width: 32%;
+    width: 70px; // Compact width
+    flex: 0 0 70px;
     vertical-align: top;
     font-size: 12px;
+    line-height: 1.4;
+    align-self: center;
   }
 
   &-action {
-    color: vars.$color-lowgray;
+    color: vars.$color-panel-muted;
     user-select: none;
-    width: 18%;
+    width: 64px;
+    flex: 0 0 64px;
     vertical-align: top;
     font-size: 12px;
     text-align: right;
+    line-height: 1.4;
+    align-self: center;
   }
 
   &-content {
-    width: 50%;
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 }
 
 .maputnik-action-block {
   .maputnik-input-block-label {
     display: inline-block;
-    width: 32%;
+    width: 80px;
+    flex: 0 0 80px;
     margin-bottom: vars.$margin-3;
   }
 
   .maputnik-input-block-action {
     vertical-align: top;
     display: inline-block;
-    width: 18%;
+    width: 64px;
+    flex: 0 0 64px;
   }
 
-  .maputnik-input-block-action > div {
+  .maputnik-input-block-action>div {
     text-align: right;
   }
 
@@ -208,70 +236,13 @@
 .maputnik-data-spec-block,
 .maputnik-zoom-spec-property {
   .maputnik-inline-error {
-    margin-left: 32%;
+    margin-left: 80px;
   }
-}
-
-// SPACE HELPER
-.maputnik-space {
-  @include mixins.vendor-prefix(flex-grow, 1);
-}
-
-// MESSAGE PANEL
-.maputnik-message-panel {
-  padding: vars.$margin-2;
-
-  &-error {
-    color: vars.$color-red;
-  }
-
-  &__switch-button {
-    all: unset;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-}
-
-.maputnik-dialog {
-  &__buttons {
-    text-align: right;
-  }
-}
-
-.map-state-menu {
-  display: inline-block;
-
-  &__menu {
-    position: absolute;
-    z-index: 999999;
-    background: vars.$color-black;
-    display: flex;
-    flex-direction: column;
-    align-content: stretch;
-
-    li {
-      display: flex;
-      flex-direction: column;
-
-      button {
-        width: 100%;
-        text-align: left;
-      }
-    }
-  }
-}
-
-.maputnik-inline-error {
-  color: #a4a4a4;
-  padding: 0.4em 0.4em;
-  font-size: 0.9em;
-  border: solid 1px vars.$color-red;
-  border-radius: 2px;
-  margin: vars.$margin-2 0px;
 }
 
 .maputnik-expression-editor {
-  border: solid 1px vars.$color-gray;
+  border: solid 1px vars.$color-panel-border; // Better border color
+  border-radius: vars.$radius-sm;
 }
 
 .maputnik-input-block--wide {
@@ -282,7 +253,8 @@
   }
 
   .maputnik-input-block-label {
-    width: 82%;
+    width: auto;
+    flex: 1 1 auto;
   }
 
   .maputnik-input-block-action {

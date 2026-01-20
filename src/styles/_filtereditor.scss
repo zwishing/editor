@@ -11,7 +11,7 @@
 
 .maputnik-filter-editor {
   @extend .clearfix !optional; /* stylelint-disable-line */
-  color: vars.$color-lowgray;
+  color: vars.$color-panel-text;
 }
 
 .maputnik-filter-editor-single {
@@ -46,7 +46,7 @@
 }
 
 .maputnik-filter-editor-unsupported {
-  color: vars.$color-midgray;
+  color: vars.$color-panel-muted;
 }
 
 .maputnik-add-filter {
@@ -65,7 +65,8 @@
   border: solid 1px transparent;
 
   &:focus-within {
-    border: solid 1px vars.$color-white;
+    border: solid 1px vars.$color-panel-accent;
+    border-radius: vars.$radius-sm;
   }
 
   input {
