@@ -6,6 +6,7 @@ import istanbul from "vite-plugin-istanbul";
 export default defineConfig(({ mode }) => ({
   server: {
     port: 8888,
+    host: "127.0.0.1",
   },
   build: {
     sourcemap: true

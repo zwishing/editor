@@ -80,6 +80,8 @@ class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, 
     options: {} as MapOptions,
   };
   container: HTMLDivElement | null = null;
+  zoomRaf: number | null = null;
+  pendingZoom: number | null = null;
 
   constructor(props: MapMaplibreGlInternalProps) {
     super(props);
@@ -96,33 +98,55 @@ class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, 
 
 
   shouldComponentUpdate(nextProps: MapMaplibreGlInternalProps, nextState: MapMaplibreGlState) {
-    let should = false;
-    try {
-      should = JSON.stringify(this.props) !== JSON.stringify(nextProps) || JSON.stringify(this.state) !== JSON.stringify(nextState);
-    } catch(_e) {
-      // no biggie, carry on
-    }
-    return should;
+    if (nextProps.mapStyle !== this.props.mapStyle) return true;
+    if (nextProps.inspectModeEnabled !== this.props.inspectModeEnabled) return true;
+    if (nextProps.highlightedLayer !== this.props.highlightedLayer) return true;
+    if (nextProps.onDataChange !== this.props.onDataChange) return true;
+    if (nextProps.onLayerSelect !== this.props.onLayerSelect) return true;
+    if (nextProps.onChange !== this.props.onChange) return true;
+    if (nextProps.replaceAccessTokens !== this.props.replaceAccessTokens) return true;
+    if (nextProps.t !== this.props.t) return true;
+    if (nextProps.options?.showTileBoundaries !== this.props.options?.showTileBoundaries) return true;
+    if (nextProps.options?.showCollisionBoxes !== this.props.options?.showCollisionBoxes) return true;
+    if (nextProps.options?.showOverdrawInspector !== this.props.options?.showOverdrawInspector) return true;
+
+    if (nextState.map !== this.state.map) return true;
+    if (nextState.inspect !== this.state.inspect) return true;
+    if (nextState.geocoder !== this.state.geocoder) return true;
+    if (nextState.zoomControl !== this.state.zoomControl) return true;
+    if (nextState.zoom !== this.state.zoom) return true;
+
+    return false;
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: MapMaplibreGlInternalProps) {
     const map = this.state.map;
+    const mapStyleChanged = prevProps.mapStyle !== this.props.mapStyle;
+    const optionsChanged =
+      prevProps.options?.showTileBoundaries !== this.props.options?.showTileBoundaries ||
+      prevProps.options?.showCollisionBoxes !== this.props.options?.showCollisionBoxes ||
+      prevProps.options?.showOverdrawInspector !== this.props.options?.showOverdrawInspector;
 
-    const styleWithTokens = this.props.replaceAccessTokens(this.props.mapStyle);
     if (map) {
-      // Maplibre GL now does diffing natively so we don't need to calculate
-      // the necessary operations ourselves!
-      // We also need to update the style for inspect to work properly
-      map.setStyle(styleWithTokens, {diff: true});
-      map.showTileBoundaries = this.props.options?.showTileBoundaries!;
-      map.showCollisionBoxes = this.props.options?.showCollisionBoxes!;
-      map.showOverdrawInspector = this.props.options?.showOverdrawInspector!;
+      if (mapStyleChanged) {
+        const styleWithTokens = this.props.replaceAccessTokens(this.props.mapStyle);
+        // Maplibre GL now does diffing natively so we don't need to calculate
+        // the necessary operations ourselves!
+        // We also need to update the style for inspect to work properly
+        map.setStyle(styleWithTokens, {diff: true});
+      }
+      if (optionsChanged) {
+        map.showTileBoundaries = this.props.options?.showTileBoundaries!;
+        map.showCollisionBoxes = this.props.options?.showCollisionBoxes!;
+        map.showOverdrawInspector = this.props.options?.showOverdrawInspector!;
+      }
     }
 
     if(this.state.inspect && this.props.inspectModeEnabled !== this.state.inspect._showInspectMap) {
       this.state.inspect.toggleInspector();
     }
-    if (this.state.inspect && this.props.inspectModeEnabled) {
+    if (this.state.inspect && this.props.inspectModeEnabled && (mapStyleChanged || this.props.highlightedLayer !== prevProps.highlightedLayer)) {
+      const styleWithTokens = this.props.replaceAccessTokens(this.props.mapStyle);
       this.state.inspect.setOriginalStyle(styleWithTokens);
       // In case the sources are the same, there's a need to refresh the style
       setTimeout(() => {
@@ -130,6 +154,10 @@ class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, 
       }, 500);
     }
 
+    if (this.props.t !== prevProps.t) {
+      this.state.geocoder?.setPlaceholder(this.props.t("Search"));
+      this.state.zoomControl?.setLabel(this.props.t("Zoom:"));
+    }
   }
 
   componentDidMount() {
@@ -227,13 +255,30 @@ class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, 
     });
 
     map.on("zoom", _e => {
-      this.setState({
-        zoom: map.getZoom()
-      });
+      this.pendingZoom = map.getZoom();
+      if (this.zoomRaf === null) {
+        this.zoomRaf = window.requestAnimationFrame(() => {
+          this.zoomRaf = null;
+          if (this.pendingZoom !== null) {
+            this.setState({
+              zoom: this.pendingZoom
+            });
+            this.pendingZoom = null;
+          }
+        });
+      }
     });
 
     map.on("dragend", mapViewChange);
     map.on("zoomend", mapViewChange);
+  }
+
+  componentWillUnmount() {
+    if (this.zoomRaf !== null) {
+      window.cancelAnimationFrame(this.zoomRaf);
+      this.zoomRaf = null;
+    }
+    this.pendingZoom = null;
   }
 
   onLayerSelectById = (id: string) => {
@@ -287,13 +332,10 @@ class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, 
   }
 
   render() {
-    const t = this.props.t;
-    this.state.geocoder?.setPlaceholder(t("Search"));
-    this.state.zoomControl?.setLabel(t("Zoom:"));
     return <div
       className="maputnik-map__map"
       role="region"
-      aria-label={t("Map view")}
+      aria-label={this.props.t("Map view")}
       ref={x => {this.container = x;}}
       data-wd-key="maplibre:map"
     ></div>;

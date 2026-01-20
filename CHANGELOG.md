@@ -14,6 +14,7 @@
 - Add support for sprite object in setting modal
 - Allow root-relative urls in the stylefile
 - Refresh header, panels, and inspector styling to a clean Geo-SaaS look
+- Reduce map update churn for smoother zooming
 - _...Add new stuff here..._
 
 ### 🐞 Bug fixes
@@ -28,6 +29,7 @@
 - Fixed headers in left panes (Layers list and Layer editor) to remain visible when scrolling
 - Fix error when using a source from localhost
 - Fix an issue with scrolling when using the code editor
+- Fix toolbar map state handler wiring
 - _...Add new stuff here..._
 
 ## 3.0.0

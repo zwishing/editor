@@ -103,7 +103,8 @@ type AppToolbarInternalProps = {
   sources: object
   children?: React.ReactNode
   onToggleModal(modal: ModalTypes): void
-  onSetMapState(mapState: MapState): unknown
+  setMapState?(mapState: MapState): unknown
+  onSetMapState?(mapState: MapState): unknown
   mapState?: MapState
   renderer?: string
 } & WithTranslation;
@@ -120,7 +121,11 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
   };
 
   handleSelection(val: MapState) {
-    this.props.onSetMapState(val);
+    if (this.props.setMapState) {
+      this.props.setMapState(val);
+      return;
+    }
+    this.props.onSetMapState?.(val);
   }
 
   handleLanguageChange(val: string) {

@@ -135,6 +135,8 @@ export default class App extends React.Component<any, AppState> {
   revisionStore: RevisionStore;
   styleStore: IStyleStore | null = null;
   layerWatcher: LayerWatcher;
+  fetchSourcesTimer: number | null = null;
+  fetchSourcesInFlight = false;
 
   constructor(props: any) {
     super(props);
@@ -323,6 +325,10 @@ export default class App extends React.Component<any, AppState> {
 
   componentWillUnmount() {
     window.removeEventListener("keydown", this.handleKeyPress);
+    if (this.fetchSourcesTimer !== null) {
+      window.clearTimeout(this.fetchSourcesTimer);
+      this.fetchSourcesTimer = null;
+    }
   }
 
   saveStyle(snapshotStyle: StyleSpecificationWithId) {
@@ -511,7 +517,7 @@ export default class App extends React.Component<any, AppState> {
       dirtyMapStyle: dirtyMapStyle,
       errors: mappedErrors,
     }, () => {
-      this.fetchSources();
+      this.scheduleFetchSources(0);
       this.setStateInUrl();
     });
 
@@ -639,60 +645,78 @@ export default class App extends React.Component<any, AppState> {
   };
 
   async fetchSources() {
-    const sourceList: { [key: string]: SourceSpecification & { layers: string[] } } = {};
-    for (const key of Object.keys(this.state.mapStyle.sources)) {
-      const source = this.state.mapStyle.sources[key];
-      if (source.type !== "vector" || !("url" in source)) {
-        sourceList[key] = this.state.sources[key] || { ...this.state.mapStyle.sources[key] };
-        if (sourceList[key].layers === undefined) {
-          sourceList[key].layers = [];
-        }
-      } else {
-        sourceList[key] = {
-          type: source.type,
-          layers: []
-        };
+    if (this.fetchSourcesInFlight) {
+      return;
+    }
+    this.fetchSourcesInFlight = true;
+    try {
+      const sourceList: { [key: string]: SourceSpecification & { layers: string[] } } = {};
+      for (const key of Object.keys(this.state.mapStyle.sources)) {
+        const source = this.state.mapStyle.sources[key];
+        if (source.type !== "vector" || !("url" in source)) {
+          sourceList[key] = this.state.sources[key] || { ...this.state.mapStyle.sources[key] };
+          if (sourceList[key].layers === undefined) {
+            sourceList[key].layers = [];
+          }
+        } else {
+          sourceList[key] = {
+            type: source.type,
+            layers: []
+          };
 
-        let url = source.url;
+          let url = source.url;
 
-        try {
-          url = setFetchAccessToken(url!, this.state.mapStyle);
-        } catch (err) {
-          console.warn("Failed to setFetchAccessToken: ", err);
-        }
-
-        const setVectorLayers = (json: any) => {
-          if (!Object.prototype.hasOwnProperty.call(json, "vector_layers")) {
-            return;
+          try {
+            url = setFetchAccessToken(url!, this.state.mapStyle);
+          } catch (err) {
+            console.warn("Failed to setFetchAccessToken: ", err);
           }
 
-          for (const layer of json.vector_layers) {
-            sourceList[key].layers.push(layer.id);
-          }
-        };
+          const setVectorLayers = (json: any) => {
+            if (!Object.prototype.hasOwnProperty.call(json, "vector_layers")) {
+              return;
+            }
 
-        try {
-          if (url!.startsWith("pmtiles://")) {
-            const json = await (new PMTiles(url!.substring(10))).getTileJson("");
-            setVectorLayers(json);
-          } else {
-            const response = await fetch(url!, { mode: "cors" });
-            const json = await response.json();
-            setVectorLayers(json);
+            for (const layer of json.vector_layers) {
+              sourceList[key].layers.push(layer.id);
+            }
+          };
+
+          try {
+            if (url!.startsWith("pmtiles://")) {
+              const json = await (new PMTiles(url!.substring(10))).getTileJson("");
+              setVectorLayers(json);
+            } else {
+              const response = await fetch(url!, { mode: "cors" });
+              const json = await response.json();
+              setVectorLayers(json);
+            }
+          } catch (err) {
+            console.error(`Failed to process source for url: '${url}', ${err}`);
           }
-        } catch (err) {
-          console.error(`Failed to process source for url: '${url}', ${err}`);
         }
       }
-    }
 
-    if (!isEqual(this.state.sources, sourceList)) {
-      console.debug("Setting sources", sourceList);
-      this.setState({
-        sources: sourceList
-      });
+      if (!isEqual(this.state.sources, sourceList)) {
+        console.debug("Setting sources", sourceList);
+        this.setState({
+          sources: sourceList
+        });
+      }
+    } finally {
+      this.fetchSourcesInFlight = false;
     }
   }
+
+  scheduleFetchSources = (delayMs = 250) => {
+    if (this.fetchSourcesTimer !== null) {
+      window.clearTimeout(this.fetchSourcesTimer);
+    }
+    this.fetchSourcesTimer = window.setTimeout(() => {
+      this.fetchSourcesTimer = null;
+      this.fetchSources();
+    }, delayMs);
+  };
 
   _getRenderer() {
     const metadata: { [key: string]: string } = this.state.mapStyle.metadata || {} as any;
@@ -723,7 +747,7 @@ export default class App extends React.Component<any, AppState> {
       },
       onDataChange: (e: { map: Map }) => {
         this.layerWatcher.analyzeMap(e.map);
-        this.fetchSources();
+        this.scheduleFetchSources();
       },
     };
 
