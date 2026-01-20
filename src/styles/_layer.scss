@@ -86,8 +86,6 @@
     transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, opacity 600ms, visibility 600ms;
 
     &:focus-within {
-      border-color: vars.$color-panel-accent;
-      box-shadow: inset 0 0 0 1px vars.$color-panel-accent;
       background-color: vars.$color-panel-active;
     }
 
@@ -153,7 +151,6 @@
   &-item-selected {
     color: vars.$color-panel-text;
     background-color: vars.$color-panel-active;
-    box-shadow: inset 3px 0 0 vars.$color-panel-accent;
   }
 
   &-item-collapsed {

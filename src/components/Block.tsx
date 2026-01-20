@@ -1,4 +1,4 @@
-import React, {type CSSProperties, type PropsWithChildren, type SyntheticEvent} from "react";
+import React, { type CSSProperties, type PropsWithChildren, type SyntheticEvent } from "react";
 import classnames from "classnames";
 import FieldDocLabel from "./FieldDocLabel";
 import Doc from "./Doc";
@@ -11,7 +11,8 @@ export type BlockProps = PropsWithChildren & {
   onChange?(...args: unknown[]): unknown
   fieldSpec?: object
   wideMode?: boolean
-  error?: {message: string}
+  inline?: boolean
+  error?: { message: string }
 };
 
 type BlockState = {
@@ -22,7 +23,7 @@ type BlockState = {
 export default class Block extends React.Component<BlockProps, BlockState> {
   _blockEl: HTMLDivElement | null = null;
 
-  constructor (props: BlockProps) {
+  constructor(props: BlockProps) {
     super(props);
     this.state = {
       showDoc: false,
@@ -66,6 +67,7 @@ export default class Block extends React.Component<BlockProps, BlockState> {
       className={classnames({
         "maputnik-input-block": true,
         "maputnik-input-block--wide": this.props.wideMode,
+        "maputnik-input-block--inline": this.props.inline,
         "maputnik-action-block": this.props.action,
         "maputnik-input-block--error": this.props.error
       })}
@@ -88,13 +90,13 @@ export default class Block extends React.Component<BlockProps, BlockState> {
       <div className="maputnik-input-block-action">
         {this.props.action}
       </div>
-      <div className="maputnik-input-block-content" ref={el => {this._blockEl = el;}}>
+      <div className="maputnik-input-block-content" ref={el => { this._blockEl = el; }}>
         {this.props.children}
       </div>
       {this.props.fieldSpec &&
         <div
           className="maputnik-doc-inline"
-          style={{display: this.state.showDoc ? "" : "none"}}
+          style={{ display: this.state.showDoc ? "" : "none" }}
         >
           <Doc fieldSpec={this.props.fieldSpec} />
         </div>

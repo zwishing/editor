@@ -66,16 +66,20 @@ h4 {
 
 input:focus,
 textarea:focus,
-*[role="button"]:focus,
-button:focus,
-.maputnik-toolbar-link:focus,
 select:focus {
-  color: vars.$color-white;
-  outline: #8e8e8e auto 1px;
+  outline: 2px solid vars.$color-panel-accent;
+  outline-offset: -1px;
+}
+
+button:focus-visible,
+*[role="button"]:focus-visible,
+.maputnik-toolbar-link:focus-visible {
+  outline: 2px solid vars.$color-panel-accent;
+  outline-offset: -1px;
 }
 
 label:hover {
-  color: vars.$color-white;
+  color: inherit;
 }
 
 .clearfix {
@@ -87,7 +91,7 @@ label:hover {
 }
 
 a {
-  color: white;
+  color: vars.$color-panel-accent;
 }
 
 .hide {

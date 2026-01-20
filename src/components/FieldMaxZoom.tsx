@@ -8,7 +8,7 @@ import { type WithTranslation, withTranslation } from "react-i18next";
 type FieldMaxZoomInternalProps = {
   value?: number
   onChange(value: number | undefined): unknown
-  error?: {message: string}
+  error?: { message: string }
 } & WithTranslation;
 
 const FieldMaxZoomInternal: React.FC<FieldMaxZoomInternalProps> = (props) => {
@@ -16,6 +16,7 @@ const FieldMaxZoomInternal: React.FC<FieldMaxZoomInternalProps> = (props) => {
   return (
     <Block label={t("Max Zoom")} fieldSpec={latest.layer.maxzoom}
       error={props.error}
+      inline={true}
       data-wd-key="max-zoom"
     >
       <InputNumber

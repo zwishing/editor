@@ -8,7 +8,7 @@ import { type WithTranslation, withTranslation } from "react-i18next";
 type FieldMinZoomInternalProps = {
   value?: number
   onChange(...args: unknown[]): unknown
-  error?: {message: string}
+  error?: { message: string }
 } & WithTranslation;
 
 const FieldMinZoomInternal: React.FC<FieldMinZoomInternalProps> = (props) => {
@@ -16,6 +16,7 @@ const FieldMinZoomInternal: React.FC<FieldMinZoomInternalProps> = (props) => {
   return (
     <Block label={t("Min Zoom")} fieldSpec={latest.layer.minzoom}
       error={props.error}
+      inline={true}
       data-wd-key="min-zoom"
     >
       <InputNumber

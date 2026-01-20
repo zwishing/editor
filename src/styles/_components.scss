@@ -262,6 +262,28 @@
   }
 }
 
+.maputnik-input-block--inline {
+  display: flex;
+  align-items: center;
+  gap: vars.$margin-2;
+
+  .maputnik-input-block-label {
+    width: auto;
+    min-width: 80px;
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  .maputnik-input-block-content {
+    flex: 1;
+    width: auto;
+  }
+
+  .maputnik-input-block-action {
+    width: auto;
+  }
+}
+
 .maputnik-input-block--error {
   .maputnik-input-block-label {
     color: vars.$color-red;

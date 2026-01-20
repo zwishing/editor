@@ -48,6 +48,7 @@
     color: vars.$color-panel-muted;
     cursor: pointer;
     transition: all 0.2s ease;
+    outline: none;
 
     .label {
       font-size: 9px;
@@ -62,7 +63,6 @@
     &.active {
       background-color: vars.$color-panel-hover;
       color: vars.$color-panel-accent;
-
       border-left: 3px solid vars.$color-panel-accent;
       border-radius: 0 vars.$radius-md vars.$radius-md 0;
     }
@@ -91,7 +91,6 @@
   &-list {
     width: vars.$layout-list-width;
     background-color: vars.$color-panel-surface;
-    border-right: 1px solid vars.$color-panel-border;
     box-shadow: vars.$shadow-panel;
     color: vars.$color-panel-text;
     transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
