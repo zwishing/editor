@@ -1,4 +1,5 @@
 import React from "react";
+import { MdFolder } from "react-icons/md";
 import Collapser from "./Collapser";
 
 type LayerListGroupProps = {
@@ -16,6 +17,9 @@ export default class LayerListGroup extends React.Component<LayerListGroupProps>
         data-wd-key={"layer-list-group:"+this.props["data-wd-key"]}
         onClick={_e => this.props.onActiveToggle(!this.props.isActive)}
       >
+        <span className="maputnik-layer-list-group-icon" aria-hidden="true">
+          <MdFolder />
+        </span>
         <button
           className="maputnik-layer-list-group-title"
           aria-controls={this.props["aria-controls"]}

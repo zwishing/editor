@@ -110,6 +110,9 @@ type AppToolbarInternalProps = {
 } & WithTranslation;
 
 class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
+  lastSelectionValue?: string;
+  lastLanguageValue?: string;
+
   state = {
     isOpen: {
       settings: false,
@@ -121,6 +124,10 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
   };
 
   handleSelection(val: MapState) {
+    if (this.lastSelectionValue === val) {
+      return;
+    }
+    this.lastSelectionValue = val;
     if (this.props.setMapState) {
       this.props.setMapState(val);
       return;
@@ -129,6 +136,10 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
   }
 
   handleLanguageChange(val: string) {
+    if (this.lastLanguageValue === val) {
+      return;
+    }
+    this.lastLanguageValue = val;
     this.props.i18n.changeLanguage(val);
   }
 
@@ -244,6 +255,7 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
                 className="maputnik-select"
                 data-wd-key="maputnik-select"
                 onChange={(e) => this.handleSelection(e.target.value as MapState)}
+                onInput={(e) => this.handleSelection((e.target as HTMLSelectElement).value as MapState)}
                 value={currentView?.id}
               >
                 {views.filter(v => v.group === "general").map((item) => {
@@ -273,6 +285,7 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
                 className="maputnik-select"
                 data-wd-key="maputnik-lang-select"
                 onChange={(e) => this.handleLanguageChange(e.target.value)}
+                onInput={(e) => this.handleLanguageChange((e.target as HTMLSelectElement).value)}
                 value={this.props.i18n.language}
               >
                 {Object.entries(supportedLanguages).map(([code, name]) => {

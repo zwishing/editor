@@ -211,6 +211,18 @@
     }
   }
 
+  &-group-icon {
+    display: inline-flex;
+    align-items: center;
+    color: vars.$color-panel-muted;
+    margin-right: vars.$margin-1;
+  }
+
+  [dir="rtl"] &-group-icon {
+    margin-right: 0;
+    margin-left: vars.$margin-1;
+  }
+
   &-group-title {
     vertical-align: middle;
   }

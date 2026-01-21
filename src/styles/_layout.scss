@@ -133,6 +133,48 @@
     // scroll-container is position: absolute
     position: relative;
     transition: width 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  &-code-editor .maputnik-scroll-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  &-code-editor .maputnik-code-editor,
+  &-code-editor .json-editor,
+  &-code-editor .codemirror-container,
+  &-code-editor .cm-editor {
+    height: auto;
+  }
+
+  &-code-editor .cm-scroller {
+    overflow: visible;
+  }
+
+  &-list--extra-wide {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-list--extra-wide .json-editor {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  &-list--extra-wide .maputnik-code-editor,
+  &-list--extra-wide .codemirror-container,
+  &-list--extra-wide .cm-editor {
+    height: 100%;
+  }
+
+  &-list--extra-wide .cm-scroller {
+    overflow: auto;
   }
 
   &-bottom {

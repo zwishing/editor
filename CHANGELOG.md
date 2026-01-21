@@ -30,6 +30,7 @@
 - Fix error when using a source from localhost
 - Fix an issue with scrolling when using the code editor
 - Fix toolbar map state handler wiring
+- Speed up select input responses and add folder icons for layer groups
 - _...Add new stuff here..._
 
 ## 3.0.0
