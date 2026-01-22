@@ -4,16 +4,20 @@
 Maputnik is a free, open visual editor for MapLibre GL styles, aimed at developers and map designers to build and refine style JSON in a browser-focused UI.
 
 ## Tech Stack
-- TypeScript, React, Vite (ESM)
+- TypeScript, React, Vite (ESM modules)
 - MapLibre GL JS and MapLibre style spec
 - Sass/SCSS styling, i18next for localization
 - Cypress for E2E tests, Vitest for unit tests
+- CodeMirror 6 for JSON editing
+- OpenLayers (ol) and ol-mapbox-style for map rendering integration
+- PMTiles support
 
 ## Project Conventions
 
 ### Code Style
 - TypeScript + React (TSX) with ESLint and Stylelint
 - Follow existing patterns in `src/` and keep UI text i18n-ready per `src/locales/README.md`
+- Prefer ESM module syntax (`"type": "module"` in `package.json`)
 
 ### Architecture Patterns
 - Single-page React app built with Vite
@@ -23,6 +27,7 @@ Maputnik is a free, open visual editor for MapLibre GL styles, aimed at develope
 - E2E tests with Cypress (requires a running dev server; xvfb for headless CI)
 - Unit tests with Vitest as needed
 - Linting via `npm run lint` and `npm run lint-css`
+- Optional coverage via `npm run test-unit-ci`
 
 ### Git Workflow
 - Update `CHANGELOG.md` for any PRs (keep unreleased notes under the "main" header)
@@ -39,3 +44,12 @@ Maputnik is a free, open visual editor for MapLibre GL styles, aimed at develope
 ## External Dependencies
 - MapLibre GL JS and MapLibre style-spec libraries
 - OpenLayers (`ol`, `ol-mapbox-style`), PMTiles, and `maputnik-design` assets
+
+## Tooling Commands
+- Dev server: `npm run start`
+- Production build: `npm run build`
+- Desktop build: `npm run build-desktop`
+- Lint: `npm run lint` and `npm run lint-css`
+- Tests: `npm run test` (Cypress), `npm run test-unit` (Vitest)
+- i18n extraction: `npm run i18n:refresh`
+- Sort bundled style list: `npm run sort-styles`

@@ -1,5 +1,7 @@
-import React, { type BaseSyntheticEvent } from "react";
+import React from "react";
 import generateUniqueId from "../libs/document-uid";
+import { Input } from "./ui/input";
+import { Slider } from "./ui/slider";
 
 export type InputNumberProps = {
   value?: number
@@ -113,8 +115,12 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
     }
   };
 
-  onChangeRange = (e: BaseSyntheticEvent<Event, HTMLInputElement, HTMLInputElement>) => {
-    let value = parseFloat(e.target.value);
+  onChangeRange = (values: number[]) => {
+    if (!values.length) {
+      return;
+    }
+
+    let value = values[0];
     const step = this.props.rangeStep;
     let dirtyValue = value;
 
@@ -155,6 +161,19 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
     if (this.props.onChange) this.props.onChange(value);
   };
 
+  getRangeValue(value: number | string | undefined, fallback: number) {
+    if (value === undefined || value === "") {
+      return fallback;
+    }
+
+    const parsed = +value;
+    if (isNaN(parsed)) {
+      return fallback;
+    }
+
+    return Math.max(this.props.min!, Math.min(this.props.max!, parsed));
+  }
+
   render() {
     if(
       Object.prototype.hasOwnProperty.call(this.props, "min") &&
@@ -163,7 +182,6 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
       this.props.allowRange
     ) {
       const value = this.state.editing ? this.state.dirtyValue : this.state.value;
-      const defaultValue = this.props.default === undefined ? "" : this.props.default;
       let inputValue;
       if (this.state.editingRange) {
         inputValue = this.state.value;
@@ -172,62 +190,67 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
         inputValue = value;
       }
 
-      return <div className="maputnik-number-container">
-        <input
-          className="maputnik-number-range"
-          key="range"
-          type="range"
-          max={this.props.max}
-          min={this.props.min}
-          step="any"
-          spellCheck="false"
-          value={value === undefined ? defaultValue : value}
-          onChange={this.onChangeRange}
-          onKeyDown={() => {
-            this._keyboardEvent = true;
-          }}
-          onPointerDown={() => {
-            this.setState({editing: true, editingRange: true});
-          }}
-          onPointerUp={() => {
-            // Safari doesn't get onBlur event
-            this.setState({editing: false, editingRange: false});
-          }}
-          onBlur={() => {
-            this.setState({
-              editing: false,
-              editingRange: false,
-              dirtyValue: this.state.value,
-            });
-          }}
-          data-wd-key={this.props["data-wd-key"] + "-range"}
-        />
-        <input
-          key="text"
-          type="text"
-          spellCheck="false"
-          className="maputnik-number"
-          placeholder={this.props.default?.toString()}
-          value={inputValue === undefined ? "" : inputValue}
-          onFocus={_e => {
-            this.setState({editing: true});
-          }}
-          onChange={e => {
-            this.changeValue(e.target.value);
-          }}
-          onBlur={_e => {
-            this.setState({editing: false});
-            this.resetValue();
-          }}
-          data-wd-key={this.props["data-wd-key"] + "-text"}
+        const fallbackValue = this.props.default ?? this.props.min!;
+        const sliderValue = this.getRangeValue(
+          this.state.editingRange ? this.state.value : value,
+          fallbackValue
+        );
 
-        />
-      </div>;
+        return <div className="maputnik-number-container">
+          <Slider
+            className="maputnik-number-range"
+            key="range"
+            min={this.props.min}
+            max={this.props.max}
+            step={this.props.rangeStep}
+            value={[sliderValue]}
+            onValueChange={this.onChangeRange}
+            onKeyDown={() => {
+              this._keyboardEvent = true;
+            }}
+            onPointerDown={() => {
+              this.setState({editing: true, editingRange: true});
+            }}
+            onPointerUp={() => {
+              // Safari doesn't get onBlur event
+              this.setState({editing: false, editingRange: false});
+            }}
+            onBlur={() => {
+              this.setState({
+                editing: false,
+                editingRange: false,
+                dirtyValue: this.state.value,
+              });
+            }}
+            data-wd-key={this.props["data-wd-key"] + "-range"}
+            aria-label={this.props["aria-label"]}
+          />
+          <Input
+            key="text"
+            type="text"
+            spellCheck="false"
+            className="maputnik-number"
+            placeholder={this.props.default?.toString()}
+            value={inputValue === undefined ? "" : inputValue}
+            onFocus={_e => {
+              this.setState({editing: true});
+            }}
+            onChange={e => {
+              this.changeValue(e.target.value);
+            }}
+            onBlur={_e => {
+              this.setState({editing: false});
+              this.resetValue();
+            }}
+            data-wd-key={this.props["data-wd-key"] + "-text"}
+            aria-label={this.props["aria-label"]}
+          />
+        </div>;
     }
     else {
       const value = this.state.editing ? this.state.dirtyValue : this.state.value;
 
-      return <input
+      return <Input
         aria-label={this.props["aria-label"]}
         spellCheck="false"
         className="maputnik-number"

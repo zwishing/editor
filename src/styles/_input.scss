@@ -96,6 +96,33 @@
     border-radius: 2px;
     background: vars.$color-panel-accent;
   }
+
+  > span:first-of-type {
+    height: 100%;
+    background: transparent;
+    border-radius: 2px;
+
+    > span {
+      background: vars.$color-panel-accent;
+      border-radius: 2px;
+    }
+  }
+
+  span[role="slider"] {
+    display: block;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: vars.$color-panel-surface;
+    border: 2px solid vars.$color-panel-accent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    outline: none;
+
+    &:focus-visible {
+      border-color: vars.$color-panel-accent;
+      box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+    }
+  }
 }
 
 .maputnik-number {
