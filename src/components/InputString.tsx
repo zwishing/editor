@@ -1,4 +1,6 @@
 import React from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export type InputStringProps = {
   "data-wd-key"?: string
@@ -43,18 +45,15 @@ export default class InputString extends React.Component<InputStringProps, Input
   }
 
   render() {
-    let tag;
     let classes;
 
     if(this.props.multi) {
-      tag = "textarea";
       classes = [
         "maputnik-string",
         "maputnik-string--multi"
       ];
     }
     else {
-      tag = "input";
       classes = [
         "maputnik-string"
       ];
@@ -64,17 +63,17 @@ export default class InputString extends React.Component<InputStringProps, Input
       classes.push("maputnik-string--disabled");
     }
 
-    return React.createElement(tag, {
+    const sharedProps = {
       "aria-label": this.props["aria-label"],
       "data-wd-key": this.props["data-wd-key"],
-      spellCheck: Object.prototype.hasOwnProperty.call(this.props, "spellCheck") ? this.props.spellCheck : !(tag === "input"),
+      spellCheck: Object.prototype.hasOwnProperty.call(this.props, "spellCheck") ? this.props.spellCheck : !this.props.multi,
       disabled: this.props.disabled,
       className: classes.join(" "),
       style: this.props.style,
       value: this.state.value === undefined ? "" : this.state.value,
       placeholder: this.props.default,
       title: this.props.title,
-      onChange: (e: React.BaseSyntheticEvent<Event, HTMLInputElement, HTMLInputElement>) => {
+      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         this.setState({
           editing: true,
           value: e.target.value
@@ -88,12 +87,18 @@ export default class InputString extends React.Component<InputStringProps, Input
           if (this.props.onChange) this.props.onChange(this.state.value);
         }
       },
-      onKeyDown: (e) => {
+      onKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         if (e.keyCode === 13 && this.props.onChange) {
           this.props.onChange(this.state.value);
         }
       },
       required: this.props.required,
-    });
+    };
+
+    if(this.props.multi) {
+      return <Textarea {...sharedProps} />;
+    }
+
+    return <Input {...sharedProps} />;
   }
 }

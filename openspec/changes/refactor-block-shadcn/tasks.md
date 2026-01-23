@@ -1,0 +1,5 @@
+- [x] Analyze existing Block styles in `_components.scss` <!-- id: 0 -->
+- [x] Implement `Card` component from shadcn (if missing) <!-- id: 1 -->
+- [x] Refactor `Block.tsx` to use `Card` / `Label` <!-- id: 2 -->
+- [x] Verify functionality (label click, documentation toggle) <!-- id: 3 -->
+- [x] Verify visual consistency <!-- id: 4 -->

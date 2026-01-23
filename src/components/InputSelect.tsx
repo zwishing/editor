@@ -1,4 +1,5 @@
 import React from "react";
+import { NativeSelect } from "@/components/ui/native-select";
 
 export type InputSelectProps = {
   value: string
@@ -33,17 +34,19 @@ export default class InputSelect extends React.Component<InputSelectProps> {
       options = options.map((v) => [v, v]) as [string, any][];
     }
 
-    return <select
-      className="maputnik-select"
-      data-wd-key={this.props["data-wd-key"]}
-      style={this.props.style}
-      title={this.props.title}
-      value={this.props.value}
-      onChange={e => this.handleValueChange(e.target.value)}
-      onInput={e => this.handleValueChange((e.target as HTMLSelectElement).value)}
-      aria-label={this.props["aria-label"]}
-    >
-      { options.map(([val, label]) => <option key={val} value={val}>{label}</option>) }
-    </select>;
+    return (
+      <NativeSelect
+        className="maputnik-select"
+        data-wd-key={this.props["data-wd-key"]}
+        style={this.props.style}
+        title={this.props.title}
+        value={this.props.value}
+        onChange={e => this.handleValueChange(e.target.value)}
+        onInput={e => this.handleValueChange((e.target as HTMLSelectElement).value)}
+        aria-label={this.props["aria-label"]}
+      >
+        { options.map(([val, label]) => <option key={val} value={val}>{label}</option>) }
+      </NativeSelect>
+    );
   }
 }

@@ -1,6 +1,7 @@
 ## main
 
 ### ✨ Features and improvements
+- Add shadcn wrappers for base input components (button, checkbox, select, text)
 - Added translation to "Links" in debug modal
 - Add support for hillshade's color arrays and relief-color elevation expression
 - Change layers icons to make them a bit more distinct

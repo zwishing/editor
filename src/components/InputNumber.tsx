@@ -58,7 +58,7 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
       undefined : +newValue;
 
     const hasChanged = this.props.value !== value;
-    if(this.isValid(value) && hasChanged) {
+    if (this.isValid(value) && hasChanged) {
       if (this.props.onChange) this.props.onChange(value);
       this.setState({
         value: value,
@@ -81,15 +81,15 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
     }
 
     const value = +v;
-    if(isNaN(value)) {
+    if (isNaN(value)) {
       return false;
     }
 
-    if(!isNaN(this.props.min!) && value < this.props.min!) {
+    if (!isNaN(this.props.min!) && value < this.props.min!) {
       return false;
     }
 
-    if(!isNaN(this.props.max!) && value > this.props.max!) {
+    if (!isNaN(this.props.max!) && value > this.props.max!) {
       return false;
     }
 
@@ -97,20 +97,20 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
   }
 
   resetValue = () => {
-    this.setState({editing: false});
+    this.setState({ editing: false });
     // Reset explicitly to default value if value has been cleared
-    if(!this.state.value) {
+    if (!this.state.value) {
       return;
     }
 
     // If set value is invalid fall back to the last valid value from props or at last resort the default value
     if (!this.isValid(this.state.value)) {
-      if(this.isValid(this.props.value)) {
+      if (this.isValid(this.props.value)) {
         this.changeValue(this.props.value);
-        this.setState({dirtyValue: this.props.value});
+        this.setState({ dirtyValue: this.props.value });
       } else {
         this.changeValue(undefined);
-        this.setState({dirtyValue: undefined});
+        this.setState({ dirtyValue: undefined });
       }
     }
   };
@@ -124,7 +124,7 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
     const step = this.props.rangeStep;
     let dirtyValue = value;
 
-    if(step) {
+    if (step) {
       // Can't do this with the <input/> range step attribute else we won't be able to set a high precision value via the text input.
       const snap = value % step;
 
@@ -143,7 +143,7 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
         dirtyValue = value;
       }
       else {
-        if (snap < step/2) {
+        if (snap < step / 2) {
           value = value - snap;
         }
         else {
@@ -157,7 +157,7 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
     // Clamp between min/max
     value = Math.max(this.props.min!, Math.min(this.props.max!, value));
 
-    this.setState({value, dirtyValue});
+    this.setState({ value, dirtyValue });
     if (this.props.onChange) this.props.onChange(value);
   };
 
@@ -175,7 +175,7 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
   }
 
   render() {
-    if(
+    if (
       Object.prototype.hasOwnProperty.call(this.props, "min") &&
       Object.prototype.hasOwnProperty.call(this.props, "max") &&
       this.props.min !== undefined && this.props.max !== undefined &&
@@ -190,62 +190,62 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
         inputValue = value;
       }
 
-        const fallbackValue = this.props.default ?? this.props.min!;
-        const sliderValue = this.getRangeValue(
-          this.state.editingRange ? this.state.value : value,
-          fallbackValue
-        );
+      const fallbackValue = this.props.default ?? this.props.min!;
+      const sliderValue = this.getRangeValue(
+        this.state.editingRange ? this.state.value : value,
+        fallbackValue
+      );
 
-        return <div className="maputnik-number-container">
-          <Slider
-            className="maputnik-number-range"
-            key="range"
-            min={this.props.min}
-            max={this.props.max}
-            step={this.props.rangeStep}
-            value={[sliderValue]}
-            onValueChange={this.onChangeRange}
-            onKeyDown={() => {
-              this._keyboardEvent = true;
-            }}
-            onPointerDown={() => {
-              this.setState({editing: true, editingRange: true});
-            }}
-            onPointerUp={() => {
-              // Safari doesn't get onBlur event
-              this.setState({editing: false, editingRange: false});
-            }}
-            onBlur={() => {
-              this.setState({
-                editing: false,
-                editingRange: false,
-                dirtyValue: this.state.value,
-              });
-            }}
-            data-wd-key={this.props["data-wd-key"] + "-range"}
-            aria-label={this.props["aria-label"]}
-          />
-          <Input
-            key="text"
-            type="text"
-            spellCheck="false"
-            className="maputnik-number"
-            placeholder={this.props.default?.toString()}
-            value={inputValue === undefined ? "" : inputValue}
-            onFocus={_e => {
-              this.setState({editing: true});
-            }}
-            onChange={e => {
-              this.changeValue(e.target.value);
-            }}
-            onBlur={_e => {
-              this.setState({editing: false});
-              this.resetValue();
-            }}
-            data-wd-key={this.props["data-wd-key"] + "-text"}
-            aria-label={this.props["aria-label"]}
-          />
-        </div>;
+      return <div className="maputnik-number-container">
+        <Slider
+          className="maputnik-number-range"
+          key="range"
+          min={this.props.min}
+          max={this.props.max}
+          step={this.props.rangeStep}
+          value={[sliderValue]}
+          onValueChange={this.onChangeRange}
+          onKeyDown={() => {
+            this._keyboardEvent = true;
+          }}
+          onPointerDown={() => {
+            this.setState({ editing: true, editingRange: true });
+          }}
+          onPointerUp={() => {
+            // Safari doesn't get onBlur event
+            this.setState({ editing: false, editingRange: false });
+          }}
+          onBlur={() => {
+            this.setState({
+              editing: false,
+              editingRange: false,
+              dirtyValue: this.state.value,
+            });
+          }}
+          data-wd-key={this.props["data-wd-key"] + "-range"}
+          aria-label={this.props["aria-label"]}
+        />
+        <Input
+          key="text"
+          type="text"
+          spellCheck="false"
+          className="maputnik-number"
+          placeholder={this.props.default?.toString()}
+          value={inputValue === undefined ? "" : inputValue}
+          onFocus={_e => {
+            this.setState({ editing: true });
+          }}
+          onChange={e => {
+            this.changeValue(e.target.value);
+          }}
+          onBlur={_e => {
+            this.setState({ editing: false });
+            this.resetValue();
+          }}
+          data-wd-key={this.props["data-wd-key"] + "-text"}
+          aria-label={this.props["aria-label"]}
+        />
+      </div>;
     }
     else {
       const value = this.state.editing ? this.state.dirtyValue : this.state.value;
@@ -258,7 +258,7 @@ export default class InputNumber extends React.Component<InputNumberProps, Input
         value={value === undefined ? "" : value}
         onChange={e => this.changeValue(e.target.value)}
         onFocus={() => {
-          this.setState({editing: true});
+          this.setState({ editing: true });
         }}
         onBlur={this.resetValue}
         required={this.props.required}
