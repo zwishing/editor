@@ -330,7 +330,7 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
         data-wd-key="layer-editor"
       >
         {/* Header: opaque, single border, consistent margins */}
-        <header className="h-10 px-3 flex items-center shrink-0 z-[10] bg-panel-surface" data-wd-key="layer-editor.header">
+        <header className="h-12 px-3 flex items-center shrink-0 z-[10] bg-panel-surface" data-wd-key="layer-editor.header">
           <h2 className="grow m-0 leading-none text-sm font-semibold text-panel-text truncate pr-2">
             {t("Layer: {{layerId}}", { layerId: formatLayerId(layer.id) })}
           </h2>

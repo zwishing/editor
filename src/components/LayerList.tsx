@@ -206,7 +206,7 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
         className="flex flex-col sticky top-0 z-[2001] bg-card"
         data-wd-key="layer-list.header"
       >
-        <div className="h-10 px-3 flex flex-row items-center justify-between flex-none">
+        <div className="h-12 px-3 flex flex-row items-center justify-between flex-none">
           <span className="text-sm font-semibold text-panel-text leading-none">{t("Layers")}</span>
           <div className="grow" />
           <div className="flex items-center gap-2">

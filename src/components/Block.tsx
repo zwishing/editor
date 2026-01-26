@@ -85,9 +85,8 @@ const Block: React.FC<BlockProps> = (props) => {
         )}
       </div>
 
-      <div className={classnames("maputnik-input-block-action", {
-        "w-[64px] text-right": !props.inline && !props.wideMode,
-        "w-auto text-right": props.wideMode
+      <div className={classnames("maputnik-input-block-action shrink-0", {
+        "w-auto text-right": !props.inline
       })}>
         {props.action}
       </div>

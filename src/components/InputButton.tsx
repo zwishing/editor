@@ -15,7 +15,7 @@ export type InputButtonProps = {
   title?: string
 };
 
-const InputButton: React.FC<InputButtonProps> = ({
+const InputButton = React.forwardRef<HTMLButtonElement, InputButtonProps>(({
   id,
   title,
   type,
@@ -26,9 +26,10 @@ const InputButton: React.FC<InputButtonProps> = ({
   "data-wd-key": dataWdKey,
   style,
   children
-}) => {
+}, ref) => {
   return (
     <Button
+      ref={ref}
       id={id}
       title={title}
       type={type}
@@ -36,16 +37,18 @@ const InputButton: React.FC<InputButtonProps> = ({
       disabled={disabled}
       aria-label={ariaLabel}
       className={cn(
-        "h-auto px-[6px] py-[6px] text-[11px] font-normal rounded-full",
+        "h-6 w-6 p-0 text-muted-foreground hover:text-foreground",
         className
       )}
       data-wd-key={dataWdKey}
       style={style}
-      variant="outline"
+      variant="ghost"
     >
       {children}
     </Button>
   );
-};
+});
+
+InputButton.displayName = "InputButton";
 
 export default InputButton;
