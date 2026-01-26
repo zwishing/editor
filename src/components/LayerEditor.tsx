@@ -1,33 +1,27 @@
-import React, { type JSX } from "react";
+import React, { type JSX, useMemo, useCallback } from "react";
 import { Wrapper, Button, Menu, MenuItem } from "react-aria-menubutton";
 import { Accordion } from "react-accessible-accordion";
 import { MdMoreVert, MdClose } from "react-icons/md";
 import { IconContext } from "react-icons";
 import {
-  type BackgroundLayerSpecification,
   type LayerSpecification,
   type SourceSpecification,
 } from "maplibre-gl";
 import { v8 } from "@maplibre/maplibre-gl-style-spec";
 import { cn } from "@/lib/utils";
 
-import FieldJson from "./FieldJson";
-import FilterEditor from "./FilterEditor";
-import PropertyGroup from "./PropertyGroup";
 import LayerEditorGroup from "./LayerEditorGroup";
-import FieldType from "./FieldType";
-import FieldId from "./FieldId";
-import FieldMinZoom from "./FieldMinZoom";
-import FieldMaxZoom from "./FieldMaxZoom";
-import FieldComment from "./FieldComment";
-import FieldSource from "./FieldSource";
-import FieldSourceLayer from "./FieldSourceLayer";
-import { changeType, changeProperty } from "../libs/layer";
+import { changeProperty } from "../libs/layer";
 import { formatLayerId } from "../libs/format";
 import { type WithTranslation, withTranslation } from "react-i18next";
 import { type TFunction } from "i18next";
-import { NON_SOURCE_LAYERS } from "../libs/non-source-layers";
 import { type MappedError, type MappedLayerErrors, type OnMoveLayerCallback } from "../libs/definitions";
+
+// Import new sub-components
+import LayerEditorLayer from "./LayerEditor/LayerEditorLayer";
+import LayerEditorFilter from "./LayerEditor/LayerEditorFilter";
+import LayerEditorProperties from "./LayerEditor/LayerEditorProperties";
+import LayerEditorJson from "./LayerEditor/LayerEditorJson";
 
 type MaputnikLayoutGroup = {
   id: string;
@@ -156,9 +150,11 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
   onClose,
   t,
 }) => {
+  const groups = useMemo(() => layoutGroups(layer.type, t), [layer.type, t]);
+
   const [editorGroups, setEditorGroups] = React.useState<Record<string, boolean>>(() => {
     const initialGroups: Record<string, boolean> = {};
-    for (const group of layoutGroups(layer.type, t)) {
+    for (const group of groups) {
       initialGroups[group.title] = true;
     }
     return initialGroups;
@@ -176,126 +172,74 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
     });
   }, [layer.type, t]);
 
-  const handleChangeProperty = (group: keyof LayerSpecification | null, property: string, newValue: any) => {
+  const handleChangeProperty = useCallback((group: keyof LayerSpecification | null, property: string, newValue: any) => {
     onLayerChanged(layerIndex, changeProperty(layer, group, property, newValue));
-  };
+  }, [layer, layerIndex, onLayerChanged]);
 
-  const onGroupToggle = (groupTitle: string, active: boolean) => {
+  const onGroupToggle = React.useCallback((groupTitle: string, active: boolean) => {
     setEditorGroups((prev) => ({
       ...prev,
       [groupTitle]: active,
     }));
-  };
+  }, []);
 
-  const renderGroupType = (type: string, fields?: string[]): JSX.Element => {
-    let comment = "";
-    if (layer.metadata) {
-      comment = (layer.metadata as any)["maputnik:comment"] || "";
-    }
-
-    const errorData: MappedLayerErrors = {};
+  const errorData: MappedLayerErrors = useMemo(() => {
+    const data: MappedLayerErrors = {};
     errors.forEach((error) => {
       if (error.parsed && error.parsed.type === "layer" && error.parsed.data.index === layerIndex) {
-        errorData[error.parsed.data.key] = {
+        data[error.parsed.data.key] = {
           message: error.parsed.data.message,
         };
       }
     });
+    return data;
+  }, [errors, layerIndex]);
 
-    let sourceLayerIds: string[] | undefined;
-    const layerSpec = layer as Exclude<LayerSpecification, BackgroundLayerSpecification>;
-    if (Object.prototype.hasOwnProperty.call(sources, layerSpec.source)) {
-      sourceLayerIds = sources[layerSpec.source].layers;
-    }
-
+  const renderGroupType = useCallback((type: string, fields?: string[]): JSX.Element => {
     switch (type) {
       case "layer":
         return (
-          <div className="p-3 bg-panel-surface">
-            <FieldId
-              value={layer.id}
-              wdKey="layer-editor.layer-id"
-              error={errorData.id}
-              onChange={(newId) => onLayerIdChange(layerIndex, layer.id, newId)}
-            />
-            <FieldType
-              disabled={true}
-              error={errorData.type}
-              value={layer.type}
-              onChange={(newType) => onLayerChanged(layerIndex, changeType(layer, newType))}
-            />
-            {layer.type !== "background" && (
-              <FieldSource
-                error={errorData.source}
-                sourceIds={Object.keys(sources)}
-                value={layer.source}
-                onChange={(v) => handleChangeProperty(null, "source", v)}
-              />
-            )}
-            {!NON_SOURCE_LAYERS.includes(layer.type) && (
-              <FieldSourceLayer
-                error={errorData["source-layer"]}
-                sourceLayerIds={sourceLayerIds}
-                value={(layer as any)["source-layer"]}
-                onChange={(v) => handleChangeProperty(null, "source-layer", v)}
-              />
-            )}
-            <FieldMinZoom
-              error={errorData.minzoom}
-              value={layer.minzoom}
-              onChange={(v) => handleChangeProperty(null, "minzoom", v)}
-            />
-            <FieldMaxZoom
-              error={errorData.maxzoom}
-              value={layer.maxzoom}
-              onChange={(v) => handleChangeProperty(null, "maxzoom", v)}
-            />
-            <FieldComment
-              error={errorData.comment}
-              value={comment}
-              onChange={(v) => handleChangeProperty("metadata", "maputnik:comment", v === "" ? undefined : v)}
-            />
-          </div>
+          <LayerEditorLayer
+            layer={layer}
+            layerIndex={layerIndex}
+            sources={sources}
+            errors={errorData}
+            onLayerIdChange={onLayerIdChange as any} // Types might need adjustment or casting if onLayerIdChange signature varies
+            onLayerChanged={onLayerChanged}
+            onChangeProperty={handleChangeProperty}
+          />
         );
       case "filter":
         return (
-          <div className="p-3 bg-panel-surface">
-            <FilterEditor
-              errors={errorData}
-              filter={(layer as any).filter}
-              properties={vectorLayers[(layer as any)["source-layer"]]}
-              onChange={(f) => handleChangeProperty(null, "filter", f)}
-            />
-          </div>
+          <LayerEditorFilter
+            layer={layer}
+            vectorLayers={vectorLayers}
+            errors={errorData}
+            onChangeProperty={handleChangeProperty}
+          />
         );
       case "properties":
         return (
-          <div className="p-3 bg-panel-surface">
-            <PropertyGroup
-              errors={errorData}
-              layer={layer}
-              groupFields={fields!}
-              spec={spec}
-              onChange={handleChangeProperty}
-            />
-          </div>
+          <LayerEditorProperties
+            layer={layer}
+            groupFields={fields!}
+            spec={spec}
+            errors={errorData}
+            onChangeProperty={handleChangeProperty}
+          />
         );
       case "jsoneditor":
         return (
-          <div className="p-3 bg-panel-surface h-[400px]">
-            <FieldJson
-              lintType="layer"
-              value={layer}
-              onChange={(newLayer: LayerSpecification) => {
-                onLayerChanged(layerIndex, newLayer);
-              }}
-            />
-          </div>
+          <LayerEditorJson
+            layer={layer}
+            layerIndex={layerIndex}
+            onLayerChanged={onLayerChanged}
+          />
         );
       default:
         return <></>;
     }
-  };
+  }, [layer, layerIndex, sources, errorData, onLayerIdChange, onLayerChanged, handleChangeProperty, vectorLayers, spec]);
 
   const moveLayer = (offset: number) => {
     onMoveLayer({
@@ -306,21 +250,24 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
 
   const layout = layer.layout || {};
 
-  const items: Record<string, { text: string; handler: () => void; disabled?: boolean; wdKey?: string }> = {
+  const items: Record<string, { text: string; handler: () => void; disabled?: boolean; wdKey?: string }> = useMemo(() => ({
     delete: {
       text: t("Delete"),
       handler: () => onLayerDestroy(layerIndex),
       wdKey: "menu-delete-layer",
+      disabled: false,
     },
     duplicate: {
       text: t("Duplicate"),
       handler: () => onLayerCopy(layerIndex),
       wdKey: "menu-duplicate-layer",
+      disabled: false,
     },
     hide: {
       text: layout.visibility === "none" ? t("Show") : t("Hide"),
       handler: () => onLayerVisibilityToggle(layerIndex),
       wdKey: "menu-hide-layer",
+      disabled: false,
     },
     moveLayerUp: {
       text: t("Move layer up"),
@@ -334,19 +281,23 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
       handler: () => moveLayer(+1),
       wdKey: "menu-move-layer-down",
     },
-  };
+  }), [t, onLayerDestroy, layerIndex, onLayerCopy, layout.visibility, onLayerVisibilityToggle, isFirstLayer, moveLayer, isLastLayer]);
 
   const handleSelection = (id: string, event: React.SyntheticEvent) => {
     event.stopPropagation();
-    items[id].handler();
+    items[id as keyof typeof items].handler();
   };
 
-  const groupIds = layoutGroups(layer.type, t)
+  const groupIds = useMemo(() => groups
     .filter((group) => !(layer.type === "background" && group.type === "source"))
-    .map((g) => g.id);
+    .map((g) => g.id), [groups, layer.type]);
+
+  const iconContextValue = useMemo(() => ({ size: "14px", color: "#8e8e8e" }), []);
+
+  const visibleGroups = useMemo(() => groups.filter((group) => !(layer.type === "background" && group.type === "source")), [groups, layer.type]);
 
   return (
-    <IconContext.Provider value={{ size: "14px", color: "#8e8e8e" }}>
+    <IconContext.Provider value={iconContextValue}>
       <section
         className="h-full flex flex-col bg-panel-surface"
         role="main"
@@ -371,7 +322,7 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
                 <Menu>
                   <ul className="absolute right-0 z-[9999] bg-panel-surface border border-panel-border shadow-md min-w-[120px] py-1 m-0 list-none rounded-md">
                     {Object.keys(items).map((id) => {
-                      const item = items[id];
+                      const item = items[id as keyof typeof items];
                       return (
                         <li key={id}>
                           <MenuItem
@@ -402,20 +353,18 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
         </header>
         <div className="grow overflow-y-auto">
           <Accordion allowMultipleExpanded={true} allowZeroExpanded={true} preExpanded={groupIds}>
-            {layoutGroups(layer.type, t)
-              .filter((group) => !(layer.type === "background" && group.type === "source"))
-              .map((group) => (
-                <LayerEditorGroup
-                  data-wd-key={group.title}
-                  id={group.id}
-                  key={group.id}
-                  title={group.title}
-                  isActive={editorGroups[group.title]}
-                  onActiveToggle={(active) => onGroupToggle(group.title, active)}
-                >
-                  {renderGroupType(group.type, group.fields)}
-                </LayerEditorGroup>
-              ))}
+            {visibleGroups.map((group) => (
+              <LayerEditorGroup
+                data-wd-key={group.title}
+                id={group.id}
+                key={group.id}
+                title={group.title}
+                isActive={editorGroups[group.title]}
+                onActiveToggle={(active) => onGroupToggle(group.title, active)}
+              >
+                {renderGroupType(group.type, group.fields)}
+              </LayerEditorGroup>
+            ))}
           </Accordion>
         </div>
       </section>

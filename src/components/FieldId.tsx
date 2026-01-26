@@ -7,7 +7,7 @@ type FieldIdProps = {
   value: string
   wdKey: string
   onChange(value: string | undefined): unknown
-  error?: {message: string}
+  error?: { message: string }
 };
 
 const FieldId: React.FC<FieldIdProps> = (props) => {

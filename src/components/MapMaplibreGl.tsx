@@ -1,346 +1,80 @@
-import React from "react";
-import {createRoot} from "react-dom/client";
-import MapLibreGl, {type LayerSpecification, type LngLat, type Map, type MapOptions, type SourceSpecification, type StyleSpecification} from "maplibre-gl";
-import MaplibreInspect from "@maplibre/maplibre-gl-inspect";
-import colors from "@maplibre/maplibre-gl-inspect/lib/colors";
-import MapMaplibreGlLayerPopup from "./MapMaplibreGlLayerPopup";
-import MapMaplibreGlFeaturePropertyPopup, { type InspectFeature } from "./MapMaplibreGlFeaturePropertyPopup";
-import Color from "color";
-import ZoomControl from "../libs/zoomcontrol";
-import { type HighlightedLayer, colorHighlightedLayer } from "../libs/highlight";
+import React, { useRef } from "react";
+import { type Map, type MapOptions, type StyleSpecification, type LngLat } from "maplibre-gl";
+import { type HighlightedLayer } from "../libs/highlight";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "../maplibregl.css";
 import "../libs/maplibre-rtl";
-import MaplibreGeocoder, { type MaplibreGeocoderApi, type MaplibreGeocoderApiConfig } from "@maplibre/maplibre-gl-geocoder";
 import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css";
 import { withTranslation, type WithTranslation } from "react-i18next";
-import i18next from "i18next";
-import { Protocol } from "pmtiles";
-
-function buildInspectStyle(originalMapStyle: StyleSpecification, coloredLayers: HighlightedLayer[], highlightedLayer?: HighlightedLayer) {
-  const backgroundLayer = {
-    "id": "background",
-    "type": "background",
-    "paint": {
-      "background-color": "#1c1f24",
-    }
-  } as LayerSpecification;
-
-  const layer = colorHighlightedLayer(highlightedLayer);
-  if(layer) {
-    coloredLayers.push(layer);
-  }
-
-  const sources: {[key:string]: SourceSpecification} = {};
-
-  Object.keys(originalMapStyle.sources).forEach(sourceId => {
-    const source = originalMapStyle.sources[sourceId];
-    if(source.type !== "raster" && source.type !== "raster-dem") {
-      sources[sourceId] = source;
-    }
-  });
-
-  const inspectStyle = {
-    ...originalMapStyle,
-    sources: sources,
-    layers: [backgroundLayer].concat(coloredLayers as LayerSpecification[])
-  };
-  return inspectStyle;
-}
+import { useMapInstance } from "../hooks/useMapInstance";
+import { useMapControl } from "../hooks/useMapControl";
+import { useMapInspect } from "../hooks/useMapInspect";
 
 type MapMaplibreGlInternalProps = {
-  onDataChange?(event: {map: Map | null}): unknown
-  onLayerSelect(index: number): void
-  mapStyle: StyleSpecification
-  inspectModeEnabled: boolean
-  highlightedLayer?: HighlightedLayer
+  onDataChange?(event: { map: Map | null }): unknown;
+  onLayerSelect(index: number): void;
+  mapStyle: StyleSpecification;
+  inspectModeEnabled: boolean;
+  highlightedLayer?: HighlightedLayer;
   options?: Partial<MapOptions> & {
-    showTileBoundaries?: boolean
-    showCollisionBoxes?: boolean
-    showOverdrawInspector?: boolean
-  }
-  replaceAccessTokens(mapStyle: StyleSpecification): StyleSpecification
-  onChange(value: {center: LngLat, zoom: number}): unknown
+    showTileBoundaries?: boolean;
+    showCollisionBoxes?: boolean;
+    showOverdrawInspector?: boolean;
+  };
+  replaceAccessTokens(mapStyle: StyleSpecification): StyleSpecification;
+  onChange(value: { center: LngLat; zoom: number }): unknown;
 } & WithTranslation;
 
-type MapMaplibreGlState = {
-  map: Map | null;
-  inspect: MaplibreInspect | null;
-  geocoder: MaplibreGeocoder | null;
-  zoomControl: ZoomControl | null;
-  zoom?: number;
-};
+const MapMaplibreGlInternal: React.FC<MapMaplibreGlInternalProps> = ({
+  onDataChange,
+  onLayerSelect,
+  mapStyle,
+  inspectModeEnabled,
+  highlightedLayer,
+  options = {},
+  replaceAccessTokens,
+  onChange,
+  t,
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
-class MapMaplibreGlInternal extends React.Component<MapMaplibreGlInternalProps, MapMaplibreGlState> {
-  static defaultProps = {
-    onMapLoaded: () => {},
-    onDataChange: () => {},
-    onLayerSelect: () => {},
-    onChange: () => {},
-    options: {} as MapOptions,
-  };
-  container: HTMLDivElement | null = null;
-  zoomRaf: number | null = null;
-  pendingZoom: number | null = null;
+  const processedStyle = React.useMemo(() => {
+    return replaceAccessTokens(mapStyle);
+  }, [mapStyle, replaceAccessTokens]);
 
-  constructor(props: MapMaplibreGlInternalProps) {
-    super(props);
-    this.state = {
-      map: null,
-      inspect: null,
-      geocoder: null,
-      zoomControl: null,
-    };
-    i18next.on("languageChanged", () => {
-      this.forceUpdate();
-    });
-  }
+  const map = useMapInstance({
+    container: containerRef.current,
+    mapStyle: processedStyle,
+    options,
+    onChange,
+    onDataChange,
+    // We can also pass other callbacks if needed
+  });
 
+  useMapControl({
+    map,
+    t,
+  });
 
-  shouldComponentUpdate(nextProps: MapMaplibreGlInternalProps, nextState: MapMaplibreGlState) {
-    if (nextProps.mapStyle !== this.props.mapStyle) return true;
-    if (nextProps.inspectModeEnabled !== this.props.inspectModeEnabled) return true;
-    if (nextProps.highlightedLayer !== this.props.highlightedLayer) return true;
-    if (nextProps.onDataChange !== this.props.onDataChange) return true;
-    if (nextProps.onLayerSelect !== this.props.onLayerSelect) return true;
-    if (nextProps.onChange !== this.props.onChange) return true;
-    if (nextProps.replaceAccessTokens !== this.props.replaceAccessTokens) return true;
-    if (nextProps.t !== this.props.t) return true;
-    if (nextProps.options?.showTileBoundaries !== this.props.options?.showTileBoundaries) return true;
-    if (nextProps.options?.showCollisionBoxes !== this.props.options?.showCollisionBoxes) return true;
-    if (nextProps.options?.showOverdrawInspector !== this.props.options?.showOverdrawInspector) return true;
+  useMapInspect({
+    map,
+    mapStyle,
+    inspectModeEnabled,
+    highlightedLayer,
+    replaceAccessTokens,
+    onLayerSelect,
+  });
 
-    if (nextState.map !== this.state.map) return true;
-    if (nextState.inspect !== this.state.inspect) return true;
-    if (nextState.geocoder !== this.state.geocoder) return true;
-    if (nextState.zoomControl !== this.state.zoomControl) return true;
-    if (nextState.zoom !== this.state.zoom) return true;
-
-    return false;
-  }
-
-  componentDidUpdate(prevProps: MapMaplibreGlInternalProps) {
-    const map = this.state.map;
-    const mapStyleChanged = prevProps.mapStyle !== this.props.mapStyle;
-    const optionsChanged =
-      prevProps.options?.showTileBoundaries !== this.props.options?.showTileBoundaries ||
-      prevProps.options?.showCollisionBoxes !== this.props.options?.showCollisionBoxes ||
-      prevProps.options?.showOverdrawInspector !== this.props.options?.showOverdrawInspector;
-
-    if (map) {
-      if (mapStyleChanged) {
-        const styleWithTokens = this.props.replaceAccessTokens(this.props.mapStyle);
-        // Maplibre GL now does diffing natively so we don't need to calculate
-        // the necessary operations ourselves!
-        // We also need to update the style for inspect to work properly
-        map.setStyle(styleWithTokens, {diff: true});
-      }
-      if (optionsChanged) {
-        map.showTileBoundaries = this.props.options?.showTileBoundaries!;
-        map.showCollisionBoxes = this.props.options?.showCollisionBoxes!;
-        map.showOverdrawInspector = this.props.options?.showOverdrawInspector!;
-      }
-    }
-
-    if(this.state.inspect && this.props.inspectModeEnabled !== this.state.inspect._showInspectMap) {
-      this.state.inspect.toggleInspector();
-    }
-    if (this.state.inspect && this.props.inspectModeEnabled && (mapStyleChanged || this.props.highlightedLayer !== prevProps.highlightedLayer)) {
-      const styleWithTokens = this.props.replaceAccessTokens(this.props.mapStyle);
-      this.state.inspect.setOriginalStyle(styleWithTokens);
-      // In case the sources are the same, there's a need to refresh the style
-      setTimeout(() => {
-        this.state.inspect!.render();
-      }, 500);
-    }
-
-    if (this.props.t !== prevProps.t) {
-      this.state.geocoder?.setPlaceholder(this.props.t("Search"));
-      this.state.zoomControl?.setLabel(this.props.t("Zoom:"));
-    }
-  }
-
-  componentDidMount() {
-    const mapOpts = {
-      ...this.props.options,
-      container: this.container!,
-      style: this.props.mapStyle,
-      hash: true,
-      maxZoom: 24,
-      // setting to always load glyphs of CJK fonts from server
-      // https://maplibre.org/maplibre-gl-js/docs/examples/local-ideographs/
-      localIdeographFontFamily: false
-    } satisfies MapOptions;
-
-    const protocol = new Protocol({metadata: true});
-    MapLibreGl.addProtocol("pmtiles",protocol.tile);
-    const map = new MapLibreGl.Map(mapOpts);
-
-    const mapViewChange = () => {
-      const center = map.getCenter();
-      const zoom = map.getZoom();
-      this.props.onChange({center, zoom});
-    };
-    mapViewChange();
-
-    map.showTileBoundaries = mapOpts.showTileBoundaries!;
-    map.showCollisionBoxes = mapOpts.showCollisionBoxes!;
-    map.showOverdrawInspector = mapOpts.showOverdrawInspector!;
-
-    const geocoder = this.initGeocoder(map);
-
-    const zoomControl = new ZoomControl();
-    map.addControl(zoomControl, "top-right");
-
-    const nav = new MapLibreGl.NavigationControl({visualizePitch:true});
-    map.addControl(nav, "top-right");
-
-    const tmpNode = document.createElement("div");
-    const root = createRoot(tmpNode);
-
-    const inspectPopup = new MapLibreGl.Popup({
-      closeOnClick: false
-    });
-
-    const inspect = new MaplibreInspect({
-      popup: inspectPopup,
-      showMapPopup: true,
-      showMapPopupOnHover: false,
-      showInspectMapPopupOnHover: true,
-      showInspectButton: false,
-      blockHoverPopupOnClick: true,
-      assignLayerColor: (layerId: string, alpha: number) => {
-        return Color(colors.brightColor(layerId, alpha)).desaturate(0.5).string();
-      },
-      buildInspectStyle: (originalMapStyle: StyleSpecification, coloredLayers: HighlightedLayer[]) => buildInspectStyle(originalMapStyle, coloredLayers, this.props.highlightedLayer),
-      renderPopup: (features: InspectFeature[]) => {
-        if(this.props.inspectModeEnabled) {
-          inspectPopup.once("open", () => {
-            root.render(<MapMaplibreGlFeaturePropertyPopup features={features} />);
-          });
-          return tmpNode;
-        } else {
-          inspectPopup.once("open", () => {
-            root.render(<MapMaplibreGlLayerPopup
-              features={features}
-              onLayerSelect={this.onLayerSelectById}
-              zoom={this.state.zoom}
-            />,);
-          });
-          return tmpNode;
-        }
-      }
-    });
-    map.addControl(inspect);
-
-    map.on("style.load", () => {
-      this.setState({
-        map,
-        inspect,
-        geocoder,
-        zoomControl,
-        zoom: map.getZoom()
-      });
-    });
-
-    map.on("data", e => {
-      if(e.dataType !== "tile") return;
-      this.props.onDataChange!({
-        map: this.state.map
-      });
-    });
-
-    map.on("error", e => {
-      console.log("ERROR", e);
-    });
-
-    map.on("zoom", _e => {
-      this.pendingZoom = map.getZoom();
-      if (this.zoomRaf === null) {
-        this.zoomRaf = window.requestAnimationFrame(() => {
-          this.zoomRaf = null;
-          if (this.pendingZoom !== null) {
-            this.setState({
-              zoom: this.pendingZoom
-            });
-            this.pendingZoom = null;
-          }
-        });
-      }
-    });
-
-    map.on("dragend", mapViewChange);
-    map.on("zoomend", mapViewChange);
-  }
-
-  componentWillUnmount() {
-    if (this.zoomRaf !== null) {
-      window.cancelAnimationFrame(this.zoomRaf);
-      this.zoomRaf = null;
-    }
-    this.pendingZoom = null;
-  }
-
-  onLayerSelectById = (id: string) => {
-    const index = this.props.mapStyle.layers.findIndex(layer => layer.id === id);
-    this.props.onLayerSelect(index);
-  };
-
-  initGeocoder(map: Map) {
-    const geocoderConfig = {
-      forwardGeocode: async (config: MaplibreGeocoderApiConfig) => {
-        const features = [];
-        try {
-          const request = `https://nominatim.openstreetmap.org/search?q=${config.query}&format=geojson&polygon_geojson=1&addressdetails=1`;
-          const response = await fetch(request);
-          const geojson = await response.json();
-          for (const feature of geojson.features) {
-            const center = [
-              feature.bbox[0] +
-                  (feature.bbox[2] - feature.bbox[0]) / 2,
-              feature.bbox[1] +
-                  (feature.bbox[3] - feature.bbox[1]) / 2
-            ];
-            const point = {
-              type: "Feature",
-              geometry: {
-                type: "Point",
-                coordinates: center
-              },
-              place_name: feature.properties.display_name,
-              properties: feature.properties,
-              text: feature.properties.display_name,
-              place_type: ["place"],
-              center
-            };
-            features.push(point);
-          }
-        } catch (e) {
-          console.error(`Failed to forwardGeocode with error: ${e}`);
-        }
-        return {
-          features
-        };
-      },
-    } as unknown as MaplibreGeocoderApi;
-    const geocoder = new MaplibreGeocoder(geocoderConfig, {
-      placeholder: this.props.t("Search"),
-      maplibregl: MapLibreGl,
-    });
-    map.addControl(geocoder, "top-left");
-    return geocoder;
-  }
-
-  render() {
-    return <div
+  return (
+    <div
       className="maputnik-map__map"
       role="region"
-      aria-label={this.props.t("Map view")}
-      ref={x => {this.container = x;}}
+      aria-label={t("Map view")}
+      ref={containerRef}
       data-wd-key="maplibre:map"
-    ></div>;
-  }
-}
+    />
+  );
+};
 
 const MapMaplibreGl = withTranslation()(MapMaplibreGlInternal);
 export default MapMaplibreGl;
