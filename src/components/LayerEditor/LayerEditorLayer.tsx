@@ -43,7 +43,7 @@ const LayerEditorLayer: React.FC<LayerEditorLayerProps> = React.memo(({
   }
 
   return (
-    <div className="p-3 bg-panel-surface">
+    <div className="p-4 bg-panel-surface space-y-4">
       <FieldId
         value={layer.id}
         wdKey="layer-editor.layer-id"

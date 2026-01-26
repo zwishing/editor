@@ -132,6 +132,10 @@ type LayerEditorInternalProps = {
   onClose?: () => void;
 } & WithTranslation;
 
+// Import shadcn Tabs
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+
 const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
   layer,
   sources,
@@ -204,7 +208,7 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
             layerIndex={layerIndex}
             sources={sources}
             errors={errorData}
-            onLayerIdChange={onLayerIdChange as any} // Types might need adjustment or casting if onLayerIdChange signature varies
+            onLayerIdChange={onLayerIdChange as any} 
             onLayerChanged={onLayerChanged}
             onChangeProperty={handleChangeProperty}
           />
@@ -288,23 +292,45 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
     items[id as keyof typeof items].handler();
   };
 
-  const groupIds = useMemo(() => groups
-    .filter((group) => !(layer.type === "background" && group.type === "source"))
-    .map((g) => g.id), [groups, layer.type]);
-
   const iconContextValue = useMemo(() => ({ size: "14px", color: "#8e8e8e" }), []);
 
-  const visibleGroups = useMemo(() => groups.filter((group) => !(layer.type === "background" && group.type === "source")), [groups, layer.type]);
+  // Filter groups for tabs
+  const styleGroups = useMemo(() => groups.filter(g => 
+    g.type !== "filter" && 
+    g.type !== "jsoneditor" && 
+    !(layer.type === "background" && g.type === "source")
+  ), [groups, layer.type]);
+
+  const dataGroups = useMemo(() => groups.filter(g => g.type === "filter"), [groups]);
+  const jsonGroups = useMemo(() => groups.filter(g => g.type === "jsoneditor"), [groups]);
+  
+  const renderAccordionGroups = (targetGroups: typeof groups) => (
+    <Accordion allowMultipleExpanded={true} allowZeroExpanded={true} preExpanded={targetGroups.map(g => g.id)}>
+      {targetGroups.map((group) => (
+        <LayerEditorGroup
+          data-wd-key={group.title}
+          id={group.id}
+          key={group.id}
+          title={group.title}
+          isActive={editorGroups[group.title]}
+          onActiveToggle={(active) => onGroupToggle(group.title, active)}
+        >
+          {renderGroupType(group.type, group.fields)}
+        </LayerEditorGroup>
+      ))}
+    </Accordion>
+  );
 
   return (
     <IconContext.Provider value={iconContextValue}>
       <section
-        className="h-full flex flex-col bg-panel-surface"
+        className="h-full flex flex-col bg-panel-surface w-layout-editor"
         role="main"
         aria-label={t("Layer editor")}
         data-wd-key="layer-editor"
       >
-        <header className="h-10 px-3 flex items-center shrink-0 z-[10] bg-panel-surface border-b border-panel-border" data-wd-key="layer-editor.header">
+        {/* Header: opaque, single border, consistent margins */}
+        <header className="h-10 px-3 flex items-center shrink-0 z-[10] bg-panel-surface" data-wd-key="layer-editor.header">
           <h2 className="grow m-0 leading-none text-sm font-semibold text-panel-text truncate pr-2">
             {t("Layer: {{layerId}}", { layerId: formatLayerId(layer.id) })}
           </h2>
@@ -319,7 +345,8 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
                 <MdMoreVert className="w-4 h-4 fill-panel-muted" />
               </Button>
               <Menu>
-                <ul className="absolute right-0 top-full mt-1 z-[9999] bg-panel-surface border border-panel-border shadow-md min-w-[120px] py-1 m-0 list-none rounded-md">
+                {/* Opaque menu background */}
+                <ul className="absolute right-0 top-full mt-1 z-[9999] bg-popover text-popover-foreground border border-panel-border shadow-md min-w-[120px] py-1 m-0 list-none rounded-md">
                   {Object.keys(items).map((id) => {
                     const item = items[id as keyof typeof items];
                     return (
@@ -349,22 +376,31 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
             </button>
           </div>
         </header>
-        <div className="grow overflow-y-auto">
-          <Accordion allowMultipleExpanded={true} allowZeroExpanded={true} preExpanded={groupIds}>
-            {visibleGroups.map((group) => (
-              <LayerEditorGroup
-                data-wd-key={group.title}
-                id={group.id}
-                key={group.id}
-                title={group.title}
-                isActive={editorGroups[group.title]}
-                onActiveToggle={(active) => onGroupToggle(group.title, active)}
-              >
-                {renderGroupType(group.type, group.fields)}
-              </LayerEditorGroup>
-            ))}
-          </Accordion>
-        </div>
+        <Separator className="w-full bg-border" />
+
+        {/* Tabs Component: Content grows, List fixed at bottom */}
+        <Tabs defaultValue="style" className="flex flex-col grow overflow-hidden">
+          <div className="grow overflow-y-auto">
+            <TabsContent value="style" className="mt-0 h-full">
+              {renderAccordionGroups(styleGroups)}
+            </TabsContent>
+            <TabsContent value="data" className="mt-0 h-full">
+               {renderAccordionGroups(dataGroups)}
+            </TabsContent>
+            <TabsContent value="json" className="mt-0 h-full">
+               {renderAccordionGroups(jsonGroups)}
+            </TabsContent>
+          </div>
+          
+          <Separator className="w-full bg-border" />
+          <div className="shrink-0 p-3 pb-5 bg-panel-surface">
+             <TabsList className="w-full grid w-full grid-cols-3 bg-muted h-10">
+              <TabsTrigger value="style" className="text-sm data-[state=active]:font-bold data-[state=active]:text-primary">{t("Style")}</TabsTrigger>
+              <TabsTrigger value="data" className="text-sm data-[state=active]:font-bold data-[state=active]:text-primary">{t("Data")}</TabsTrigger>
+              <TabsTrigger value="json" className="text-sm data-[state=active]:font-bold data-[state=active]:text-primary">{t("JSON")}</TabsTrigger>
+            </TabsList>
+          </div>
+        </Tabs>
       </section>
     </IconContext.Provider>
   );

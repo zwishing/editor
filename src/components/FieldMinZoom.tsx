@@ -17,7 +17,7 @@ const FieldMinZoom: React.FC<FieldMinZoomProps> = ({ value, onChange, error }) =
       label={t("Min Zoom")}
       fieldSpec={layer.minzoom}
       error={error}
-      inline={true}
+      inline={false}
       data-wd-key="min-zoom"
     >
       <InputNumber

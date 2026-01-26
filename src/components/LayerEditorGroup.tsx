@@ -1,12 +1,13 @@
 import React from "react";
-import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
+import { Separator } from "@/components/ui/separator";
+import Collapser from "./Collapser";
+import { MdLabelImportant } from "react-icons/md";
 import {
   AccordionItem,
   AccordionItemHeading,
   AccordionItemButton,
   AccordionItemPanel,
 } from "react-accessible-accordion";
-import { cn } from "@/lib/utils";
 
 type LayerEditorGroupProps = {
   id?: string;
@@ -28,30 +29,19 @@ const LayerEditorGroup: React.FC<LayerEditorGroupProps> = ({
   return (
     <AccordionItem uuid={id}>
       <AccordionItemHeading
-        className="font-bold text-xs bg-panel-surface text-panel-text cursor-pointer select-none leading-relaxed border-t border-panel-border flex flex-row hover:bg-panel-hover focus-within:shadow-[inset_0_0_0_1px_var(--color-panel-accent)]"
+        className="relative font-bold text-sm bg-panel-surface text-panel-text cursor-pointer select-none leading-relaxed flex flex-col hover:bg-panel-hover focus-within:shadow-[inset_0_0_0_1px_var(--color-panel-accent)]"
         data-wd-key={"layer-editor-group:" + wdKey}
         onClick={() => onActiveToggle(!isActive)}
       >
-        <AccordionItemButton className="flex-1 flex p-1.5 group">
-          <span className="grow self-center">{title}</span>
-          <MdArrowDropUp
-            size={"2em"}
-            className={cn(
-              "fill-panel-text block group-aria-expanded:hidden",
-              !isActive && "block",
-              isActive && "hidden"
-            )}
-          />
-          <MdArrowDropDown
-            size={"2em"}
-            className={cn(
-              "fill-panel-text hidden group-aria-expanded:block",
-              isActive && "block",
-              !isActive && "hidden"
-            )}
-          />
+        <AccordionItemButton className="flex-1 flex py-2 px-3 group items-center bg-panel-surface hover:bg-panel-hover transition-colors">
+          <div className="grow flex items-center">
+            <MdLabelImportant className="w-3.5 h-3.5 text-panel-accent mr-2" />
+            <span className="font-semibold text-sm">{title}</span>
+          </div>
+          <Collapser isCollapsed={isActive} />
         </AccordionItemButton>
       </AccordionItemHeading>
+      <Separator className="w-full bg-border" />
       <AccordionItemPanel className="p-0">{children}</AccordionItemPanel>
     </AccordionItem>
   );

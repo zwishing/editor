@@ -17,7 +17,7 @@ const FieldMaxZoom: React.FC<FieldMaxZoomProps> = ({ value, onChange, error }) =
       label={t("Max Zoom")}
       fieldSpec={layer.maxzoom}
       error={error}
-      inline={true}
+      inline={false}
       data-wd-key="max-zoom"
     >
       <InputNumber
@@ -34,4 +34,3 @@ const FieldMaxZoom: React.FC<FieldMaxZoomProps> = ({ value, onChange, error }) =
 };
 
 export default FieldMaxZoom;
-

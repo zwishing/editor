@@ -1,5 +1,6 @@
 import React, { type JSX } from "react";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 import {
   DndContext,
   PointerSensor,
@@ -202,28 +203,31 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
         onLayersChange={onLayersChange}
       />
       <header
-        className="h-10 px-3 flex flex-row items-center justify-between flex-none bg-card z-[2001] sticky top-0 border-b border-panel-border"
+        className="flex flex-col sticky top-0 z-[2001] bg-card"
         data-wd-key="layer-list.header"
       >
-        <span className="text-sm font-semibold text-panel-text leading-none">{t("Layers")}</span>
-        <div className="grow" />
-        <div className="flex items-center gap-2">
-          <button
-            id="skip-target-layer-list"
-            data-wd-key="skip-target-layer-list"
-            onClick={toggleLayers}
-            className="flex items-center justify-center h-6 px-3 bg-panel-surface text-panel-text border border-panel-border rounded hover:bg-panel-hover text-xs transition-colors"
-          >
-            {areAllGroupsExpanded ? t("Collapse") : t("Expand")}
-          </button>
-          <button
-            onClick={() => toggleModal("add")}
-            data-wd-key="layer-list:add-layer"
-            className="flex items-center justify-center h-6 px-3 bg-panel-active text-panel-text border border-panel-accent rounded text-xs transition-colors"
-          >
-            {t("Add Layer")}
-          </button>
+        <div className="h-10 px-3 flex flex-row items-center justify-between flex-none">
+          <span className="text-sm font-semibold text-panel-text leading-none">{t("Layers")}</span>
+          <div className="grow" />
+          <div className="flex items-center gap-2">
+            <button
+              id="skip-target-layer-list"
+              data-wd-key="skip-target-layer-list"
+              onClick={toggleLayers}
+              className="flex items-center justify-center h-6 px-3 bg-panel-surface text-panel-text border border-panel-border rounded hover:bg-panel-hover text-xs transition-colors"
+            >
+              {areAllGroupsExpanded ? t("Collapse") : t("Expand")}
+            </button>
+            <button
+              onClick={() => toggleModal("add")}
+              data-wd-key="layer-list:add-layer"
+              className="flex items-center justify-center h-6 px-3 bg-panel-active text-panel-text border border-panel-accent rounded text-xs transition-colors"
+            >
+              {t("Add Layer")}
+            </button>
+          </div>
         </div>
+        <Separator className="w-full bg-border" />
       </header>
       <div role="navigation" aria-label={t("Layers list")}>
         <ul className="p-0 m-0 pb-6 pt-2 flex-1 overflow-x-hidden overflow-y-visible space-y-px">{listItems}</ul>
