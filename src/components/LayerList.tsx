@@ -149,7 +149,7 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
       );
     }
 
-    layersGrp.forEach((layer, idxInGroup) => {
+    layersGrp.forEach((layer, _idxInGroup) => {
       const currentIdx = globalIdx;
       const layerError = errors.find(
         (error) => error.parsed && error.parsed.type === "layer" && error.parsed.data.index === currentIdx
@@ -165,7 +165,6 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
         listItems.push(
           <LayerListItem
             className={cn(
-              idxInGroup === layersGrp.length - 1 && layersGrp.length > 1 && "border-b-2 border-panel-border",
               !!layerError && "text-red-600"
             )}
             key={layer.key}
@@ -203,33 +202,31 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
         onLayersChange={onLayersChange}
       />
       <header
-        className="p-3 pb-1.5 sticky top-0 z-[2001] bg-card border-b border-panel-border flex flex-row items-center flex-none"
+        className="h-10 px-3 flex flex-row items-center justify-between flex-none bg-card z-[2001] sticky top-0 border-b border-panel-border"
         data-wd-key="layer-list.header"
       >
-        <span className="text-xs text-panel-text font-semibold leading-relaxed">{t("Layers")}</span>
+        <span className="text-sm font-semibold text-panel-text leading-none">{t("Layers")}</span>
         <div className="grow" />
-        <div className="mr-2">
+        <div className="flex items-center gap-2">
           <button
             id="skip-target-layer-list"
             data-wd-key="skip-target-layer-list"
             onClick={toggleLayers}
-            className="px-3 py-1 bg-panel-surface text-panel-text border border-panel-border rounded-md hover:bg-panel-hover text-xs transition-colors"
+            className="flex items-center justify-center h-6 px-3 bg-panel-surface text-panel-text border border-panel-border rounded hover:bg-panel-hover text-xs transition-colors"
           >
             {areAllGroupsExpanded ? t("Collapse") : t("Expand")}
           </button>
-        </div>
-        <div>
           <button
             onClick={() => toggleModal("add")}
             data-wd-key="layer-list:add-layer"
-            className="px-3 py-1 bg-panel-active text-panel-text border border-panel-accent rounded-md text-xs transition-colors"
+            className="flex items-center justify-center h-6 px-3 bg-panel-active text-panel-text border border-panel-accent rounded text-xs transition-colors"
           >
             {t("Add Layer")}
           </button>
         </div>
       </header>
       <div role="navigation" aria-label={t("Layers list")}>
-        <ul className="p-0 m-0 pb-6 flex-1 overflow-x-hidden overflow-y-visible">{listItems}</ul>
+        <ul className="p-0 m-0 pb-6 pt-2 flex-1 overflow-x-hidden overflow-y-visible space-y-px">{listItems}</ul>
       </div>
     </section>
   );

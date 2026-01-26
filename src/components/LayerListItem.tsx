@@ -19,14 +19,14 @@ type DraggableLabelProps = {
 const DraggableLabel: React.FC<DraggableLabelProps> = (props) => {
   const { dragAttributes, dragListeners } = props;
   return <div
-    className="flex items-center cursor-grab active:cursor-grabbing p-1 text-xs"
+    className="flex items-center cursor-grab active:cursor-grabbing p-1 text-sm pl-2"
     {...dragAttributes}
     {...dragListeners}
   >
     <IconLayer
-      className="mr-1 text-muted-foreground"
+      className="mr-2 text-muted-foreground"
       type={props.layerType}
-      style={{ width: "1em", height: "1em", verticalAlign: "middle" }}
+      style={{ width: "1.1em", height: "1.1em", verticalAlign: "middle" }}
     />
     <button className="text-left font-mono truncate max-w-[140px] hover:text-foreground focus:outline-none">
       {props.layerId}
@@ -114,7 +114,7 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
   const refObject = ref as React.MutableRefObject<HTMLLIElement | null> | null;
 
   return (
-    <IconContext.Provider value={{ size: "14px" }}>
+    <IconContext.Provider value={{ size: "16px" }}>
       <li
         ref={(node) => {
           setNodeRef(node);
@@ -127,8 +127,8 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
         onClick={() => props.onLayerSelect(props.layerIndex)}
         data-wd-key={"layer-list-item:" + props.layerId}
         className={cn(
-          "group flex items-center border-b border-panel-border bg-panel-surface hover:bg-panel-hover p-0.5 select-none transition-all duration-160",
-          isSelected && "bg-panel-active text-panel-text border-l-4 border-l-panel-accent",
+          "group flex items-center bg-panel-surface hover:bg-accent/40 py-1.5 px-2 select-none transition-all duration-160 mb-0.5 rounded-sm mx-1",
+          isSelected && "bg-panel-active text-panel-text ring-1 ring-panel-accent/50",
           className
         )}
       >
@@ -139,20 +139,26 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
           dragListeners={listeners}
         />
         <div className="grow" />
-        <div className="flex opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="flex transition-opacity duration-200">
           <IconAction
             wdKey={"layer-list-item:" + props.layerId + ":delete"}
             action={"delete"}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={() => onLayerDestroy!(props.layerIndex)}
           />
           <IconAction
             wdKey={"layer-list-item:" + props.layerId + ":copy"}
             action={"duplicate"}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={() => onLayerCopy!(props.layerIndex)}
           />
           <IconAction
             wdKey={"layer-list-item:" + props.layerId + ":toggle-visibility"}
             action={visibilityAction}
+            className={cn(
+              "transition-opacity",
+              visibilityAction === "hide" ? "opacity-100 text-muted-foreground" : "opacity-0 group-hover:opacity-100"
+            )}
             onClick={() => onLayerVisibilityToggle!(props.layerIndex)}
           />
         </div>

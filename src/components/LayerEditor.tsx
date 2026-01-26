@@ -304,51 +304,49 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
         aria-label={t("Layer editor")}
         data-wd-key="layer-editor"
       >
-        <header className="sticky top-0 z-[10] bg-panel-surface border-b border-panel-border" data-wd-key="layer-editor.header">
-          <div className="flex p-3 items-center">
-            <h2 className="grow m-0 leading-6 text-sm font-semibold text-panel-text">
-              {t("Layer: {{layerId}}", { layerId: formatLayerId(layer.id) })}
-            </h2>
-            <div className="flex items-center gap-1.5">
-              <Wrapper className="relative" onSelection={handleSelection} closeOnSelection={false}>
-                <Button
-                  id="skip-target-layer-editor"
-                  data-wd-key="skip-target-layer-editor"
-                  className="p-1 hover:bg-panel-hover rounded transition-colors"
-                  title={"Layer options"}
-                >
-                  <MdMoreVert className="w-6 h-6 fill-panel-muted" />
-                </Button>
-                <Menu>
-                  <ul className="absolute right-0 z-[9999] bg-panel-surface border border-panel-border shadow-md min-w-[120px] py-1 m-0 list-none rounded-md">
-                    {Object.keys(items).map((id) => {
-                      const item = items[id as keyof typeof items];
-                      return (
-                        <li key={id}>
-                          <MenuItem
-                            value={id}
-                            className={cn(
-                              "px-3 py-1.5 text-xs text-panel-text cursor-pointer hover:bg-panel-hover flex items-center justify-between transition-colors",
-                              item.disabled && "opacity-50 cursor-not-allowed pointer-events-none"
-                            )}
-                            data-wd-key={item.wdKey}
-                          >
-                            {item.text}
-                          </MenuItem>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </Menu>
-              </Wrapper>
-              <button
-                className="p-1 px-2.5 bg-panel-surface text-panel-muted border border-panel-border rounded hover:bg-panel-hover transition-colors"
-                onClick={onClose}
-                title={t("Close layer editor")}
+        <header className="h-10 px-3 flex items-center shrink-0 z-[10] bg-panel-surface border-b border-panel-border" data-wd-key="layer-editor.header">
+          <h2 className="grow m-0 leading-none text-sm font-semibold text-panel-text truncate pr-2">
+            {t("Layer: {{layerId}}", { layerId: formatLayerId(layer.id) })}
+          </h2>
+          <div className="flex items-center gap-1.5">
+            <Wrapper className="relative flex items-center" onSelection={handleSelection} closeOnSelection={false}>
+              <Button
+                id="skip-target-layer-editor"
+                data-wd-key="skip-target-layer-editor"
+                className="flex items-center justify-center h-6 w-6 hover:bg-panel-hover rounded transition-colors"
+                title={"Layer options"}
               >
-                <MdClose className="w-4 h-4" />
-              </button>
-            </div>
+                <MdMoreVert className="w-4 h-4 fill-panel-muted" />
+              </Button>
+              <Menu>
+                <ul className="absolute right-0 top-full mt-1 z-[9999] bg-panel-surface border border-panel-border shadow-md min-w-[120px] py-1 m-0 list-none rounded-md">
+                  {Object.keys(items).map((id) => {
+                    const item = items[id as keyof typeof items];
+                    return (
+                      <li key={id}>
+                        <MenuItem
+                          value={id}
+                          className={cn(
+                            "px-3 py-1.5 text-xs text-panel-text cursor-pointer hover:bg-panel-hover flex items-center justify-between transition-colors",
+                            item.disabled && "opacity-50 cursor-not-allowed pointer-events-none"
+                          )}
+                          data-wd-key={item.wdKey}
+                        >
+                          {item.text}
+                        </MenuItem>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </Menu>
+            </Wrapper>
+            <button
+              className="flex items-center justify-center h-6 w-6 bg-panel-surface text-panel-muted hover:text-panel-text rounded hover:bg-panel-hover transition-colors"
+              onClick={onClose}
+              title={t("Close layer editor")}
+            >
+              <MdClose className="w-4 h-4" />
+            </button>
           </div>
         </header>
         <div className="grow overflow-y-auto">

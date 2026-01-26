@@ -45,7 +45,7 @@ const AppLayout: React.FC<AppLayoutInternalProps> = ({
             <>
               <div
                 className={cn(
-                  "w-layout-list bg-card shadow-sm text-card-foreground flex flex-col transition-all duration-160 border-r border-border shrink-0",
+                  "w-[320px] bg-card shadow-sm text-card-foreground flex flex-col transition-all duration-160 border-r border-border shrink-0",
                   listClassName === "maputnik-layout-list--wide" && "w-[450px]",
                   listClassName === "maputnik-layout-list--extra-wide" && "w-[800px]",
                   listClassName
