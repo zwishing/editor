@@ -203,7 +203,7 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
         onLayersChange={onLayersChange}
       />
       <header
-        className="p-3 pb-1.5 sticky top-0 z-[2001] bg-panel-surface border-b border-panel-border flex flex-row items-center flex-none"
+        className="p-3 pb-1.5 sticky top-0 z-[2001] bg-card border-b border-panel-border flex flex-row items-center flex-none"
         data-wd-key="layer-list.header"
       >
         <span className="text-xs text-panel-text font-semibold leading-relaxed">{t("Layers")}</span>

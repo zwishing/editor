@@ -53,7 +53,7 @@ const InputSelect: React.FC<InputSelectProps> = ({
       >
         <SelectValue placeholder="Select option..." />
       </SelectTrigger>
-      <SelectContent className="z-[100]">
+      <SelectContent className="z-[3000]">
         {(options as [string, any][]).map(([val, label]) => {
           const itemValue = val === "" ? EMPTY_VALUE : val;
           return (

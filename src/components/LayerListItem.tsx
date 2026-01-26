@@ -38,8 +38,7 @@ type IconActionProps = {
   action: string
   onClick(...args: unknown[]): unknown
   wdKey?: string
-  classBlockName?: string
-  classBlockModifier?: string
+  className?: string
 };
 
 const IconAction: React.FC<IconActionProps> = (props) => {
@@ -62,7 +61,10 @@ const IconAction: React.FC<IconActionProps> = (props) => {
     <Button
       variant="ghost"
       size="icon"
-      className="h-7 w-7 text-panel-muted hover:text-panel-text focus-visible:outline-panel-accent focus-visible:outline-offset-2"
+      className={cn(
+        "h-7 w-7 text-panel-muted hover:text-panel-text focus-visible:outline-panel-accent focus-visible:outline-offset-2",
+        props.className
+      )}
       title={props.action}
       data-wd-key={props.wdKey}
       onClick={props.onClick as React.MouseEventHandler<HTMLButtonElement>}
@@ -125,7 +127,7 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
         onClick={() => props.onLayerSelect(props.layerIndex)}
         data-wd-key={"layer-list-item:" + props.layerId}
         className={cn(
-          "flex items-center border-b border-panel-border bg-panel-surface hover:bg-panel-hover p-0.5 select-none transition-all duration-160",
+          "group flex items-center border-b border-panel-border bg-panel-surface hover:bg-panel-hover p-0.5 select-none transition-all duration-160",
           isSelected && "bg-panel-active text-panel-text border-l-4 border-l-panel-accent",
           className
         )}
@@ -137,21 +139,23 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
           dragListeners={listeners}
         />
         <div className="grow" />
-        <IconAction
-          wdKey={"layer-list-item:" + props.layerId + ":delete"}
-          action={"delete"}
-          onClick={() => onLayerDestroy!(props.layerIndex)}
-        />
-        <IconAction
-          wdKey={"layer-list-item:" + props.layerId + ":copy"}
-          action={"duplicate"}
-          onClick={() => onLayerCopy!(props.layerIndex)}
-        />
-        <IconAction
-          wdKey={"layer-list-item:" + props.layerId + ":toggle-visibility"}
-          action={visibilityAction}
-          onClick={() => onLayerVisibilityToggle!(props.layerIndex)}
-        />
+        <div className="flex opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <IconAction
+            wdKey={"layer-list-item:" + props.layerId + ":delete"}
+            action={"delete"}
+            onClick={() => onLayerDestroy!(props.layerIndex)}
+          />
+          <IconAction
+            wdKey={"layer-list-item:" + props.layerId + ":copy"}
+            action={"duplicate"}
+            onClick={() => onLayerCopy!(props.layerIndex)}
+          />
+          <IconAction
+            wdKey={"layer-list-item:" + props.layerId + ":toggle-visibility"}
+            action={visibilityAction}
+            onClick={() => onLayerVisibilityToggle!(props.layerIndex)}
+          />
+        </div>
       </li>
     </IconContext.Provider>
   );
