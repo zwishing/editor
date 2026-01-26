@@ -1,6 +1,5 @@
 import React, { type JSX } from "react";
-import classnames from "classnames";
-import lodash from "lodash";
+import { cn } from "@/lib/utils";
 import {
   DndContext,
   PointerSensor,
@@ -20,7 +19,7 @@ import ModalAdd from "./modals/ModalAdd";
 
 import type { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import generateUniqueId from "../libs/document-uid";
-import { findClosestCommonPrefix, layerPrefix } from "../libs/layer";
+import { layerPrefix } from "../libs/layer";
 import { type WithTranslation, withTranslation } from "react-i18next";
 import { type MappedError, type OnMoveLayerCallback } from "../libs/definitions";
 
@@ -37,298 +36,204 @@ type LayerListContainerProps = {
 };
 type LayerListContainerInternalProps = LayerListContainerProps & WithTranslation;
 
-type LayerListContainerState = {
-  collapsedGroups: { [ket: string]: boolean }
-  areAllGroupsExpanded: boolean
-  keys: { [key: string]: number }
-  isOpen: { [key: string]: boolean }
-};
-
 // List of collapsible layer editors
-class LayerListContainerInternal extends React.Component<LayerListContainerInternalProps, LayerListContainerState> {
-  static defaultProps = {
-    onLayerSelect: () => { },
-  };
-  selectedItemRef: React.RefObject<any>;
-  scrollContainerRef: React.RefObject<HTMLElement | null>;
+const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
+  layers,
+  selectedLayerIndex,
+  onLayersChange,
+  onLayerSelect,
+  onLayerDestroy,
+  onLayerCopy,
+  onLayerVisibilityToggle,
+  sources,
+  errors,
+  t,
+}) => {
+  const [collapsedGroups, setCollapsedGroups] = React.useState<Record<string, boolean>>({});
+  const [areAllGroupsExpanded, setAreAllGroupsExpanded] = React.useState(false);
+  const [modalKeys, setModalKeys] = React.useState({ add: +generateUniqueId() });
+  const [modalOpen, setModalOpen] = React.useState({ add: false });
 
-  constructor(props: LayerListContainerInternalProps) {
-    super(props);
-    this.selectedItemRef = React.createRef();
-    this.scrollContainerRef = React.createRef();
-    this.state = {
-      collapsedGroups: {},
-      areAllGroupsExpanded: false,
-      keys: {
-        add: +generateUniqueId(),
-      },
-      isOpen: {
-        add: false,
-      }
-    };
-  }
+  const selectedItemRef = React.useRef<any>(null);
+  const scrollContainerRef = React.useRef<HTMLElement | null>(null);
 
-  toggleModal(modalName: string) {
-    this.setState({
-      keys: {
-        ...this.state.keys,
-        [modalName]: +generateUniqueId(),
-      },
-      isOpen: {
-        ...this.state.isOpen,
-        [modalName]: !this.state.isOpen[modalName]
-      }
-    });
-  }
-
-  toggleLayers = () => {
-    let idx = 0;
-
-    const newGroups: { [key: string]: boolean } = {};
-
-    this.groupedLayers().forEach(layers => {
-      const groupPrefix = layerPrefix(layers[0].id);
-      const lookupKey = [groupPrefix, idx].join("-");
-
-
-      if (layers.length > 1) {
-        newGroups[lookupKey] = this.state.areAllGroupsExpanded;
-      }
-
-      layers.forEach((_layer) => {
-        idx += 1;
-      });
-    });
-
-    this.setState({
-      collapsedGroups: newGroups,
-      areAllGroupsExpanded: !this.state.areAllGroupsExpanded
-    });
+  const toggleModal = (modalName: string) => {
+    setModalKeys((prev) => ({ ...prev, [modalName]: +generateUniqueId() }));
+    setModalOpen((prev) => ({ ...prev, [modalName]: !prev[modalName as keyof typeof prev] }));
   };
 
-  groupedLayers(): (LayerSpecification & { key: string })[][] {
-    const groups = [];
+  const groupedLayers = React.useMemo(() => {
+    const groups: (LayerSpecification & { key: string })[][] = [];
     const layerIdCount = new Map();
 
-    for (let i = 0; i < this.props.layers.length; i++) {
-      const origLayer = this.props.layers[i];
-      const previousLayer = this.props.layers[i - 1];
-      layerIdCount.set(origLayer.id,
-        layerIdCount.has(origLayer.id) ? layerIdCount.get(origLayer.id) + 1 : 0
-      );
+    for (let i = 0; i < layers.length; i++) {
+      const origLayer = layers[i];
+      const previousLayer = layers[i - 1];
+      layerIdCount.set(origLayer.id, (layerIdCount.get(origLayer.id) || 0) + 1);
       const layer = {
         ...origLayer,
         key: `layers-list-${origLayer.id}-${layerIdCount.get(origLayer.id)}`,
       };
-      if (previousLayer && layerPrefix(previousLayer.id) == layerPrefix(layer.id)) {
-        const lastGroup = groups[groups.length - 1];
-        lastGroup.push(layer);
+      if (previousLayer && layerPrefix(previousLayer.id) === layerPrefix(layer.id)) {
+        groups[groups.length - 1].push(layer);
       } else {
         groups.push([layer]);
       }
     }
     return groups;
-  }
+  }, [layers]);
 
-  toggleLayerGroup(groupPrefix: string, idx: number) {
-    const lookupKey = [groupPrefix, idx].join("-");
-    const newGroups = { ...this.state.collapsedGroups };
-    if (lookupKey in this.state.collapsedGroups) {
-      newGroups[lookupKey] = !this.state.collapsedGroups[lookupKey];
-    } else {
-      newGroups[lookupKey] = false;
-    }
-    this.setState({
-      collapsedGroups: newGroups
-    });
-  }
-
-  isCollapsed(groupPrefix: string, idx: number) {
-    const collapsed = this.state.collapsedGroups[[groupPrefix, idx].join("-")];
-    return collapsed === undefined ? true : collapsed;
-  }
-
-  shouldComponentUpdate(nextProps: LayerListContainerProps, nextState: LayerListContainerState) {
-    // Always update on state change
-    if (this.state !== nextState) {
-      return true;
-    }
-
-    // This component tree only requires id and visibility from the layers
-    // objects
-    function getRequiredProps(layer: LayerSpecification) {
-      const out: { id: string, layout?: { visibility: any } } = {
-        id: layer.id,
-      };
-
-      if (layer.layout) {
-        out.layout = {
-          visibility: layer.layout.visibility
-        };
-      }
-      return out;
-    }
-    const layersEqual = lodash.isEqual(
-      nextProps.layers.map(getRequiredProps),
-      this.props.layers.map(getRequiredProps),
-    );
-
-    function withoutLayers(props: LayerListContainerProps) {
-      const out = {
-        ...props
-      } as LayerListContainerProps & { layers?: any };
-      delete out["layers"];
-      return out;
-    }
-
-    // Compare the props without layers because we've already compared them
-    // efficiently above.
-    const propsEqual = lodash.isEqual(
-      withoutLayers(this.props),
-      withoutLayers(nextProps)
-    );
-
-    const propsChanged = !(layersEqual && propsEqual);
-    return propsChanged;
-  }
-
-  componentDidUpdate(prevProps: LayerListContainerProps) {
-    if (prevProps.selectedLayerIndex !== this.props.selectedLayerIndex) {
-      const selectedItemNode = this.selectedItemRef.current;
-      if (selectedItemNode && selectedItemNode.node) {
-        const target = selectedItemNode.node;
-        const options = {
-          root: this.scrollContainerRef.current,
-          threshold: 1.0
-        };
-        const observer = new IntersectionObserver(entries => {
-          observer.unobserve(target);
-          if (entries.length > 0 && entries[0].intersectionRatio < 1) {
-            target.scrollIntoView();
-          }
-        }, options);
-
-        observer.observe(target);
-      }
-    }
-  }
-
-  render() {
-
-    const listItems: JSX.Element[] = [];
+  const toggleLayers = () => {
     let idx = 0;
-    const layersByGroup = this.groupedLayers();
-    layersByGroup.forEach(layers => {
-      const groupPrefix = layerPrefix(layers[0].id);
-      if (layers.length > 1) {
-        const grp = <LayerListGroup
-          data-wd-key={[groupPrefix, idx].join("-")}
-          aria-controls={layers.map(l => l.key).join(" ")}
-          key={`group-${groupPrefix}-${idx}`}
-          title={groupPrefix}
-          isActive={!this.isCollapsed(groupPrefix, idx) || idx === this.props.selectedLayerIndex}
-          onActiveToggle={this.toggleLayerGroup.bind(this, groupPrefix, idx)}
-        />;
-        listItems.push(grp);
+    const newGroups: Record<string, boolean> = {};
+
+    groupedLayers.forEach((layersGrp) => {
+      const groupPrefix = layerPrefix(layersGrp[0].id);
+      const lookupKey = [groupPrefix, idx].join("-");
+      if (layersGrp.length > 1) {
+        newGroups[lookupKey] = areAllGroupsExpanded;
       }
+      idx += layersGrp.length;
+    });
 
-      layers.forEach((layer, idxInGroup) => {
-        const groupIdx = findClosestCommonPrefix(this.props.layers, idx);
+    setCollapsedGroups(newGroups);
+    setAreAllGroupsExpanded(!areAllGroupsExpanded);
+  };
 
-        const layerError = this.props.errors.find(error => {
-          return (
-            error.parsed &&
-            error.parsed.type === "layer" &&
-            error.parsed.data.index == idx
-          );
-        });
+  const isCollapsed = (groupPrefix: string, idx: number) => {
+    const collapsed = collapsedGroups[[groupPrefix, idx].join("-")];
+    return collapsed === undefined ? true : collapsed;
+  };
 
-        const additionalProps: { ref?: React.RefObject<any> } = {};
-        if (idx === this.props.selectedLayerIndex) {
-          additionalProps.ref = this.selectedItemRef;
+  const toggleLayerGroup = (groupPrefix: string, idx: number) => {
+    const lookupKey = [groupPrefix, idx].join("-");
+    setCollapsedGroups((prev) => ({
+      ...prev,
+      [lookupKey]: !isCollapsed(groupPrefix, idx),
+    }));
+  };
+
+  React.useEffect(() => {
+    const selectedItemNode = selectedItemRef.current;
+    if (selectedItemNode && selectedItemNode.node) {
+      const target = selectedItemNode.node;
+      const options = {
+        root: scrollContainerRef.current,
+        threshold: 1.0,
+      };
+      const observer = new IntersectionObserver((entries) => {
+        observer.unobserve(target);
+        if (entries.length > 0 && entries[0].intersectionRatio < 1) {
+          target.scrollIntoView();
         }
+      }, options);
 
-        const listItem = <LayerListItem
-          className={classnames({
-            "maputnik-layer-list-item-collapsed": layers.length > 1 && this.isCollapsed(groupPrefix, groupIdx) && idx !== this.props.selectedLayerIndex,
-            "maputnik-layer-list-item-group-last": idxInGroup == layers.length - 1 && layers.length > 1,
-            "maputnik-layer-list-item--error": !!layerError
-          })}
+      observer.observe(target);
+    }
+  }, [selectedLayerIndex]);
+
+  const listItems: JSX.Element[] = [];
+  let globalIdx = 0;
+
+  groupedLayers.forEach((layersGrp) => {
+    const groupPrefix = layerPrefix(layersGrp[0].id);
+    const firstIdxInGroup = globalIdx;
+
+    if (layersGrp.length > 1) {
+      listItems.push(
+        <LayerListGroup
+          data-wd-key={[groupPrefix, firstIdxInGroup].join("-")}
+          aria-controls={layersGrp.map((l) => l.key).join(" ")}
+          key={`group-${groupPrefix}-${firstIdxInGroup}`}
+          title={groupPrefix}
+          isActive={!isCollapsed(groupPrefix, firstIdxInGroup) || firstIdxInGroup === selectedLayerIndex}
+          onActiveToggle={() => toggleLayerGroup(groupPrefix, firstIdxInGroup)}
+        />
+      );
+    }
+
+    layersGrp.forEach((layer, idxInGroup) => {
+      const currentIdx = globalIdx;
+      const layerError = errors.find(
+        (error) => error.parsed && error.parsed.type === "layer" && error.parsed.data.index === currentIdx
+      );
+
+      listItems.push(
+        <LayerListItem
+          className={cn(
+            layersGrp.length > 1 &&
+            isCollapsed(groupPrefix, firstIdxInGroup) &&
+            currentIdx !== selectedLayerIndex &&
+            "absolute max-h-0 overflow-hidden p-0 opacity-0 invisible",
+            idxInGroup === layersGrp.length - 1 && layersGrp.length > 1 && "border-b-2 border-panel-border",
+            !!layerError && "text-red-600"
+          )}
           key={layer.key}
           id={layer.key}
           layerId={layer.id}
-          layerIndex={idx}
+          layerIndex={currentIdx}
           layerType={layer.type}
-          visibility={(layer.layout || {}).visibility}
-          isSelected={idx === this.props.selectedLayerIndex}
-          onLayerSelect={this.props.onLayerSelect}
-          onLayerDestroy={this.props.onLayerDestroy?.bind(this)}
-          onLayerCopy={this.props.onLayerCopy.bind(this)}
-          onLayerVisibilityToggle={this.props.onLayerVisibilityToggle.bind(this)}
-          {...additionalProps}
-        />;
-        listItems.push(listItem);
-        idx += 1;
-      });
+          visibility={(layer.layout || {}).visibility as any}
+          isSelected={currentIdx === selectedLayerIndex}
+          onLayerSelect={onLayerSelect}
+          onLayerDestroy={onLayerDestroy}
+          onLayerCopy={onLayerCopy}
+          onLayerVisibilityToggle={onLayerVisibilityToggle}
+          ref={currentIdx === selectedLayerIndex ? selectedItemRef : undefined}
+        />
+      );
+      globalIdx++;
     });
+  });
 
-    const t = this.props.t;
-
-    return <section
-      className="maputnik-layer-list"
+  return (
+    <section
+      className="h-full overflow-y-auto overflow-x-hidden flex flex-col"
       data-wd-key="layer-list"
       role="complementary"
       aria-label={t("Layers list")}
-      ref={this.scrollContainerRef}
+      ref={scrollContainerRef}
     >
       <ModalAdd
-        key={this.state.keys.add}
-        layers={this.props.layers}
-        sources={this.props.sources}
-        isOpen={this.state.isOpen.add}
-        onOpenToggle={this.toggleModal.bind(this, "add")}
-        onLayersChange={this.props.onLayersChange}
+        key={modalKeys.add}
+        layers={layers}
+        sources={sources}
+        isOpen={modalOpen.add}
+        onOpenToggle={() => toggleModal("add")}
+        onLayersChange={onLayersChange}
       />
-      <header className="maputnik-layer-list-header" data-wd-key="layer-list.header">
-        <span className="maputnik-layer-list-header-title">{t("Layers")}</span>
-        <span className="maputnik-space" />
-        <div className="maputnik-default-property" style={{ marginRight: '8px' }}>
-          <div className="maputnik-multibutton">
-            <button
-              id="skip-target-layer-list"
-              data-wd-key="skip-target-layer-list"
-              onClick={this.toggleLayers}
-              className="maputnik-button">
-              {this.state.areAllGroupsExpanded === true ?
-                t("Collapse")
-                :
-                t("Expand")
-              }
-            </button>
-          </div>
+      <header
+        className="p-3 pb-1.5 sticky top-0 z-[2001] bg-panel-surface border-b border-panel-border flex flex-row items-center flex-none"
+        data-wd-key="layer-list.header"
+      >
+        <span className="text-xs text-panel-text font-semibold leading-relaxed">{t("Layers")}</span>
+        <div className="grow" />
+        <div className="mr-2">
+          <button
+            id="skip-target-layer-list"
+            data-wd-key="skip-target-layer-list"
+            onClick={toggleLayers}
+            className="px-3 py-1 bg-panel-surface text-panel-text border border-panel-border rounded-md hover:bg-panel-hover text-xs transition-colors"
+          >
+            {areAllGroupsExpanded ? t("Collapse") : t("Expand")}
+          </button>
         </div>
-        <div className="maputnik-default-property">
-          <div className="maputnik-multibutton">
-            <button
-              onClick={this.toggleModal.bind(this, "add")}
-              data-wd-key="layer-list:add-layer"
-              className="maputnik-button maputnik-button-selected">
-              {t("Add Layer")}
-            </button>
-          </div>
+        <div>
+          <button
+            onClick={() => toggleModal("add")}
+            data-wd-key="layer-list:add-layer"
+            className="px-3 py-1 bg-panel-active text-panel-text border border-panel-accent rounded-md text-xs transition-colors"
+          >
+            {t("Add Layer")}
+          </button>
         </div>
       </header>
-      <div
-        role="navigation"
-        aria-label={t("Layers list")}
-      >
-        <ul className="maputnik-layer-list-container">
-          {listItems}
-        </ul>
+      <div role="navigation" aria-label={t("Layers list")}>
+        <ul className="p-0 m-0 pb-6 flex-1 overflow-x-hidden overflow-y-visible">{listItems}</ul>
       </div>
-    </section>;
-  }
-}
+    </section>
+  );
+};
 
 const LayerListContainer = withTranslation()(LayerListContainerInternal);
 

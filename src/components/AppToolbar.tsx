@@ -1,17 +1,12 @@
 import React from "react";
-import classnames from "classnames";
+import { cn } from "@/lib/utils";
 import { detect } from "detect-browser";
-
 import {
   MdOpenInBrowser,
-  MdSettings,
-  MdLayers,
-  MdHelpOutline,
   MdFindInPage,
   MdLanguage,
   MdSave,
-  MdPublic,
-  MdCode
+  MdHelpOutline
 } from "react-icons/md";
 import pkgJson from "../../package.json";
 //@ts-ignore
@@ -26,70 +21,60 @@ const colorAccessibilityFiltersEnabled = ["chrome", "firefox"].indexOf(browser!.
 
 export type ModalTypes = "settings" | "sources" | "open" | "shortcuts" | "export" | "debug" | "globalState" | "codeEditor";
 
-type IconTextProps = {
-  children?: React.ReactNode
-};
-
-
-class IconText extends React.Component<IconTextProps> {
-  render() {
-    return <span className="maputnik-icon-text">{this.props.children}</span>;
-  }
-}
+const IconText: React.FC<IconTextProps> = ({ children }) => (
+  <span className="px-0.5">{children}</span>
+);
 
 type ToolbarLinkProps = {
-  className?: string
-  children?: React.ReactNode
-  href?: string
+  className?: string;
+  children?: React.ReactNode;
+  href?: string;
 };
 
-class ToolbarLink extends React.Component<ToolbarLinkProps> {
-  render() {
-    return <a
-      className={classnames("maputnik-toolbar-link", this.props.className)}
-      href={this.props.href}
-      rel="noopener noreferrer"
-      target="_blank"
-      data-wd-key="toolbar:link"
-    >
-      {this.props.children}
-    </a>;
-  }
-}
+const ToolbarLink: React.FC<ToolbarLinkProps> = ({ className, children, href }) => (
+  <a
+    className={cn(
+      "align-top h-12 inline-flex items-center px-2.5 text-xs cursor-pointer text-panel-muted no-underline leading-5 hover:bg-panel-hover hover:text-panel-text hover:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-panel-accent focus-visible:outline-offset-[-2px] focus-visible:rounded-sm",
+      className
+    )}
+    href={href}
+    rel="noopener noreferrer"
+    target="_blank"
+    data-wd-key="toolbar:link"
+  >
+    {children}
+  </a>
+);
 
 type ToolbarSelectProps = {
-  children?: React.ReactNode
-  wdKey?: string
+  children?: React.ReactNode;
+  wdKey?: string;
 };
 
-class ToolbarSelect extends React.Component<ToolbarSelectProps> {
-  render() {
-    return <div
-      className='maputnik-toolbar-select'
-      data-wd-key={this.props.wdKey}
-    >
-      {this.props.children}
-    </div>;
-  }
-}
+const ToolbarSelect: React.FC<ToolbarSelectProps> = ({ children, wdKey }) => (
+  <div
+    className="align-top h-12 inline-flex items-center px-2.5 text-xs cursor-pointer text-panel-muted no-underline leading-5 hover:bg-panel-hover hover:text-panel-text hover:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-panel-accent focus-visible:outline-offset-[-2px] focus-visible:rounded-sm bg-inherit border-0"
+    data-wd-key={wdKey}
+  >
+    {children}
+  </div>
+);
 
 type ToolbarActionProps = {
-  children?: React.ReactNode
-  onClick?(...args: unknown[]): unknown
-  wdKey?: string
+  children?: React.ReactNode;
+  onClick?(...args: unknown[]): unknown;
+  wdKey?: string;
 };
 
-class ToolbarAction extends React.Component<ToolbarActionProps> {
-  render() {
-    return <button
-      className='maputnik-toolbar-action'
-      data-wd-key={this.props.wdKey}
-      onClick={this.props.onClick}
-    >
-      {this.props.children}
-    </button>;
-  }
-}
+const ToolbarAction: React.FC<ToolbarActionProps> = ({ children, onClick, wdKey }) => (
+  <button
+    className="align-top h-12 inline-flex items-center px-2.5 text-xs cursor-pointer text-panel-muted no-underline leading-5 hover:bg-panel-hover hover:text-panel-text hover:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-panel-accent focus-visible:outline-offset-[-2px] focus-visible:rounded-sm bg-inherit border-0"
+    data-wd-key={wdKey}
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);
 
 export type MapState = "map" | "inspect" | "filter-achromatopsia" | "filter-deuteranopia" | "filter-protanopia" | "filter-tritanopia";
 
@@ -109,170 +94,141 @@ type AppToolbarInternalProps = {
   renderer?: string
 } & WithTranslation;
 
-class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
-  lastSelectionValue?: string;
-  lastLanguageValue?: string;
-
-  state = {
-    isOpen: {
-      settings: false,
-      sources: false,
-      open: false,
-      add: false,
-      export: false,
+const AppToolbarInternal: React.FC<AppToolbarInternalProps> = ({
+  i18n,
+  t,
+  mapState,
+  renderer,
+  onToggleModal,
+  setMapState,
+  onSetMapState,
+}) => {
+  const handleSelection = (val: MapState) => {
+    if (setMapState) {
+      setMapState(val);
+      return;
     }
+    onSetMapState?.(val);
   };
 
-  handleSelection(val: MapState) {
-    if (this.lastSelectionValue === val) {
-      return;
-    }
-    this.lastSelectionValue = val;
-    if (this.props.setMapState) {
-      this.props.setMapState(val);
-      return;
-    }
-    this.props.onSetMapState?.(val);
-  }
+  const handleLanguageChange = (val: string) => {
+    i18n.changeLanguage(val);
+  };
 
-  handleLanguageChange(val: string) {
-    if (this.lastLanguageValue === val) {
-      return;
-    }
-    this.lastLanguageValue = val;
-    this.props.i18n.changeLanguage(val);
-  }
-
-  onSkip = (target: string) => {
+  const onSkip = (target: string) => {
     if (target === "map") {
       (document.querySelector(".maplibregl-canvas") as HTMLCanvasElement).focus();
-    }
-    else {
+    } else {
       const el = document.querySelector("#skip-target-" + target) as HTMLButtonElement;
       el.focus();
     }
   };
 
-  render() {
-    const t = this.props.t;
-    const views = [
-      {
-        id: "map",
-        group: "general",
-        title: t("Map"),
-      },
-      {
-        id: "inspect",
-        group: "general",
-        title: t("Inspect"),
-        disabled: this.props.renderer === "ol",
-      },
-      {
-        id: "filter-deuteranopia",
-        group: "color-accessibility",
-        title: t("Deuteranopia filter"),
-        disabled: !colorAccessibilityFiltersEnabled,
-      },
-      {
-        id: "filter-protanopia",
-        group: "color-accessibility",
-        title: t("Protanopia filter"),
-        disabled: !colorAccessibilityFiltersEnabled,
-      },
-      {
-        id: "filter-tritanopia",
-        group: "color-accessibility",
-        title: t("Tritanopia filter"),
-        disabled: !colorAccessibilityFiltersEnabled,
-      },
-      {
-        id: "filter-achromatopsia",
-        group: "color-accessibility",
-        title: t("Achromatopsia filter"),
-        disabled: !colorAccessibilityFiltersEnabled,
-      },
-    ];
+  const views = [
+    { id: "map", group: "general", title: t("Map") },
+    { id: "inspect", group: "general", title: t("Inspect"), disabled: renderer === "ol" },
+    {
+      id: "filter-deuteranopia",
+      group: "color-accessibility",
+      title: t("Deuteranopia filter"),
+      disabled: !colorAccessibilityFiltersEnabled,
+    },
+    {
+      id: "filter-protanopia",
+      group: "color-accessibility",
+      title: t("Protanopia filter"),
+      disabled: !colorAccessibilityFiltersEnabled,
+    },
+    {
+      id: "filter-tritanopia",
+      group: "color-accessibility",
+      title: t("Tritanopia filter"),
+      disabled: !colorAccessibilityFiltersEnabled,
+    },
+    {
+      id: "filter-achromatopsia",
+      group: "color-accessibility",
+      title: t("Achromatopsia filter"),
+      disabled: !colorAccessibilityFiltersEnabled,
+    },
+  ];
 
-    const currentView = views.find((view) => {
-      return view.id === this.props.mapState;
-    });
+  const currentView = views.find((view) => view.id === mapState);
 
-    return <nav className='maputnik-toolbar'>
-      <div className="maputnik-toolbar__inner">
-        <div
-          className="maputnik-toolbar-logo-container"
-        >
-          {/* Keyboard accessible quick links */}
+  return (
+    <nav className="fixed h-12 w-full z-[100] left-0 top-0 bg-panel-surface border-b border-panel-border shadow-md text-panel-text">
+      <div className="flex">
+        <div className="relative">
           <button
             data-wd-key="root:skip:layer-list"
-            className="maputnik-toolbar-skip"
-            onClick={_e => this.onSkip("layer-list")}
+            className="all-unset border border-transparent absolute overflow-hidden w-0 h-full text-center block bg-panel-surface z-[999] leading-[40px] left-0 top-0 active:w-full active:border-panel-border focus:w-full focus:border-panel-border"
+            onClick={() => onSkip("layer-list")}
           >
             {t("Layers list")}
           </button>
           <button
             data-wd-key="root:skip:layer-editor"
-            className="maputnik-toolbar-skip"
-            onClick={_e => this.onSkip("layer-editor")}
+            className="all-unset border border-transparent absolute overflow-hidden w-0 h-full text-center block bg-panel-surface z-[999] leading-[40px] left-0 top-0 active:w-full active:border-panel-border focus:w-full focus:border-panel-border"
+            onClick={() => onSkip("layer-editor")}
           >
             {t("Layer editor")}
           </button>
           <button
             data-wd-key="root:skip:map-view"
-            className="maputnik-toolbar-skip"
-            onClick={_e => this.onSkip("map")}
+            className="all-unset border border-transparent absolute overflow-hidden w-0 h-full text-center block bg-panel-surface z-[999] leading-[40px] left-0 top-0 active:w-full active:border-panel-border focus:w-full focus:border-panel-border"
+            onClick={() => onSkip("map")}
           >
             {t("Map view")}
           </button>
           <a
-            className="maputnik-toolbar-logo"
+            className="no-underline block flex-[0_0_190px] w-[200px] text-left bg-transparent p-1.5 h-12 relative overflow-hidden"
             target="blank"
             rel="noreferrer noopener"
             href="https://github.com/maplibre/maputnik"
           >
-            <img src={maputnikLogo} alt={t("Maputnik on GitHub")} />
-            <h1>
-              <span className="maputnik-toolbar-name">{pkgJson.name}</span>
-              <span className="maputnik-toolbar-version">v{pkgJson.version}</span>
+            <img src={maputnikLogo} alt={t("Maputnik on GitHub")} className="w-[30px] pr-1.5 inline-block align-top" />
+            <h1 className="inline leading-[26px]">
+              <span className="capitalize">{pkgJson.name}</span>
+              <span className="text-[10px] mx-1 whitespace-nowrap">v{pkgJson.version}</span>
             </h1>
           </a>
         </div>
-        <div className="maputnik-toolbar__actions" role="navigation" aria-label="Toolbar">
-          <ToolbarAction wdKey="nav:open" onClick={() => this.props.onToggleModal("open")}>
+        <div className="whitespace-nowrap flex-1 overflow-x-auto" role="navigation" aria-label="Toolbar">
+          <ToolbarAction wdKey="nav:open" onClick={() => onToggleModal("open")}>
             <MdOpenInBrowser />
             <IconText>{t("Open")}</IconText>
           </ToolbarAction>
-          <ToolbarAction wdKey="nav:export" onClick={() => this.props.onToggleModal("export")}>
+          <ToolbarAction wdKey="nav:export" onClick={() => onToggleModal("export")}>
             <MdSave />
             <IconText>{t("Save")}</IconText>
           </ToolbarAction>
-          {/* Moved to Icon Rail: Data Sources, Settings, Global State */}
 
           <ToolbarSelect wdKey="nav:inspect">
             <MdFindInPage />
-            <IconText>{t("View")}
+            <IconText>
+              {t("View")}
               <select
-                className="maputnik-select"
+                className="mx-1.5 inline w-auto border border-panel-border bg-panel-surface text-panel-text align-inherit mt-[-2px] text-xs px-1 py-0.5"
                 data-wd-key="maputnik-select"
-                onChange={(e) => this.handleSelection(e.target.value as MapState)}
-                onInput={(e) => this.handleSelection((e.target as HTMLSelectElement).value as MapState)}
+                onChange={(e) => handleSelection(e.target.value as MapState)}
+                onInput={(e) => handleSelection((e.target as HTMLSelectElement).value as MapState)}
                 value={currentView?.id}
               >
-                {views.filter(v => v.group === "general").map((item) => {
-                  return (
+                {views
+                  .filter((v) => v.group === "general")
+                  .map((item) => (
                     <option key={item.id} value={item.id} disabled={item.disabled} data-wd-key={item.id}>
                       {item.title}
                     </option>
-                  );
-                })}
+                  ))}
                 <optgroup label={t("Color accessibility")}>
-                  {views.filter(v => v.group === "color-accessibility").map((item) => {
-                    return (
+                  {views
+                    .filter((v) => v.group === "color-accessibility")
+                    .map((item) => (
                       <option key={item.id} value={item.id} disabled={item.disabled}>
                         {item.title}
                       </option>
-                    );
-                  })}
+                    ))}
                 </optgroup>
               </select>
             </IconText>
@@ -280,21 +236,20 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
 
           <ToolbarSelect wdKey="nav:language">
             <MdLanguage />
-            <IconText>Language
+            <IconText>
+              Language
               <select
-                className="maputnik-select"
+                className="mx-1.5 inline w-auto border border-panel-border bg-panel-surface text-panel-text align-inherit mt-[-2px] text-xs px-1 py-0.5"
                 data-wd-key="maputnik-lang-select"
-                onChange={(e) => this.handleLanguageChange(e.target.value)}
-                onInput={(e) => this.handleLanguageChange((e.target as HTMLSelectElement).value)}
-                value={this.props.i18n.language}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+                onInput={(e) => handleLanguageChange((e.target as HTMLSelectElement).value)}
+                value={i18n.language}
               >
-                {Object.entries(supportedLanguages).map(([code, name]) => {
-                  return (
-                    <option key={code} value={code}>
-                      {name}
-                    </option>
-                  );
-                })}
+                {Object.entries(supportedLanguages).map(([code, name]) => (
+                  <option key={code} value={code}>
+                    {name}
+                  </option>
+                ))}
               </select>
             </IconText>
           </ToolbarSelect>
@@ -305,9 +260,9 @@ class AppToolbarInternal extends React.Component<AppToolbarInternalProps> {
           </ToolbarLink>
         </div>
       </div>
-    </nav>;
-  }
-}
+    </nav>
+  );
+};
 
 const AppToolbar = withTranslation()(AppToolbarInternal);
 export default AppToolbar;

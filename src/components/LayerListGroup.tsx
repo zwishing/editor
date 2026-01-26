@@ -10,29 +10,37 @@ type LayerListGroupProps = {
   "aria-controls"?: string
 };
 
-export default class LayerListGroup extends React.Component<LayerListGroupProps> {
-  render() {
-    return <li className="maputnik-layer-list-group">
-      <div className="maputnik-layer-list-group-header"
-        data-wd-key={"layer-list-group:"+this.props["data-wd-key"]}
-        onClick={_e => this.props.onActiveToggle(!this.props.isActive)}
+const LayerListGroup: React.FC<LayerListGroupProps> = (props) => {
+  const {
+    title,
+    "data-wd-key": wdKey,
+    isActive,
+    onActiveToggle,
+    "aria-controls": ariaControls,
+  } = props;
+
+  return (
+    <li className="">
+      <div
+        className="border border-transparent text-[11px] text-panel-muted bg-panel-surface select-none p-1.5 focus-within:border-panel-accent focus-within:shadow-[inset_0_0_0_1px_var(--color-panel-accent)] flex flex-row items-center cursor-pointer"
+        data-wd-key={"layer-list-group:" + wdKey}
+        onClick={() => onActiveToggle(!isActive)}
       >
-        <span className="maputnik-layer-list-group-icon" aria-hidden="true">
-          <MdFolder />
+        <span className="inline-flex items-center text-panel-muted mr-0.5" aria-hidden="true">
+          <MdFolder className="w-3.5 h-3.5" />
         </span>
         <button
-          className="maputnik-layer-list-group-title"
-          aria-controls={this.props["aria-controls"]}
-          aria-expanded={this.props.isActive}
+          className="bg-transparent border-0 p-0 text-left cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-panel-accent focus-visible:outline-offset-2 focus-visible:rounded-[3px] align-middle"
+          aria-controls={ariaControls}
+          aria-expanded={isActive}
         >
-          {this.props.title}
+          {title}
         </button>
-        <span className="maputnik-space" />
-        <Collapser
-          style={{ height: 14, width: 14 }}
-          isCollapsed={this.props.isActive}
-        />
+        <div className="flex-1" />
+        <Collapser style={{ height: 14, width: 14 }} isCollapsed={isActive} />
       </div>
-    </li>;
-  }
-}
+    </li>
+  );
+};
+
+export default LayerListGroup;

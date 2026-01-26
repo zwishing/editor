@@ -1,0 +1,375 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --muted: 210 40% 96.1%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 47.4% 11.2%;
+  --radius: 0.5rem;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Maputnik Design Tokens */
+  --color-panel-bg: #F8FAFC;
+  --color-panel-surface: #FFFFFF;
+  --color-panel-border: #E2E8F0;
+  --color-panel-text: #1E293B;
+  --color-panel-muted: #64748B;
+  --color-panel-muted-2: #CBD5E1;
+  --color-panel-hover: #F1F5F9;
+  --color-panel-active: #DBEAFE;
+  --color-panel-accent: #2563EB;
+
+  --spacing-maputnik-1: 2px;
+  --spacing-maputnik-2: 6px;
+  --spacing-maputnik-3: 10px;
+  --spacing-maputnik-4: 16px;
+  --spacing-maputnik-5: 24px;
+
+  --font-size-maputnik-1: 18px;
+  --font-size-maputnik-2: 16px;
+  --font-size-maputnik-3: 14px;
+  --font-size-maputnik-4: 13px;
+  --font-size-maputnik-5: 12px;
+  --font-size-maputnik-6: 11px;
+
+  --width-layout-list: 240px;
+  --width-layout-editor: 420px;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@layer base {
+  @font-face {
+    font-family: 'Roboto';
+    src: url('./fonts/Roboto-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Roboto';
+    src: url('./fonts/Roboto-Medium.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: inherit;
+  }
+
+  html {
+    background-color: rgb(28, 31, 36);
+    color: #FFFFFF;
+    font-size: 12px;
+    box-sizing: border-box;
+    height: 100vh;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    line-height: 1;
+    overflow: hidden;
+  }
+
+  p {
+    font-size: 11px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    color: #94A3B8;
+    line-height: 1.3;
+  }
+
+  h1 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  h2 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  h3 {
+    font-size: 13px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  h4 {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: 2px solid #2563EB;
+    outline-offset: -1px;
+  }
+
+  button:focus-visible,
+  *[role="button"]:focus-visible {
+    outline: 2px solid #2563EB;
+    outline-offset: -1px;
+  }
+
+  ol, ul {
+    list-style: none;
+  }
+
+  blockquote, q {
+    quotes: none;
+  }
+
+  blockquote:before, blockquote:after,
+  q:before, q:after {
+    content: '';
+    content: none;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  a {
+    color: #2563EB;
+  }
+
+  *:not(select) {
+    &::-webkit-scrollbar {
+      background-color: #F8FAFC;
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 6px;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.2);
+      background-color: #CBD5E1;
+      padding-left: 2px;
+      padding-right: 2px;
+
+      &:hover {
+        background-color: #64748B;
+      }
+    }
+
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 #F8FAFC;
+  }
+}
+
+@layer components {
+  /* Legacy Component Compatibility Classes */
+  /* Legacy Component Compatibility Classes */
+  .maputnik-input,
+  .maputnik-string,
+  .maputnik-number,
+  .maputnik-select,
+  .maputnik-checkbox-wrapper {
+    @apply h-[28px] w-full block border border-panel-border rounded-md bg-panel-surface text-panel-text text-xs px-2 transition-all duration-160;
+  }
+  .maputnik-input:focus,
+  .maputnik-string:focus,
+  .maputnik-number:focus,
+  .maputnik-select:focus,
+  .maputnik-checkbox-wrapper:focus {
+    @apply outline-none border-panel-accent shadow-[0_0_0_2px_rgba(22,119,255,0.12)];
+  }
+
+  .maputnik-string--multi { @apply h-[78px] resize-y; }
+  .maputnik-string--disabled { @apply bg-transparent border-none; }
+
+  .maputnik-select {
+    @apply appearance-none bg-[right_2px_center] bg-no-repeat pr-[20px];
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%238e8e8e' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  }
+
+  .maputnik-button {
+    @apply inline-block cursor-pointer bg-panel-surface text-panel-text text-xs p-1.5 border border-panel-border rounded-full shadow-sm select-none no-underline transition-colors;
+  }
+  .maputnik-button:hover:not(:disabled) {
+    @apply bg-panel-hover border-[#33373e];
+  }
+  .maputnik-button:disabled {
+    @apply bg-panel-hover text-panel-muted-2 cursor-not-allowed opacity-50;
+  }
+  .maputnik-button-selected {
+    @apply bg-panel-active border-panel-accent;
+  }
+
+  .maputnik-input-block {
+    @apply m-3 flex flex-wrap items-center;
+  }
+  .maputnik-input-block-label {
+    @apply text-panel-muted font-medium select-none w-[70px] flex-[0_0_70px] text-xs leading-relaxed self-center;
+  }
+  .maputnik-input-block-action {
+    @apply text-panel-muted select-none w-[64px] flex-[0_0_64px] text-xs text-right leading-relaxed self-center;
+  }
+  .maputnik-input-block-content {
+    @apply w-auto flex-1 min-w-0;
+  }
+
+  .maputnik-input-block--wide .maputnik-input-block-content { @apply block w-auto flex-1; }
+  .maputnik-input-block--wide .maputnik-input-block-label { @apply w-auto flex-1; }
+
+  .maputnik-input-block--inline { @apply flex items-center gap-2; }
+  .maputnik-input-block--inline .maputnik-input-block-label { @apply w-auto min-w-[80px] shrink-0 mb-0; }
+
+  .maputnik-checkbox-wrapper { @apply text-center p-0 cursor-pointer max-w-[24px] relative; }
+
+  /* Modal Legacy Classes */
+  .maputnik-modal-content {
+     @apply p-3 flex flex-col;
+  }
+
+  /* Add other modal classes if strictly needed, but try to use Tailwind in Modal.tsx */
+  .maputnik-export-modal .maputnik-input-block-label { @apply w-1/2 self-center; }
+  .maputnik-export-modal .maputnik-input-block-action { @apply w-0; }
+
+  .maputnik-add-layer-button {
+     @apply mt-3 mb-3 text-right float-right inline-block p-3 text-sm;
+  }
+
+  /* Map Legacy Styles */
+  .maputnik-map__container {
+    @apply bg-panel-bg flex flex-1 min-w-0;
+    width: var(--width-layout-map);
+  }
+  .maputnik-map__container--error { @apply items-center justify-center; }
+  .maputnik-map__map { @apply w-full h-full; }
+
+  /* Geocoder Override */
+  .maplibregl-ctrl-geocoder {
+    @apply !bg-panel-surface !text-panel-text !shadow-sm !rounded-full !border !border-panel-border !max-w-[240px];
+  }
+  .maplibregl-ctrl-geocoder--input {
+    @apply !text-panel-text !font-sans;
+  }
+  .maplibregl-ctrl-geocoder--input::placeholder {
+    @apply !text-panel-muted;
+  }
+  .maplibregl-ctrl-geocoder--icon-search {
+    fill: var(--color-panel-accent) !important;
+  }
+}
+
+@layer utilities {
+  .clearfix::after {
+    content: "";
+    @apply table clear-both;
+  }
+
+  .hide {
+    display: none !important;
+  }
+
+  .w-layout-list {
+    width: 250px;
+  }
+  .w-layout-editor {
+    width: 400px;
+  }
+}
