@@ -1,44 +1,35 @@
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import classnames from "classnames";
+import { cn } from "@/lib/utils";
 
 export type InputCheckboxProps = {
   value?: boolean
-  style?: object
+  style?: React.CSSProperties
   onChange(...args: unknown[]): unknown
 };
 
-export default class InputCheckbox extends React.Component<InputCheckboxProps> {
-  static defaultProps = {
-    value: false,
+const InputCheckbox: React.FC<InputCheckboxProps> = ({
+  value = false,
+  onChange,
+  style
+}) => {
+  const onCheckedChange = () => {
+    onChange(!value);
   };
 
-  onCheckedChange = () => {
-    this.props.onChange(!this.props.value);
-  };
+  return (
+    <Checkbox
+      checked={value}
+      onCheckedChange={onCheckedChange}
+      style={style}
+      className={cn(
+        "h-[24px] w-[24px] rounded-[4px] border-[#E2E8F0] bg-white",
+        "data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600",
+        "focus-visible:shadow-[0_0_0_2px_rgba(22,119,255,0.12)] focus-visible:border-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0",
+        "disabled:opacity-100"
+      )}
+    />
+  );
+};
 
-  render() {
-    return (
-      // <div className="maputnik-checkbox-wrapper" style={this.props.style}>
-      <Checkbox
-        checked={this.props.value}
-        onCheckedChange={this.onCheckedChange}
-        className={classnames(
-          "h-[24px]",
-          "w-[24px]",
-          "rounded-[4px]",
-          "border-[#E2E8F0]",
-          "bg-[#FFFFFF]",
-          "data-[state=checked]:bg-[#2563EB]",
-          "data-[state=checked]:border-[#2563EB]",
-          "focus-visible:shadow-[0_0_0_2px_rgba(22,119,255,0.12)]",
-          "focus-visible:border-[#2563EB]",
-          "focus-visible:ring-0",
-          "focus-visible:ring-offset-0",
-          "disabled:opacity-100"
-        )}
-      />
-      // </div>
-    );
-  }
-}
+export default InputCheckbox;

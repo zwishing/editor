@@ -1,6 +1,6 @@
 import React from "react";
-import {MdDelete, MdUndo} from "react-icons/md";
-import { type WithTranslation, withTranslation } from "react-i18next";
+import { MdDelete, MdUndo } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 
 import Block from "./Block";
 import InputButton from "./InputButton";
@@ -9,86 +9,81 @@ import FieldJson from "./FieldJson";
 import type { StylePropertySpecification } from "maplibre-gl";
 import { type MappedLayerErrors } from "../libs/definitions";
 
+type ExpressionPropertyProps = {
+  fieldName: string;
+  fieldType?: string;
+  fieldSpec?: StylePropertySpecification;
+  value?: any;
+  errors?: MappedLayerErrors;
+  onDelete?(...args: unknown[]): unknown;
+  onChange(value: object): void;
+  onUndo?(...args: unknown[]): unknown;
+  canUndo?(...args: unknown[]): unknown;
+  onFocus?(...args: unknown[]): unknown;
+  onBlur?(...args: unknown[]): unknown;
+};
 
-type ExpressionPropertyInternalProps = {
-  fieldName: string
-  fieldType?: string
-  fieldSpec?: StylePropertySpecification
-  value?: any
-  errors?: MappedLayerErrors
-  onDelete?(...args: unknown[]): unknown
-  onChange(value: object): void
-  onUndo?(...args: unknown[]): unknown
-  canUndo?(...args: unknown[]): unknown
-  onFocus?(...args: unknown[]): unknown
-  onBlur?(...args: unknown[]): unknown
-} & WithTranslation;
+const ExpressionProperty: React.FC<ExpressionPropertyProps> = ({
+  fieldName,
+  fieldType,
+  fieldSpec,
+  value,
+  errors = {},
+  onDelete,
+  onChange,
+  onUndo,
+  canUndo,
+  onFocus = () => { },
+  onBlur = () => { },
+}) => {
+  const { t } = useTranslation();
+  const undoDisabled = canUndo ? !canUndo() : true;
 
-class ExpressionPropertyInternal extends React.Component<ExpressionPropertyInternalProps> {
-  static defaultProps = {
-    errors: {},
-    onFocus: () => {},
-    onBlur: () => {},
-  };
-
-  constructor(props: ExpressionPropertyInternalProps) {
-    super(props);
-    this.state = {
-      jsonError: false,
-    };
-  }
-
-  render() {
-    const {t, value, canUndo} = this.props;
-    const undoDisabled = canUndo ? !canUndo() : true;
-
-    const deleteStopBtn = (
-      <>
-        {this.props.onUndo &&
-          <InputButton
-            key="undo_action"
-            onClick={this.props.onUndo}
-            disabled={undoDisabled}
-            className="maputnik-delete-stop"
-            title={t("Revert from expression")}
-          >
-            <MdUndo />
-          </InputButton>
-        }
+  const actionButtons = (
+    <div className="flex gap-1">
+      {onUndo && (
         <InputButton
-          key="delete_action"
-          onClick={this.props.onDelete}
+          onClick={onUndo}
+          disabled={undoDisabled}
           className="maputnik-delete-stop"
-          title={t("Delete expression")}
+          title={t("Revert from expression")}
         >
-          <MdDelete />
+          <MdUndo />
         </InputButton>
-      </>
-    );
-    let error = undefined;
-    if (this.props.errors) {
-      const fieldKey = this.props.fieldType ? this.props.fieldType + "." + this.props.fieldName : this.props.fieldName;
-      error = this.props.errors[fieldKey];
-    }
-    return <Block
-      fieldSpec={this.props.fieldSpec}
-      label={t(labelFromFieldName(this.props.fieldName))}
-      action={deleteStopBtn}
+      )}
+      <InputButton
+        onClick={onDelete}
+        className="maputnik-delete-stop"
+        title={t("Delete expression")}
+      >
+        <MdDelete />
+      </InputButton>
+    </div>
+  );
+
+  const fieldKey = fieldType ? `${fieldType}.${fieldName}` : fieldName;
+  const error = errors[fieldKey];
+
+  return (
+    <Block
+      fieldSpec={fieldSpec}
+      label={t(labelFromFieldName(fieldName))}
+      action={actionButtons}
       wideMode={true}
       error={error}
     >
       <FieldJson
         lintType="expression"
-        spec={this.props.fieldSpec}
-        className="maputnik-expression-editor"
-        onFocus={this.props.onFocus}
-        onBlur={this.props.onBlur}
+        spec={fieldSpec}
+        className="maputnik-expression-editor mt-2 border border-border rounded"
+        onFocus={onFocus}
+        onBlur={onBlur}
         value={value}
-        onChange={this.props.onChange}
+        onChange={onChange}
       />
-    </Block>;
-  }
-}
+    </Block>
+  );
+};
 
-const ExpressionProperty = withTranslation()(ExpressionPropertyInternal);
 export default ExpressionProperty;
+

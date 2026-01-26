@@ -1,6 +1,6 @@
-import React from "react";
-import { type WithTranslation, withTranslation } from "react-i18next";
-import type {LayerSpecification, SourceSpecification} from "maplibre-gl";
+import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import type { LayerSpecification, SourceSpecification } from "maplibre-gl";
 
 import InputButton from "../InputButton";
 import Modal from "./Modal";
@@ -10,187 +10,183 @@ import FieldSource from "../FieldSource";
 import FieldSourceLayer from "../FieldSourceLayer";
 import { NON_SOURCE_LAYERS } from "../../libs/non-source-layers";
 
-type ModalAddInternalProps = {
-  layers: LayerSpecification[]
-  onLayersChange(layers: LayerSpecification[]): unknown
-  isOpen: boolean
-  onOpenToggle(): void
+export type ModalAddProps = {
+  layers: LayerSpecification[];
+  onLayersChange(layers: LayerSpecification[]): void;
+  isOpen: boolean;
+  onOpenToggle(): void;
   // A dict of source id's and the available source layers
-  sources: Record<string, SourceSpecification & {layers: string[]}>;
-} & WithTranslation;
-
-type ModalAddState = {
-  type: LayerSpecification["type"]
-  id: string
-  source?: string
-  "source-layer"?: string
-  error?: string | null
+  sources: Record<string, SourceSpecification & { layers: string[] }>;
 };
 
-class ModalAddInternal extends React.Component<ModalAddInternalProps, ModalAddState> {
-  addLayer = () => {
-    if (this.props.layers.some(l => l.id === this.state.id)) {
-      this.setState({ error: this.props.t("Layer ID already exists") });
+const ModalAdd: React.FC<ModalAddProps> = ({
+  layers,
+  onLayersChange,
+  isOpen,
+  onOpenToggle,
+  sources,
+}) => {
+  const { t } = useTranslation();
+
+  const [id, setId] = useState("");
+  const [type, setType] = useState<LayerSpecification["type"]>("fill");
+  const [sourceId, setSourceId] = useState<string | undefined>(() => {
+    const ids = Object.keys(sources);
+    return ids.length > 0 ? ids[0] : undefined;
+  });
+  const [sourceLayer, setSourceLayer] = useState<string | undefined>(() => {
+    const ids = Object.keys(sources);
+    if (ids.length > 0) {
+      const firstSourceLayers = sources[ids[0]].layers || [];
+      return firstSourceLayers.length > 0 ? firstSourceLayers[0] : undefined;
+    }
+    return undefined;
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  const getSourcesForType = useCallback(
+    (layerType: LayerSpecification["type"]) => {
+      switch (layerType) {
+        case "background":
+          return [];
+        case "hillshade":
+        case "color-relief":
+          return Object.entries(sources)
+            .filter(([_, v]) => v.type === "raster-dem")
+            .map(([k, _]) => k);
+        case "raster":
+          return Object.entries(sources)
+            .filter(([_, v]) => v.type === "raster")
+            .map(([k, _]) => k);
+        case "heatmap":
+        case "circle":
+        case "fill":
+        case "fill-extrusion":
+        case "line":
+        case "symbol":
+          return Object.entries(sources)
+            .filter(([_, v]) => v.type === "vector" || v.type === "geojson")
+            .map(([k, _]) => k);
+        default:
+          return [];
+      }
+    },
+    [sources]
+  );
+
+  // Sync source when type changes
+  useEffect(() => {
+    const availableSources = getSourcesForType(type);
+    if (sourceId && !availableSources.includes(sourceId)) {
+      setSourceId(undefined);
+      setSourceLayer(undefined);
+    } else if (!sourceId && availableSources.length > 0) {
+      setSourceId(availableSources[0]);
+    }
+  }, [type, getSourcesForType, sourceId]);
+
+  // Sync source layer when source changes
+  useEffect(() => {
+    if (sourceId) {
+      const sourceObj = sources[sourceId] || {};
+      const sourceLayers = sourceObj.layers || [];
+      if (sourceLayers.length > 0) {
+        if (!sourceLayer || !sourceLayers.includes(sourceLayer)) {
+          setSourceLayer(sourceLayers[0]);
+        }
+      } else {
+        setSourceLayer(undefined);
+      }
+    } else {
+      setSourceLayer(undefined);
+    }
+  }, [sourceId, sources, sourceLayer]);
+
+  const addLayer = () => {
+    if (layers.some((l) => l.id === id)) {
+      setError(t("Layer ID already exists"));
       return;
     }
 
-    const changedLayers = this.props.layers.slice(0);
-    const layer: ModalAddState = {
-      id: this.state.id,
-      type: this.state.type,
+    const layer: any = {
+      id,
+      type,
     };
 
-    if(this.state.type !== "background") {
-      layer.source = this.state.source;
-      if(!NON_SOURCE_LAYERS.includes(this.state.type) && this.state["source-layer"]) {
-        layer["source-layer"] = this.state["source-layer"];
+    if (type !== "background") {
+      layer.source = sourceId;
+      if (!NON_SOURCE_LAYERS.includes(type) && sourceLayer) {
+        layer["source-layer"] = sourceLayer;
       }
     }
 
-    changedLayers.push(layer as LayerSpecification);
-    this.setState({ error: null }, () => {
-      this.props.onLayersChange(changedLayers);
-      this.props.onOpenToggle();
-    });
+    const changedLayers = [...layers, layer as LayerSpecification];
+    onLayersChange(changedLayers);
+    onOpenToggle();
   };
 
-  constructor(props: ModalAddInternalProps) {
-    super(props);
-    const state: ModalAddState = {
-      type: "fill",
-      id: "",
-      error: null,
-    };
+  const availableSources = getSourcesForType(type);
+  const availableLayers = sourceId ? sources[sourceId]?.layers || [] : [];
 
-    if(Object.keys(props.sources).length > 0) {
-      state.source = Object.keys(this.props.sources)[0];
-      const sourceLayers = this.props.sources[state.source].layers || [];
-      if (sourceLayers.length > 0) {
-        state["source-layer"] = sourceLayers[0];
-      }
-    }
-    this.state = state;
-  }
-
-  componentDidUpdate(_prevProps: ModalAddInternalProps, prevState: ModalAddState) {
-    // Check if source is valid for new type
-    const oldType = prevState.type;
-    const newType = this.state.type;
-
-    const availableSourcesOld = this.getSources(oldType);
-    const availableSourcesNew = this.getSources(newType);
-
-    if(
-    // Type has changed
-      oldType !== newType
-      && prevState.source !== ""
-      // Was a valid source previously
-      && availableSourcesOld.indexOf(prevState.source!) > -1
-      // And is not a valid source now
-      && availableSourcesNew.indexOf(this.state.source!) < 0
-    ) {
-      // Clear the source
-      this.setState({
-        source: ""
-      });
-    }
-  }
-
-  getLayersForSource(source: string) {
-    const sourceObj = this.props.sources[source] || {};
-    return sourceObj.layers || [];
-  }
-
-  getSources(type: LayerSpecification["type"]) {
-
-    switch(type) {
-      case "background":
-        return [];
-      case "hillshade":
-      case "color-relief":
-        return Object.entries(this.props.sources).filter(([_, v]) => v.type === "raster-dem").map(([k, _]) => k);
-      case "raster":
-        return Object.entries(this.props.sources).filter(([_, v]) => v.type === "raster").map(([k, _]) => k);
-      case "heatmap":
-      case "circle":
-      case "fill":
-      case "fill-extrusion":
-      case "line":
-      case "symbol":
-        return Object.entries(this.props.sources).filter(([_, v]) => v.type === "vector" || v.type === "geojson").map(([k, _]) => k);
-      default:
-        return [];
-    }
-  }
-
-
-  render() {
-    const t = this.props.t;
-    const sources = this.getSources(this.state.type);
-    const layers = this.getLayersForSource(this.state.source!);
-    let errorElement;
-    if (this.state.error) {
-      errorElement = (
-        <div className="maputnik-modal-error">
-          {this.state.error}
-          <a
-            href="#"
-            onClick={() => this.setState({ error: null })}
-            className="maputnik-modal-error-close"
-          >
-            ×
-          </a>
-        </div>
-      );
-    }
-
-    return <Modal
-      isOpen={this.props.isOpen}
-      onOpenToggle={this.props.onOpenToggle}
+  return (
+    <Modal
+      isOpen={isOpen}
+      onOpenToggle={onOpenToggle}
       title={t("Add Layer")}
       data-wd-key="modal:add-layer"
       className="maputnik-add-modal"
     >
-      {errorElement}
-      <div className="maputnik-add-layer">
+      {error && (
+        <div className="maputnik-modal-error bg-destructive/10 text-destructive p-3 rounded-md mb-4 flex items-center">
+          <span className="flex-1">{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="maputnik-modal-error-close text-xl leading-none"
+          >
+            ×
+          </button>
+        </div>
+      )}
+      <div className="maputnik-add-layer space-y-4">
         <FieldId
-          value={this.state.id}
+          value={id}
           wdKey="add-layer.layer-id"
           onChange={(v: string) => {
-            this.setState({ id: v, error: null });
+            setId(v);
+            setError(null);
           }}
         />
         <FieldType
-          value={this.state.type}
+          value={type}
           wdKey="add-layer.layer-type"
-          onChange={(v: LayerSpecification["type"]) => this.setState({ type: v })}
+          onChange={(v: LayerSpecification["type"]) => setType(v)}
         />
-        {this.state.type !== "background" &&
-      <FieldSource
-        sourceIds={sources}
-        wdKey="add-layer.layer-source-block"
-        value={this.state.source}
-        onChange={(v: string) => this.setState({ source: v })}
-      />
-        }
-        {!NON_SOURCE_LAYERS.includes(this.state.type) &&
-      <FieldSourceLayer
-        sourceLayerIds={layers}
-        value={this.state["source-layer"]}
-        onChange={(v: string) => this.setState({ "source-layer": v })}
-      />
-        }
+        {type !== "background" && (
+          <FieldSource
+            sourceIds={availableSources}
+            wdKey="add-layer.layer-source-block"
+            value={sourceId}
+            onChange={(v: string) => setSourceId(v)}
+          />
+        )}
+        {!NON_SOURCE_LAYERS.includes(type) && (
+          <FieldSourceLayer
+            sourceLayerIds={availableLayers}
+            value={sourceLayer}
+            onChange={(v: string) => setSourceLayer(v)}
+          />
+        )}
         <InputButton
-          className="maputnik-add-layer-button"
-          onClick={this.addLayer}
+          className="maputnik-add-layer-button w-full justify-center py-2"
+          onClick={addLayer}
           data-wd-key="add-layer"
+          disabled={!id}
         >
           {t("Add Layer")}
         </InputButton>
       </div>
-    </Modal>;
-  }
-}
+    </Modal>
+  );
+};
 
-const ModalAdd = withTranslation()(ModalAddInternal);
 export default ModalAdd;

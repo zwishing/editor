@@ -1,0 +1,14 @@
+- [x] Install missing shadcn components
+  - [x] `button`, `popover`, `command`, `separator`
+- [x] Refactor `LayerListItem.tsx`
+  - [x] Refactor `IconAction` class to functional `IconAction` component using Shadcn `Button`
+  - [x] Update `LayerListItem` to use generic Tailwind styling (removing `maputnik-*` classes except where generic-global-css depends on it, but prefer utility classes)
+  - [x] Update `DraggableLabel` styling
+  - [x] Verify functionality (Drag, Copy, Delete, Visibility)
+- [x] Refactor `InputAutocomplete.tsx`
+  - [x] Implement using Shadcn/Tailwind primitives
+  - [x] Ensure loose text input works
+  - [x] Ensure selection works
+- [x] Final Verification
+  - [x] `openspec validate`
+  - [x] Manual check of UI states

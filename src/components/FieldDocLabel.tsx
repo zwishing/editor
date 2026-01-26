@@ -1,53 +1,57 @@
-import React, { type JSX } from "react";
-import {MdInfoOutline, MdHighlightOff} from "react-icons/md";
+import React, { type ReactNode } from "react";
+import { MdInfoOutline, MdHighlightOff } from "react-icons/md";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 type FieldDocLabelProps = {
-  label: JSX.Element | string | undefined
+  label: ReactNode;
   fieldSpec?: {
-    doc?: string
-  }
-  onToggleDoc?(...args: unknown[]): unknown
+    doc?: string;
+  };
+  onToggleDoc?(state: boolean): void;
 };
 
-
-const FieldDocLabel: React.FC<FieldDocLabelProps> = (props) => {
+const FieldDocLabel: React.FC<FieldDocLabelProps> = ({ label, fieldSpec, onToggleDoc }) => {
   const [open, setOpen] = React.useState(false);
 
-  const onToggleDoc = (state: boolean) => {
-    setOpen(state);
-    if (props.onToggleDoc) {
-      props.onToggleDoc(state);
-    }
+  const handleToggleDoc = () => {
+    const nextState = !open;
+    setOpen(nextState);
+    onToggleDoc?.(nextState);
   };
 
-  const { label, fieldSpec } = props;
   const { doc } = fieldSpec || {};
 
-  if (doc) {
-    return (
-      <label className="maputnik-doc-wrapper">
-        <div className="maputnik-doc-target">
-          {label}
-          {"\xa0"}
-          <button
-            aria-label={open ? "close property documentation" : "open property documentation"}
-            className={`maputnik-doc-button maputnik-doc-button--${open ? "open" : "closed"}`}
-            onClick={() => onToggleDoc(!open)}
-            data-wd-key={"field-doc-button-" + label}
-          >
-            {open ? <MdHighlightOff /> : <MdInfoOutline />}
-          </button>
-        </div>
-      </label>
-    );
-  } else if (label) {
-    return (
-      <label className="maputnik-doc-wrapper">
-        <div className="maputnik-doc-target">{label}</div>
-      </label>
-    );
-  }
-  return <div />;
+  if (!label) return null;
+
+  return (
+    <div className="flex items-center gap-1.5 group/doc">
+      <Label className="text-xs font-semibold text-foreground/90 leading-tight">
+        {label}
+      </Label>
+      {doc && (
+        <button
+          type="button"
+          aria-label={open ? "close property documentation" : "open property documentation"}
+          className={cn(
+            "inline-flex items-center justify-center rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+            open
+              ? "text-blue-600 bg-blue-50"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          )}
+          onClick={handleToggleDoc}
+          data-wd-key={typeof label === "string" ? `field-doc-button-${label}` : "field-doc-button"}
+        >
+          {open ? (
+            <MdHighlightOff className="w-4 h-4" />
+          ) : (
+            <MdInfoOutline className="w-4 h-4" />
+          )}
+        </button>
+      )}
+    </div>
+  );
 };
 
 export default FieldDocLabel;
+

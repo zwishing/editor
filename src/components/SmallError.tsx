@@ -1,22 +1,18 @@
 import React from "react";
-import { type WithTranslation, withTranslation } from "react-i18next";
-import "./SmallError.scss";
+import { useTranslation } from "react-i18next";
 
-
-type SmallErrorInternalProps = {
+type SmallErrorProps = {
   children?: React.ReactNode
-} & WithTranslation;
+};
 
-class SmallErrorInternal extends React.Component<SmallErrorInternalProps> {
-  render () {
-    const t = this.props.t;
-    return (
-      <div className="SmallError">
-        {t("Error:")} {this.props.children}
-      </div>
-    );
-  }
-}
+const SmallError: React.FC<SmallErrorProps> = ({ children }) => {
+  const { t } = useTranslation();
 
-const SmallError = withTranslation()(SmallErrorInternal);
+  return (
+    <div className="mt-1 text-xs font-medium text-destructive">
+      {t("Error:")} {children}
+    </div>
+  );
+};
+
 export default SmallError;

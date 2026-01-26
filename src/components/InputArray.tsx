@@ -1,117 +1,93 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import InputString from "./InputString";
 import InputNumber from "./InputNumber";
 
 export type InputArrayProps = {
-  value: (string | number | undefined)[]
-  type?: string
-  length?: number
-  default?: (string | number | undefined)[]
-  onChange?(value: (string | number | undefined)[] | undefined): unknown
-  "aria-label"?: string
-  label?: string
+  value?: (string | number | undefined)[];
+  type?: string;
+  length?: number;
+  default?: (string | number | undefined)[];
+  onChange?(value: (string | number | undefined)[] | undefined): unknown;
+  "aria-label"?: string;
+  label?: string;
 };
 
-type InputArrayState = {
-  value: (string | number | undefined)[]
-  initialPropsValue: unknown[]
-};
+const InputArray: React.FC<InputArrayProps> = ({
+  value: propsValue = [],
+  type,
+  length = 0,
+  default: defaultValues = [],
+  onChange,
+  "aria-label": ariaLabel,
+  label,
+}) => {
+  const [internalValue, setInternalValue] = useState<(string | number | undefined)[]>([]);
 
-export default class InputArray extends React.Component<InputArrayProps, InputArrayState> {
-  static defaultProps = {
-    value: [],
-    default: [],
+  useEffect(() => {
+    const isDifferent = JSON.stringify(propsValue) !== JSON.stringify(internalValue);
+    if (isDifferent) {
+      setInternalValue(propsValue.slice(0));
+    }
+  }, [propsValue, internalValue]);
+
+  const isComplete = (vals: (string | number | undefined)[]) => {
+    if (vals.length < length) return false;
+    return Array(length)
+      .fill(null)
+      .every((_, i) => {
+        const val = vals[i];
+        return !(val === undefined || val === "");
+      });
   };
 
-  constructor (props: InputArrayProps) {
-    super(props);
-    this.state = {
-      value: this.props.value.slice(0),
-      // This is so we can compare changes in getDerivedStateFromProps
-      initialPropsValue: this.props.value.slice(0),
-    };
-  }
+  const changeValue = (idx: number, newValue: string | number | undefined) => {
+    const nextValue = [...internalValue];
+    nextValue[idx] = newValue;
 
-  static getDerivedStateFromProps(props: Readonly<InputArrayProps>, state: InputArrayState) {
-    const value: any[] = [];
-    const initialPropsValue = state.initialPropsValue.slice(0);
+    setInternalValue(nextValue);
 
-    Array(props.length).fill(null).map((_, i) => {
-      if (props.value[i] === state.initialPropsValue[i]) {
-        value[i] = state.value[i];
-      }
-      else {
-        value[i] = state.value[i];
-        initialPropsValue[i] = state.value[i];
-      }
-    });
+    if (isComplete(nextValue)) {
+      onChange?.(nextValue);
+    } else {
+      onChange?.(undefined);
+    }
+  };
 
-    return {
-      value,
-      initialPropsValue,
-    };
-  }
+  const containsValues =
+    internalValue.length > 0 && !internalValue.every((val) => val === "" || val === undefined);
 
-  isComplete(value: unknown[]) {
-    return Array(this.props.length).fill(null).every((_, i) => {
-      const val = value[i];
-      return !(val === undefined || val === "");
-    });
-  }
+  const inputs = Array(length)
+    .fill(null)
+    .map((_, i) => {
+      const commonProps = {
+        required: containsValues,
+        onChange: (v: any) => changeValue(i, v),
+        "aria-label": ariaLabel || label,
+      };
 
-  changeValue(idx: number, newValue: string | number | undefined) {
-    const value = this.state.value.slice(0);
-    value[idx] = newValue;
-
-    this.setState({
-      value,
-    }, () => {
-      if (this.isComplete(value) && this.props.onChange) {
-        this.props.onChange(value);
-      }
-      else if (this.props.onChange){
-        // Unset until complete
-        this.props.onChange(undefined);
-      }
-    });
-  }
-
-  render() {
-    const {value} = this.state;
-
-    const containsValues = (
-      value.length > 0 &&
-      !value.every(val => {
-        return (val === "" || val === undefined);
-      })
-    );
-
-    const inputs = Array(this.props.length).fill(null).map((_, i) => {
-      if(this.props.type === "number") {
-        return <InputNumber
-          key={i}
-          default={containsValues || !this.props.default ? undefined : this.props.default[i] as number}
-          value={value[i] as number}
-          required={containsValues ? true : false}
-          onChange={(v) => this.changeValue(i, v)}
-          aria-label={this.props["aria-label"] || this.props.label}
-        />;
+      if (type === "number") {
+        return (
+          <InputNumber
+            key={i}
+            {...commonProps}
+            default={containsValues || !defaultValues ? undefined : (defaultValues[i] as number)}
+            value={internalValue[i] as number}
+          />
+        );
       } else {
-        return <InputString
-          key={i}
-          default={containsValues || !this.props.default ? undefined : this.props.default[i] as string}
-          value={value[i] as string}
-          required={containsValues ? true : false}
-          onChange={this.changeValue.bind(this, i)}
-          aria-label={this.props["aria-label"] || this.props.label}
-        />;
+        return (
+          <InputString
+            key={i}
+            {...commonProps}
+            default={containsValues || !defaultValues ? undefined : (defaultValues[i] as string)}
+            value={internalValue[i] as string}
+          />
+        );
       }
     });
 
-    return (
-      <div className="maputnik-array">
-        {inputs}
-      </div>
-    );
-  }
-}
+  return <div className="flex flex-wrap gap-2">{inputs}</div>;
+};
+
+export default InputArray;
+

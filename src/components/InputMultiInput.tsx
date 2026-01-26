@@ -1,5 +1,5 @@
 import React from "react";
-import classnames from "classnames";
+import { cn } from "@/lib/utils";
 
 export type InputMultiInputProps = {
   name?: string
@@ -9,31 +9,48 @@ export type InputMultiInputProps = {
   "aria-label"?: string
 };
 
-export default class InputMultiInput extends React.Component<InputMultiInputProps> {
-  render() {
-    let options = this.props.options;
-    if(options.length > 0 && !Array.isArray(options[0])) {
-      options = options.map(v => [v, v]);
-    }
-
-    const selectedValue = this.props.value || options[0][0];
-    const radios = options.map(([val, label])=> {
-      return <label
-        key={val}
-        className={classnames("maputnik-button", "maputnik-radio-as-button", {"maputnik-button-selected": val === selectedValue})}
-      >
-        <input type="radio"
-          name={this.props.name}
-          onChange={_e => this.props.onChange(val)}
-          value={val}
-          checked={val === selectedValue}
-        />
-        {label}
-      </label>;
-    });
-
-    return <fieldset className="maputnik-multibutton" aria-label={this.props["aria-label"]}>
-      {radios}
-    </fieldset>;
+const InputMultiInput: React.FC<InputMultiInputProps> = ({
+  name,
+  value,
+  options: propsOptions,
+  onChange,
+  "aria-label": ariaLabel
+}) => {
+  let options = propsOptions;
+  if (options.length > 0 && !Array.isArray(options[0])) {
+    options = options.map(v => [v, v]);
   }
-}
+
+  const selectedValue = value || (options.length > 0 ? options[0][0] : undefined);
+
+  return (
+    <fieldset className="flex items-center gap-0.5" aria-label={ariaLabel}>
+      {options.map(([val, label]) => {
+        const isSelected = val === selectedValue;
+        return (
+          <label
+            key={val}
+            className={cn(
+              "flex cursor-pointer items-center justify-center rounded-md px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted",
+              isSelected
+                ? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
+                : "bg-background text-muted-foreground border border-input"
+            )}
+          >
+            <input
+              type="radio"
+              name={name}
+              className="sr-only"
+              onChange={() => onChange(val)}
+              value={val}
+              checked={isSelected}
+            />
+            {label}
+          </label>
+        );
+      })}
+    </fieldset>
+  );
+};
+
+export default InputMultiInput;

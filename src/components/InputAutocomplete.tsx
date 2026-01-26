@@ -1,8 +1,12 @@
 import React from "react";
-import classnames from "classnames";
-import {useCombobox} from "downshift";
-
-const MAX_HEIGHT = 140;
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+} from "@/components/ui/combobox";
 
 export type InputAutocompleteProps = {
   value?: string
@@ -14,103 +18,45 @@ export type InputAutocompleteProps = {
 export default function InputAutocomplete({
   value,
   options = [],
-  onChange = () => {},
+  onChange = () => { },
   "aria-label": ariaLabel,
 }: InputAutocompleteProps) {
-  const [input, setInput] = React.useState(value || "");
-  const menuRef = React.useRef<HTMLDivElement>(null);
-  const [maxHeight, setMaxHeight] = React.useState(MAX_HEIGHT);
+  const [inputValue, setInputValue] = React.useState(value || "");
 
-  const filteredItems = React.useMemo(() => {
-    const lv = input.toLowerCase();
-    return options.filter((item) => item[0].toLowerCase().includes(lv));
-  }, [options, input]);
-
-  const calcMaxHeight = React.useCallback(() => {
-    if (menuRef.current) {
-      const space = window.innerHeight - menuRef.current.getBoundingClientRect().top;
-      setMaxHeight(Math.min(space, MAX_HEIGHT));
-    }
-  }, []);
-
-  const {
-    isOpen,
-    getMenuProps,
-    getInputProps,
-    getItemProps,
-    highlightedIndex,
-    openMenu,
-  } = useCombobox({
-    items: filteredItems,
-    inputValue: input,
-    itemToString: (item) => (item ? item[0] : ""),
-    stateReducer: (_state, action) => {
-      if (action.type === useCombobox.stateChangeTypes.InputClick) {
-        return {...action.changes, isOpen: true};
-      }
-      return action.changes;
-    },
-    onSelectedItemChange: ({selectedItem}) => {
-      const v = selectedItem ? selectedItem[0] : "";
-      setInput(v);
-      onChange(selectedItem ? selectedItem[0] : undefined);
-    },
-    onInputValueChange: ({inputValue: v}) => {
-      if (typeof v === "string") {
-        setInput(v);
-        onChange(v === "" ? undefined : v);
-        openMenu();
-      }
-    },
-  });
-
+  // Update internal state when value prop changes externally
   React.useEffect(() => {
-    if (isOpen) {
-      calcMaxHeight();
-    }
-  }, [isOpen, calcMaxHeight]);
-
-  React.useEffect(() => {
-    window.addEventListener("resize", calcMaxHeight);
-    return () => window.removeEventListener("resize", calcMaxHeight);
-  }, [calcMaxHeight]);
-
-  React.useEffect(() => {
-    setInput(value || "");
+    setInputValue(value || "");
   }, [value]);
 
+  const handleValueChange = (val: string | null) => {
+    const resolvedValue = val || "";
+    setInputValue(resolvedValue);
+    onChange(resolvedValue === "" ? undefined : resolvedValue);
+  };
+
   return (
-    <div className="maputnik-autocomplete">
-      <input
-        {...getInputProps({
-          "aria-label": ariaLabel,
-          className: "maputnik-string",
-          spellCheck: false,
-          onFocus: () => openMenu(),
-        })}
-      />
-      <div
-        {...getMenuProps({}, {suppressRefError: true})}
-        ref={menuRef}
-        style={{position: "fixed", overflow: "auto", maxHeight, zIndex: 998}}
-        className="maputnik-autocomplete-menu"
+    <div className="w-full" data-slot="input-autocomplete">
+      <Combobox
+        value={inputValue}
+        onValueChange={handleValueChange}
       >
-        {isOpen &&
-          filteredItems.map((item, index) => (
-            <div
-              key={item[0]}
-              {...getItemProps({
-                item,
-                index,
-                className: classnames("maputnik-autocomplete-menu-item", {
-                  "maputnik-autocomplete-menu-item-selected": highlightedIndex === index,
-                }),
-              })}
-            >
-              {item[1]}
-            </div>
-          ))}
-      </div>
+        <ComboboxInput
+          placeholder=""
+          aria-label={ariaLabel}
+          className="w-full"
+          showTrigger={false}
+        />
+        <ComboboxContent className="z-50 min-w-[200px]">
+          <ComboboxEmpty>No results found.</ComboboxEmpty>
+          <ComboboxList>
+            {options.map((option) => (
+              <ComboboxItem key={option[0]} value={option[0]}>
+                {option[1] || option[0]}
+              </ComboboxItem>
+            ))}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
     </div>
   );
 }

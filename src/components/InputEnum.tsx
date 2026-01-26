@@ -2,48 +2,54 @@ import React from "react";
 import InputSelect from "./InputSelect";
 import InputMultiInput from "./InputMultiInput";
 
-
-function optionsLabelLength(options: any[]) {
-  let sum = 0;
-  options.forEach(([_, label]) => {
-    sum += label.length;
-  });
-  return sum;
+function optionsLabelLength(options: [string, string][]) {
+  return options.reduce((sum, [_, label]) => sum + label.length, 0);
 }
-
 
 export type InputEnumProps = {
-  "data-wd-key"?: string
-  value?: string
-  style?: object
-  default?: string
-  name?: string
-  onChange(...args: unknown[]): unknown
-  options: any[]
-  "aria-label"?: string
-  label?: string
+  "data-wd-key"?: string;
+  value?: string;
+  style?: React.CSSProperties;
+  default?: string;
+  name?: string;
+  onChange(value: any): void;
+  options: [string, string][];
+  "aria-label"?: string;
+  label?: string;
 };
 
+const InputEnum: React.FC<InputEnumProps> = ({
+  options,
+  value,
+  onChange,
+  name,
+  label,
+  default: defaultValue,
+  "aria-label": ariaLabel,
+}) => {
+  const currentValue = value || defaultValue;
 
-export default class InputEnum extends React.Component<InputEnumProps> {
-  render() {
-    const {options, value, onChange, name, label} = this.props;
-
-    if(options.length <= 3 && optionsLabelLength(options) <= 20) {
-      return <InputMultiInput
+  if (options.length <= 3 && optionsLabelLength(options) <= 20) {
+    return (
+      <InputMultiInput
         name={name}
         options={options}
-        value={(value || this.props.default)!}
+        value={currentValue!}
         onChange={onChange}
-        aria-label={this.props["aria-label"] || label}
-      />;
-    } else {
-      return <InputSelect
+        aria-label={ariaLabel || label}
+      />
+    );
+  } else {
+    return (
+      <InputSelect
         options={options}
-        value={(value || this.props.default)!}
+        value={currentValue!}
         onChange={onChange}
-        aria-label={this.props["aria-label"] || label}
-      />;
-    }
+        aria-label={ariaLabel || label}
+      />
+    );
   }
-}
+};
+
+export default InputEnum;
+

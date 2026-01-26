@@ -1,0 +1,18 @@
+- [x] Refactor Atomic Inputs
+  - [x] `InputButton.tsx`: Use `ui/button`, remove `classnames` and SASS.
+  - [x] `InputCheckbox.tsx`: Use `ui/checkbox`, remove `classnames` and SASS.
+  - [x] `InputString.tsx`: Use `ui/input` / `ui/textarea`, remove SASS.
+  - [x] `InputNumber.tsx`: Use `ui/input` / `ui/slider`, remove SASS.
+  - [x] `InputSelect.tsx`: Ensure usage of `ui/native-select` is complete and SASS-free.
+- [x] Refactor Custom Base Components
+  - [x] `InputMultiInput.tsx`: Migrate layout/radio styles to Tailwind.
+  - [x] `InputColor.tsx`: Migrate to Tailwind, remove custom SASS.
+  - [x] `InputJson.tsx`: Migrate to Tailwind, ensure Codemirror wrapper is styled correctly.
+- [x] Refactor Utility Components
+  - [x] `SmallError.tsx`: Remove `SmallError.scss`, use Tailwind.
+  - [x] `Doc.tsx`: Use Tailwind for markdown/documentation layout.
+  - [x] `Collapse.tsx` / `Collapser.tsx`: Use Tailwind.
+  - [x] `IconLayer.tsx` / `ScrollContainer.tsx`: Use Tailwind.
+- [x] Final Verification
+  - [x] Global search for `.maputnik-` classes in these files and ensure they are gone or mapped.
+  - [x] Verify editor visual consistency.

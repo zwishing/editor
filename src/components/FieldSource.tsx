@@ -1,26 +1,25 @@
 import React from "react";
-
 import latest from "@maplibre/maplibre-gl-style-spec/dist/latest.json";
 import Block from "./Block";
 import InputAutocomplete from "./InputAutocomplete";
-import { type WithTranslation, withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
-type FieldSourceInternalProps = {
-  value?: string
-  wdKey?: string
-  onChange?(value: string| undefined): unknown
-  sourceIds?: unknown[]
-  error?: {message: string}
-} & WithTranslation;
+type FieldSourceProps = {
+  value?: string;
+  wdKey?: string;
+  onChange?(value: string | undefined): void;
+  sourceIds?: any[];
+  error?: { message: string };
+};
 
-const FieldSourceInternal: React.FC<FieldSourceInternalProps> = ({
-  onChange = () => {},
+const FieldSource: React.FC<FieldSourceProps> = ({
+  onChange = () => { },
   sourceIds = [],
   wdKey,
   value,
   error,
-  t
 }) => {
+  const { t } = useTranslation();
   return (
     <Block
       label={t("Source")}
@@ -37,6 +36,5 @@ const FieldSourceInternal: React.FC<FieldSourceInternalProps> = ({
   );
 };
 
-
-const FieldSource = withTranslation()(FieldSourceInternal);
 export default FieldSource;
+

@@ -1,21 +1,18 @@
 import React from "react";
-
 import Block from "./Block";
 import InputString from "./InputString";
-import { type WithTranslation, withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
-type FieldCommentInternalProps = {
-  value?: string
-  onChange(value: string | undefined): unknown
-  error: {message: string}
-} & WithTranslation;
+type FieldCommentProps = {
+  value?: string;
+  onChange(value: string | undefined): void;
+  error?: { message: string };
+};
 
-const FieldCommentInternal: React.FC<FieldCommentInternalProps> = (props) => {
-  const t = props.t;
+const FieldComment: React.FC<FieldCommentProps> = ({ value, onChange, error }) => {
+  const { t } = useTranslation();
   const fieldSpec = {
-    doc: t(
-      "Comments for the current layer. This is non-standard and not in the spec."
-    ),
+    doc: t("Comments for the current layer. This is non-standard and not in the spec."),
   };
 
   return (
@@ -23,12 +20,12 @@ const FieldCommentInternal: React.FC<FieldCommentInternalProps> = (props) => {
       label={t("Comments")}
       fieldSpec={fieldSpec}
       data-wd-key="layer-comment"
-      error={props.error}
+      error={error}
     >
       <InputString
         multi={true}
-        value={props.value}
-        onChange={props.onChange}
+        value={value}
+        onChange={onChange}
         default={t("Comment...")}
         data-wd-key="layer-comment.input"
       />
@@ -36,5 +33,5 @@ const FieldCommentInternal: React.FC<FieldCommentInternalProps> = (props) => {
   );
 };
 
-const FieldComment = withTranslation()(FieldCommentInternal);
 export default FieldComment;
+

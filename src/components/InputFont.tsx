@@ -1,61 +1,63 @@
-import React from "react";
+import React, { useCallback } from "react";
 import InputAutocomplete from "./InputAutocomplete";
 
 export type InputFontProps = {
-  name: string
-  value?: string[]
-  default?: string[]
-  fonts?: unknown[]
-  style?: object
-  onChange(...args: unknown[]): unknown
-  "aria-label"?: string
+  name: string;
+  value?: string[];
+  default?: string[];
+  fonts?: any[];
+  style?: React.CSSProperties;
+  onChange(values: string[]): void;
+  "aria-label"?: string;
 };
 
-export default class InputFont extends React.Component<InputFontProps> {
-  static defaultProps = {
-    fonts: []
+const InputFont: React.FC<InputFontProps> = ({
+  name,
+  value,
+  default: defaultValue,
+  fonts = [],
+  style,
+  onChange,
+  "aria-label": ariaLabel,
+}) => {
+  const getValues = () => {
+    const out = value || defaultValue || [];
+    // Always put a "" in the last field to allow adding entries
+    if (out[out.length - 1] !== "") {
+      return [...out, ""];
+    }
+    return out;
   };
 
-  get values() {
-    const out = this.props.value || this.props.default || [];
+  const currentValues = getValues();
 
-    // Always put a "" in the last field to you can keep adding entries
-    if (out[out.length-1] !== ""){
-      return out.concat("");
-    }
-    else {
-      return out;
-    }
-  }
+  const changeFont = useCallback(
+    (idx: number, newValue: string | undefined) => {
+      const nextValues = [...currentValues];
+      nextValues[idx] = newValue || "";
+      const filteredValues = nextValues.filter((v) => v !== undefined && v !== "");
+      onChange(filteredValues);
+    },
+    [currentValues, onChange]
+  );
 
-  changeFont(idx: number, newValue: string) {
-    const changedValues = this.values.slice(0);
-    changedValues[idx] = newValue;
-    const filteredValues = changedValues
-      .filter(v => v !== undefined)
-      .filter(v => v !== "");
+  const inputs = currentValues.map((val, i) => (
+    <div key={i} className="mb-2 last:mb-0">
+      <InputAutocomplete
+        aria-label={ariaLabel || name}
+        value={val}
+        options={fonts.map((f) => [f, f])}
+        onChange={(v) => changeFont(i, v)}
+      />
+    </div>
+  ));
 
-    this.props.onChange(filteredValues);
-  }
+  return (
+    <div className="space-y-2" style={style}>
+      {inputs}
+    </div>
+  );
+};
 
-  render() {
-    const inputs = this.values.map((value, i) => {
-      return <li
-        key={i}
-      >
-        <InputAutocomplete
-          aria-label={this.props["aria-label"] || this.props.name}
-          value={value}
-          options={this.props.fonts?.map(f => [f, f])}
-          onChange={this.changeFont.bind(this, i)}
-        />
-      </li>;
-    });
+export default InputFont;
 
-    return (
-      <ul className="maputnik-font">
-        {inputs}
-      </ul>
-    );
-  }
-}

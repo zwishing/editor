@@ -1,164 +1,123 @@
-import React from "react";
+import React, { useCallback } from "react";
 import capitalize from "lodash.capitalize";
-import {MdDelete} from "react-icons/md";
-import { type WithTranslation, withTranslation } from "react-i18next";
+import { MdDelete } from "react-icons/md";
+import { useTranslation } from "react-i18next";
 
 import InputString from "./InputString";
 import InputNumber from "./InputNumber";
 import InputButton from "./InputButton";
-import FieldDocLabel from "./FieldDocLabel";
 import InputEnum from "./InputEnum";
 import InputUrl from "./InputUrl";
 import InputColor from "./InputColor";
 
-
 export type InputDynamicArrayProps = {
-  value?: (string | number | undefined)[]
-  type?: "url" | "number" | "enum" | "string" | "color"
-  default?: (string | number | undefined)[]
-  onChange?(values: (string | number | undefined)[] | undefined): unknown
-  style?: object
+  value?: (string | number | undefined)[];
+  type?: "url" | "number" | "enum" | "string" | "color";
+  default?: (string | number | undefined)[];
+  onChange?(values: (string | number | undefined)[] | undefined): unknown;
+  style?: React.CSSProperties;
   fieldSpec?: {
-    values?: any
-  }
-  "aria-label"?: string
-  label: string
+    values?: any;
+  };
+  "aria-label"?: string;
+  label: string;
 };
 
-type InputDynamicArrayInternalProps = InputDynamicArrayProps & WithTranslation;
-
-class InputDynamicArrayInternal extends React.Component<InputDynamicArrayInternalProps> {
-  changeValue(idx: number, newValue: string | number | undefined) {
-    const values = this.values.slice(0);
-    values[idx] = newValue;
-    if (this.props.onChange) this.props.onChange(values);
-  }
-
-  get values() {
-    return this.props.value || this.props.default || [];
-  }
-
-  addValue = () => {
-    const values = this.values.slice(0);
-    if (this.props.type === "number") {
-      values.push(0);
-    }
-    else if (this.props.type === "url") {
-      values.push("");
-    }
-    else if (this.props.type === "enum") {
-      const {fieldSpec} = this.props;
-      const defaultValue = Object.keys(fieldSpec!.values)[0];
-      values.push(defaultValue);
-    } else if (this.props.type === "color") {
-      values.push("#000000");
-    } else {
-      values.push("");
-    }
-
-    if (this.props.onChange) this.props.onChange(values);
-  };
-
-  deleteValue(valueIdx: number) {
-    const values = this.values.slice(0);
-    values.splice(valueIdx, 1);
-
-    if (this.props.onChange) this.props.onChange(values.length > 0 ? values : undefined);
-  }
-
-  render() {
-    const t = this.props.t;
-    const i18nProps = { t, i18n: this.props.i18n, tReady: this.props.tReady };
-    const inputs = this.values.map((v, i) => {
-      const deleteValueBtn= <DeleteValueInputButton
-        onClick={this.deleteValue.bind(this, i)}
-        {...i18nProps}
-      />;
-      let input;
-      if(this.props.type === "url") {
-        input = <InputUrl
-          value={v as string}
-          onChange={this.changeValue.bind(this, i)}
-          aria-label={this.props["aria-label"] || this.props.label}
-        />;
-      }
-      else if (this.props.type === "number") {
-        input = <InputNumber
-          value={v as number}
-          onChange={this.changeValue.bind(this, i)}
-          aria-label={this.props["aria-label"] || this.props.label}
-        />;
-      }
-      else if (this.props.type === "enum") {
-        const options = Object.keys(this.props.fieldSpec?.values).map(v => [v, capitalize(v)]);
-        input = <InputEnum
-          options={options}
-          value={v as string}
-          onChange={this.changeValue.bind(this, i)}
-          aria-label={this.props["aria-label"] || this.props.label}
-        />;
-      }
-      else if (this.props.type === "color") {
-        input = <InputColor
-          value={v as string}
-          onChange={this.changeValue.bind(this, i)}
-          aria-label={this.props["aria-label"] || this.props.label}
-        />;
-      }
-      else {
-        input = <InputString
-          value={v as string}
-          onChange={this.changeValue.bind(this, i)}
-          aria-label={this.props["aria-label"] || this.props.label}
-        />;
-      }
-
-      return <div
-        style={this.props.style}
-        key={i}
-        className="maputnik-array-block"
-      >
-        <div className="maputnik-array-block-action">
-          {deleteValueBtn}
-        </div>
-        <div className="maputnik-array-block-content">
-          {input}
-        </div>
-      </div>;
-    });
-
-    return (
-      <div className="maputnik-array">
-        {inputs}
-        <InputButton
-          className="maputnik-array-add-value"
-          onClick={this.addValue}
-        >
-          {t("Add value")}
-        </InputButton>
-      </div>
-    );
-  }
-}
-
-const InputDynamicArray = withTranslation()(InputDynamicArrayInternal);
-export default InputDynamicArray;
-
-type DeleteValueInputButtonProps = {
-  onClick?(...args: unknown[]): unknown
-} & WithTranslation;
-
-class DeleteValueInputButton extends React.Component<DeleteValueInputButtonProps> {
-  render() {
-    const t = this.props.t;
-    return <InputButton
-      className="maputnik-delete-stop"
-      onClick={this.props.onClick}
+const DeleteValueInputButton: React.FC<{ onClick?(): void }> = ({ onClick }) => {
+  const { t } = useTranslation();
+  return (
+    <InputButton
+      className="maputnik-delete-stop flex items-center justify-center p-1"
+      onClick={onClick}
       title={t("Remove array item")}
     >
-      <FieldDocLabel
-        label={<MdDelete />}
-      />
-    </InputButton>;
-  }
-}
+      <MdDelete className="w-4 h-4" />
+    </InputButton>
+  );
+};
+
+const InputDynamicArray: React.FC<InputDynamicArrayProps> = (props) => {
+  const { t } = useTranslation();
+  const values = props.value || props.default || [];
+
+  const changeValue = useCallback(
+    (idx: number, newValue: string | number | undefined) => {
+      const nextValues = [...values];
+      nextValues[idx] = newValue;
+      props.onChange?.(nextValues);
+    },
+    [values, props.onChange]
+  );
+
+  const addValue = useCallback(() => {
+    const nextValues = [...values];
+    if (props.type === "number") {
+      nextValues.push(0);
+    } else if (props.type === "url") {
+      nextValues.push("");
+    } else if (props.type === "enum") {
+      const firstValue = Object.keys(props.fieldSpec?.values || {})[0];
+      nextValues.push(firstValue);
+    } else if (props.type === "color") {
+      nextValues.push("#000000");
+    } else {
+      nextValues.push("");
+    }
+    props.onChange?.(nextValues);
+  }, [values, props.type, props.fieldSpec, props.onChange]);
+
+  const deleteValue = useCallback(
+    (idx: number) => {
+      const nextValues = [...values];
+      nextValues.splice(idx, 1);
+      props.onChange?.(nextValues.length > 0 ? nextValues : undefined);
+    },
+    [values, props.onChange]
+  );
+
+  const inputs = values.map((v, i) => {
+    let input;
+    const commonProps = {
+      value: v as any,
+      onChange: (next: any) => changeValue(i, next),
+      "aria-label": props["aria-label"] || props.label,
+    };
+
+    if (props.type === "url") {
+      input = <InputUrl {...commonProps} />;
+    } else if (props.type === "number") {
+      input = <InputNumber {...commonProps} />;
+    } else if (props.type === "enum") {
+      const options = Object.keys(props.fieldSpec?.values || {}).map((ov) => [ov, capitalize(ov)]) as [
+        string,
+        string
+      ][];
+      input = <InputEnum options={options} {...commonProps} />;
+    } else if (props.type === "color") {
+      input = <InputColor {...commonProps} />;
+    } else {
+      input = <InputString {...commonProps} />;
+    }
+
+    return (
+      <div key={i} className="flex items-center gap-2 group">
+        <div className="flex-1 min-w-0">{input}</div>
+        <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          <DeleteValueInputButton onClick={() => deleteValue(i)} />
+        </div>
+      </div>
+    );
+  });
+
+  return (
+    <div className="space-y-2">
+      <div className="space-y-2">{inputs}</div>
+      <InputButton className="w-full justify-center !py-1 text-xs" onClick={addValue}>
+        {t("Add value")}
+      </InputButton>
+    </div>
+  );
+};
+
+export default InputDynamicArray;
+

@@ -1,39 +1,41 @@
 import React from "react";
-import { type WithTranslation, withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import InputButton from "../InputButton";
 import Modal from "./Modal";
 
+export type ModalLoadingProps = {
+  isOpen: boolean;
+  onCancel(e?: React.MouseEvent | Event): void;
+  title: string;
+  message: React.ReactNode;
+};
 
-type ModalLoadingInternalProps = {
-  isOpen: boolean
-  onCancel(...args: unknown[]): unknown
-  title: string
-  message: React.ReactNode
-} & WithTranslation;
-
-
-class ModalLoadingInternal extends React.Component<ModalLoadingInternalProps> {
-  render() {
-    const t = this.props.t;
-    return <Modal
+const ModalLoading: React.FC<ModalLoadingProps> = ({
+  isOpen,
+  onCancel,
+  title,
+  message,
+}) => {
+  const { t } = useTranslation();
+  return (
+    <Modal
       data-wd-key="modal:loading"
-      isOpen={this.props.isOpen}
+      isOpen={isOpen}
       underlayClickExits={false}
-      title={this.props.title}
-      onOpenToggle={() => this.props.onCancel()}
+      title={title}
+      onOpenToggle={() => onCancel()}
     >
-      <p>
-        {this.props.message}
-      </p>
-      <p className="maputnik-dialog__buttons">
-        <InputButton onClick={(e) => this.props.onCancel(e)}>
-          {t("Cancel")}
-        </InputButton>
-      </p>
-    </Modal>;
-  }
-}
+      <div className="space-y-6">
+        <p className="text-sm text-foreground/80">{message}</p>
+        <div className="flex justify-end p-4">
+          <InputButton onClick={(e: any) => onCancel(e)}>
+            {t("Cancel")}
+          </InputButton>
+        </div>
+      </div>
+    </Modal>
+  );
+};
 
-const ModalLoading = withTranslation()(ModalLoadingInternal);
 export default ModalLoading;

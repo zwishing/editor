@@ -1,9 +1,10 @@
 import React from "react";
 import classnames from "classnames";
-import {MdContentCopy, MdVisibility, MdVisibilityOff, MdDelete} from "react-icons/md";
+import { MdContentCopy, MdVisibility, MdVisibilityOff, MdDelete } from "react-icons/md";
 import { IconContext } from "react-icons";
-import {useSortable} from "@dnd-kit/sortable";
-import {CSS} from "@dnd-kit/utilities";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Button } from "@/components/ui/button";
 
 import IconLayer from "./IconLayer";
 
@@ -16,14 +17,18 @@ type DraggableLabelProps = {
 };
 
 const DraggableLabel: React.FC<DraggableLabelProps> = (props) => {
-  const {dragAttributes, dragListeners} = props;
-  return <div className="maputnik-layer-list-item-handle" {...dragAttributes} {...dragListeners}>
+  const { dragAttributes, dragListeners } = props;
+  return <div
+    className="flex items-center cursor-grab active:cursor-grabbing p-1 text-xs"
+    {...dragAttributes}
+    {...dragListeners}
+  >
     <IconLayer
-      className="layer-handle__icon"
+      className="mr-1 text-muted-foreground"
       type={props.layerType}
       style={{ width: "1em", height: "1em", verticalAlign: "middle" }}
     />
-    <button className="maputnik-layer-list-item-id">
+    <button className="text-left font-mono truncate max-w-[140px] hover:text-foreground focus:outline-none">
       {props.layerId}
     </button>
   </div>;
@@ -37,40 +42,45 @@ type IconActionProps = {
   classBlockModifier?: string
 };
 
-class IconAction extends React.Component<IconActionProps> {
-  renderIcon() {
-    switch(this.props.action) {
+const IconAction: React.FC<IconActionProps> = (props) => {
+  const renderIcon = () => {
+    switch (props.action) {
       case "duplicate": return <MdContentCopy />;
       case "show": return <MdVisibility />;
       case "hide": return <MdVisibilityOff />;
       case "delete": return <MdDelete />;
     }
+  };
+
+  const { classBlockName, classBlockModifier } = props;
+
+  // Legacy class logic retained for backward compatibility if needed by external CSS, 
+  // though we are moving to Tailwind. 
+  // The user requested strict usage consistency (props), which is preserved.
+  let classAdditions = "";
+  if (classBlockName) {
+    classAdditions = `maputnik-layer-list-icon-action__${classBlockName}`;
+
+    if (classBlockModifier) {
+      classAdditions += ` maputnik-layer-list-icon-action__${classBlockName}--${classBlockModifier}`;
+    }
   }
 
-  render() {
-    const {classBlockName, classBlockModifier} = this.props;
-
-    let classAdditions = "";
-    if (classBlockName) {
-      classAdditions = `maputnik-layer-list-icon-action__${classBlockName}`;
-
-      if (classBlockModifier) {
-        classAdditions += ` maputnik-layer-list-icon-action__${classBlockName}--${classBlockModifier}`;
-      }
-    }
-
-    return <button
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className={classnames("h-7 w-7", classAdditions)}
+      title={props.action}
+      data-wd-key={props.wdKey}
+      onClick={props.onClick as React.MouseEventHandler<HTMLButtonElement>}
       tabIndex={-1}
-      title={this.props.action}
-      className={`maputnik-layer-list-icon-action ${classAdditions}`}
-      data-wd-key={this.props.wdKey}
-      onClick={this.props.onClick}
       aria-hidden="true"
     >
-      {this.renderIcon()}
-    </button>;
-  }
-}
+      {renderIcon()}
+    </Button>
+  );
+};
 
 type LayerListItemProps = {
   id?: string
@@ -90,9 +100,9 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
   const {
     isSelected = false,
     visibility = "visible",
-    onLayerCopy = () => {},
-    onLayerDestroy = () => {},
-    onLayerVisibilityToggle = () => {},
+    onLayerCopy = () => { },
+    onLayerDestroy = () => { },
+    onLayerVisibilityToggle = () => { },
   } = props;
 
   const {
@@ -102,7 +112,7 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
     transform,
     transition,
     isDragging,
-  } = useSortable({id: props.layerId});
+  } = useSortable({ id: props.layerId });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -115,7 +125,7 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
   // Cast ref to MutableRefObject since we know from the codebase that's what's always passed
   const refObject = ref as React.MutableRefObject<HTMLLIElement | null> | null;
 
-  return <IconContext.Provider value={{size: "14px"}}>
+  return <IconContext.Provider value={{ size: "14px" }}>
     <li
       ref={(node) => {
         setNodeRef(node);
@@ -127,32 +137,34 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
       id={props.id}
       onClick={_e => props.onLayerSelect(props.layerIndex)}
       data-wd-key={"layer-list-item:" + props.layerId}
-      className={classnames({
-        "maputnik-layer-list-item": true,
-        "maputnik-layer-list-item-selected": isSelected,
-        [props.className!]: true,
-      })}>
+      className={classnames(
+        "flex items-center border-b border-border bg-background hover:bg-accent/50 p-0.5 select-none",
+        {
+          "bg-accent text-accent-foreground border-l-4 border-l-primary": isSelected,
+          [props.className!]: true,
+        }
+      )}>
       <DraggableLabel
         layerId={props.layerId}
         layerType={props.layerType}
         dragAttributes={attributes}
         dragListeners={listeners}
       />
-      <span style={{flexGrow: 1}} />
+      <span style={{ flexGrow: 1 }} />
       <IconAction
-        wdKey={"layer-list-item:" + props.layerId+":delete"}
+        wdKey={"layer-list-item:" + props.layerId + ":delete"}
         action={"delete"}
         classBlockName="delete"
         onClick={_e => onLayerDestroy!(props.layerIndex)}
       />
       <IconAction
-        wdKey={"layer-list-item:" + props.layerId+":copy"}
+        wdKey={"layer-list-item:" + props.layerId + ":copy"}
         action={"duplicate"}
         classBlockName="duplicate"
         onClick={_e => onLayerCopy!(props.layerIndex)}
       />
       <IconAction
-        wdKey={"layer-list-item:"+props.layerId+":toggle-visibility"}
+        wdKey={"layer-list-item:" + props.layerId + ":toggle-visibility"}
         action={visibilityAction}
         classBlockName="visibility"
         classBlockModifier={visibilityAction}

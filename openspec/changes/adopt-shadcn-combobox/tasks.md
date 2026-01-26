@@ -1,0 +1,10 @@
+- [x] Remove `downshift` usage
+- [x] Refactor `InputAutocomplete.tsx`
+  - [x] Use `Command` (root), `CommandInput`, `CommandList` (floating).
+  - [x] Implement `shouldFilter={false}` to manage filtering manually (preserving free text).
+  - [x] Style `CommandInput` to match `components/ui/input`.
+  - [x] Ensure `CommandList` floats correctly (absolute positioning or Popover if feasible).
+- [x] Verify functionality
+  - [x] Text typing (free text) works.
+  - [x] Selection from list works.
+  - [x] Keyboard navigation works.

@@ -1,71 +1,64 @@
 import React from "react";
 
 import InputButton from "./InputButton";
-import {MdFunctions, MdInsertChart} from "react-icons/md";
+import { MdFunctions, MdInsertChart } from "react-icons/md";
 import { TbMathFunction } from "react-icons/tb";
-import { type WithTranslation, withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
-type FunctionInputButtonsInternalProps = {
+type FunctionInputButtonsProps = {
   fieldSpec?: any
   onZoomClick?(): void
   onDataClick?(): void
   onExpressionClick?(): void
   onElevationClick?(): void
-} & WithTranslation;
+};
 
-class FunctionInputButtonsInternal extends React.Component<FunctionInputButtonsInternalProps> {
-  render() {
-    const t = this.props.t;
+const FunctionInputButtons: React.FC<FunctionInputButtonsProps> = (props) => {
+  const { t } = useTranslation();
 
-    if (this.props.fieldSpec.expression?.parameters.includes("zoom")) {
-      const expressionInputButton = (
+  if (props.fieldSpec.expression?.parameters.includes("zoom")) {
+    return (
+      <div className="flex items-center gap-1">
         <InputButton
-          className="maputnik-make-zoom-function"
-          onClick={this.props.onExpressionClick}
+          onClick={props.onExpressionClick}
           title={t("Convert to expression")}
         >
           <TbMathFunction />
         </InputButton>
-      );
 
-      const makeZoomInputButton = <InputButton
-        className="maputnik-make-zoom-function"
-        onClick={this.props.onZoomClick}
-        title={t("Convert property into a zoom function")}
-      >
-        <MdFunctions />
-      </InputButton>;
+        {props.fieldSpec["property-type"] === "data-driven" && (
+          <InputButton
+            onClick={props.onDataClick}
+            title={t("Convert property to data function")}
+          >
+            <MdInsertChart />
+          </InputButton>
+        )}
 
-      let makeDataInputButton;
-      if (this.props.fieldSpec["property-type"] === "data-driven") {
-        makeDataInputButton = <InputButton
-          className="maputnik-make-data-function"
-          onClick={this.props.onDataClick}
-          title={t("Convert property to data function")}
+        <InputButton
+          onClick={props.onZoomClick}
+          title={t("Convert property into a zoom function")}
         >
-          <MdInsertChart />
-        </InputButton>;
-      }
-      return <div>
-        {expressionInputButton}
-        {makeDataInputButton}
-        {makeZoomInputButton}
-      </div>;
-    } else if (this.props.fieldSpec.expression?.parameters.includes("elevation")) {
-      const inputElevationButton = <InputButton
-        className="maputnik-make-elevation-function"
-        onClick={this.props.onElevationClick}
-        title={t("Convert property into a elevation function")}
-        data-wd-key='make-elevation-function'
-      >
-        <MdFunctions />
-      </InputButton>;
-      return <div>{inputElevationButton}</div>;
-    } else {
-      return <div></div>;
-    }
+          <MdFunctions />
+        </InputButton>
+      </div>
+    );
+  } else if (props.fieldSpec.expression?.parameters.includes("elevation")) {
+    return (
+      <div className="flex items-center gap-1">
+        <InputButton
+          onClick={props.onElevationClick}
+          title={t("Convert property into a elevation function")}
+          data-wd-key='make-elevation-function'
+        >
+          <MdFunctions />
+        </InputButton>
+      </div>
+    );
   }
-}
 
-const FunctionInputButtons = withTranslation()(FunctionInputButtonsInternal);
+  return null;
+};
+
 export default FunctionInputButtons;
+

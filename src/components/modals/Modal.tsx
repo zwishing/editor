@@ -1,71 +1,69 @@
 import React, { type PropsWithChildren } from "react";
-import {MdClose} from "react-icons/md";
-import AriaModal from "react-aria-modal";
-import classnames from "classnames";
-import { type WithTranslation, withTranslation } from "react-i18next";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
-type ModalInternalProps = PropsWithChildren & {
-  "data-wd-key"?: string
-  isOpen: boolean
-  title: string
-  onOpenToggle(): void
-  underlayClickExits?: boolean
-  className?: string
-} & WithTranslation;
+export type ModalProps = PropsWithChildren & {
+  "data-wd-key"?: string;
+  isOpen: boolean;
+  title: string;
+  onOpenToggle(): void;
+  underlayClickExits?: boolean;
+  className?: string;
+};
 
-
-class ModalInternal extends React.Component<ModalInternalProps> {
-  static defaultProps = {
-    underlayClickExits: true
-  };
-
-  // See <https://github.com/maplibre/maputnik/issues/416>
-  onClose = () => {
-    if (document.activeElement) {
-      (document.activeElement as HTMLElement).blur();
+const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  title,
+  onOpenToggle,
+  underlayClickExits = true,
+  className,
+  children,
+  "data-wd-key": dataWdKey,
+}) => {
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      onOpenToggle();
     }
-
-    setTimeout(() => {
-      this.props.onOpenToggle();
-    }, 0);
   };
 
-  render() {
-    const t = this.props.t;
-    if(this.props.isOpen) {
-      return <AriaModal
-        titleText={this.props.title}
-        underlayClickExits={this.props.underlayClickExits}
-        data-wd-key={this.props["data-wd-key"]}
-        verticallyCenter={true}
-        onExit={this.onClose}
-        dialogClass='maputnik-modal-container'
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={cn(
+          "max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden bg-background border shadow-lg sm:rounded-lg",
+          className
+        )}
+        onPointerDownOutside={(e) => {
+          if (!underlayClickExits) {
+            e.preventDefault();
+          }
+        }}
+        data-wd-key={dataWdKey}
       >
-        <div className={classnames("maputnik-modal", this.props.className)}
-          data-wd-key={this.props["data-wd-key"]}
-        >
-          <header className="maputnik-modal-header">
-            <h1 className="maputnik-modal-header-title">{this.props.title}</h1>
-            <span className="maputnik-space"></span>
-            <button className="maputnik-modal-header-toggle"
-              title={t("Close modal")}
-              onClick={this.onClose}
-              data-wd-key={this.props["data-wd-key"]+".close-modal"}
-            >
-              <MdClose />
-            </button>
-          </header>
-          <div className="maputnik-modal-scroller">
-            <div className="maputnik-modal-content">{this.props.children}</div>
+        <DialogHeader className="px-6 py-4 border-b shrink-0 flex flex-row items-center justify-between space-y-0">
+          <DialogTitle
+            className="text-lg font-bold leading-none tracking-tight"
+            data-wd-key={dataWdKey ? `${dataWdKey}.title` : undefined}
+          >
+            {title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4 custom-scrollbar">
+          <div
+            className="maputnik-modal-content"
+            data-wd-key={dataWdKey ? `${dataWdKey}.content` : undefined}
+          >
+            {children}
           </div>
         </div>
-      </AriaModal>;
-    }
-    else {
-      return false;
-    }
-  }
-}
+      </DialogContent>
+    </Dialog>
+  );
+};
 
-const Modal = withTranslation()(ModalInternal);
 export default Modal;

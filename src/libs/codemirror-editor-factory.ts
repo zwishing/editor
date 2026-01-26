@@ -1,14 +1,46 @@
-import { basicSetup } from "codemirror";
-import { EditorView } from "@codemirror/view";
+import { EditorView, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor, highlightActiveLine, keymap } from "@codemirror/view";
 import { EditorState, Compartment } from "@codemirror/state";
 import { json, jsonParseLinter } from "@codemirror/lang-json";
-import { linter, lintGutter, type Diagnostic } from "@codemirror/lint";
+import { linter, lintGutter, type Diagnostic, lintKeymap } from "@codemirror/lint";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { foldGutter, foldKeymap, indentOnInput, syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
+import { history, defaultKeymap, historyKeymap } from "@codemirror/commands";
+import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
+import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
 import { expression, type StylePropertySpecification, validateStyleMin } from "@maplibre/maplibre-gl-style-spec";
 import jsonToAst, { type ValueNode, type PropertyNode } from "json-to-ast";
 import { jsonPathToPosition } from "./json-path-to-position";
 
 export type LintType = "layer" | "style" | "expression" | "json";
+
+const minimalSetup = [
+  lineNumbers(),
+  highlightActiveLineGutter(),
+  highlightSpecialChars(),
+  history(),
+  foldGutter(),
+  drawSelection(),
+  dropCursor(),
+  EditorState.allowMultipleSelections.of(true),
+  indentOnInput(),
+  syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+  bracketMatching(),
+  closeBrackets(),
+  autocompletion(),
+  rectangularSelection(),
+  crosshairCursor(),
+  highlightActiveLine(),
+  highlightSelectionMatches(),
+  keymap.of([
+    ...closeBracketsKeymap,
+    ...defaultKeymap,
+    ...searchKeymap,
+    ...historyKeymap,
+    ...foldKeymap,
+    ...completionKeymap,
+    ...lintKeymap
+  ])
+];
 
 type LinterError = {
   key: string | null;
@@ -18,7 +50,7 @@ type LinterError = {
 function getDiagnosticsFromExpressionErrors(errors: LinterError[], ast: ValueNode | PropertyNode) {
   const diagnostics: Diagnostic[] = [];
   for (const error of errors) {
-    const {key, message} = error;
+    const { key, message } = error;
     if (!key) {
       diagnostics.push({
         from: 0,
@@ -123,7 +155,7 @@ function createMaplibreExpressionLinter(spec?: StylePropertySpecification) {
     if (out?.result !== "error") {
       return [];
     }
-    const errors = out.value;
+    const errors = (out.value as any);
     return getDiagnosticsFromExpressionErrors(errors, ast);
   };
 }
@@ -156,7 +188,7 @@ export function createEditor(props: {
   return new EditorView({
     doc: props.value,
     extensions: [
-      basicSetup,
+      minimalSetup,
       json(),
       oneDark,
       new Compartment().of(EditorState.tabSize.of(2)),

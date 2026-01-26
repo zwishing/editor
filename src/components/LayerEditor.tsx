@@ -408,7 +408,7 @@ class LayerEditorInternal extends React.Component<LayerEditorInternalProps, Laye
                 className="maputnik-button"
                 onClick={this.props.onClose}
                 title={t("Close layer editor")}
-                style={{ marginLeft: '6px' }}
+                style={{ marginLeft: "6px" }}
               >
                 <MdClose />
               </button>

@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export type InputStringProps = {
   "data-wd-key"?: string
   value?: string
-  style?: object
+  style?: React.CSSProperties
   default?: string
   onChange?(value: string | undefined): unknown
   onInput?(value: string | undefined): unknown
@@ -17,88 +18,75 @@ export type InputStringProps = {
   title?: string
 };
 
-type InputStringState = {
-  editing: boolean
-  value?: string
-};
+const InputString: React.FC<InputStringProps> = ({
+  "aria-label": ariaLabel,
+  "data-wd-key": dataWdKey,
+  spellCheck,
+  disabled,
+  style,
+  value: propsValue,
+  default: placeholder,
+  title,
+  onChange,
+  onInput,
+  multi,
+  required
+}) => {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(propsValue || "");
 
-export default class InputString extends React.Component<InputStringProps, InputStringState> {
-  static defaultProps = {
-    onInput: () => {},
+  useEffect(() => {
+    if (!editing) {
+      setValue(propsValue || "");
+    }
+  }, [propsValue, editing]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newVal = e.target.value;
+    setEditing(true);
+    setValue(newVal);
+    if (onInput) onInput(newVal);
   };
 
-  constructor(props: InputStringProps) {
-    super(props);
-    this.state = {
-      editing: false,
-      value: props.value || ""
-    };
+  const handleBlur = () => {
+    if (value !== propsValue) {
+      setEditing(false);
+      if (onChange) onChange(value);
+    } else {
+      setEditing(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !multi && onChange) {
+      onChange(value);
+    }
+  };
+
+  const commonProps = {
+    "aria-label": ariaLabel,
+    "data-wd-key": dataWdKey,
+    spellCheck: spellCheck !== undefined ? spellCheck : !multi,
+    disabled,
+    style,
+    value,
+    placeholder,
+    title,
+    onChange: handleChange,
+    onBlur: handleBlur,
+    onKeyDown: handleKeyDown,
+    required,
+    className: cn(
+      "w-full bg-transparent px-3 py-1",
+      disabled && "cursor-not-allowed opacity-50"
+    ),
+  };
+
+  if (multi) {
+    return <Textarea {...commonProps} />;
   }
 
-  static getDerivedStateFromProps(props: Readonly<InputStringProps>, state: InputStringState) {
-    if (!state.editing) {
-      return {
-        value: props.value
-      };
-    }
-    return {};
-  }
+  return <Input {...commonProps} />;
+};
 
-  render() {
-    let classes;
-
-    if(this.props.multi) {
-      classes = [
-        "maputnik-string",
-        "maputnik-string--multi"
-      ];
-    }
-    else {
-      classes = [
-        "maputnik-string"
-      ];
-    }
-
-    if(this.props.disabled) {
-      classes.push("maputnik-string--disabled");
-    }
-
-    const sharedProps = {
-      "aria-label": this.props["aria-label"],
-      "data-wd-key": this.props["data-wd-key"],
-      spellCheck: Object.prototype.hasOwnProperty.call(this.props, "spellCheck") ? this.props.spellCheck : !this.props.multi,
-      disabled: this.props.disabled,
-      className: classes.join(" "),
-      style: this.props.style,
-      value: this.state.value === undefined ? "" : this.state.value,
-      placeholder: this.props.default,
-      title: this.props.title,
-      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        this.setState({
-          editing: true,
-          value: e.target.value
-        }, () => {
-          if (this.props.onInput) this.props.onInput(this.state.value);
-        });
-      },
-      onBlur: () => {
-        if(this.state.value!==this.props.value) {
-          this.setState({editing: false});
-          if (this.props.onChange) this.props.onChange(this.state.value);
-        }
-      },
-      onKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        if (e.keyCode === 13 && this.props.onChange) {
-          this.props.onChange(this.state.value);
-        }
-      },
-      required: this.props.required,
-    };
-
-    if(this.props.multi) {
-      return <Textarea {...sharedProps} />;
-    }
-
-    return <Input {...sharedProps} />;
-  }
-}
+export default InputString;
