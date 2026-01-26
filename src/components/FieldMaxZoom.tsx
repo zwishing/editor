@@ -1,5 +1,5 @@
 import React from "react";
-import latest from "@maplibre/maplibre-gl-style-spec/dist/latest.json";
+import { layer } from "@maplibre/maplibre-gl-style-spec/dist/latest.json";
 import Block from "./Block";
 import InputNumber from "./InputNumber";
 import { useTranslation } from "react-i18next";
@@ -15,7 +15,7 @@ const FieldMaxZoom: React.FC<FieldMaxZoomProps> = ({ value, onChange, error }) =
   return (
     <Block
       label={t("Max Zoom")}
-      fieldSpec={latest.layer.maxzoom}
+      fieldSpec={layer.maxzoom}
       error={error}
       inline={true}
       data-wd-key="max-zoom"
@@ -24,9 +24,9 @@ const FieldMaxZoom: React.FC<FieldMaxZoomProps> = ({ value, onChange, error }) =
         allowRange={true}
         value={value}
         onChange={onChange}
-        min={latest.layer.maxzoom.minimum}
-        max={latest.layer.maxzoom.maximum}
-        default={latest.layer.maxzoom.maximum}
+        min={layer.maxzoom.minimum}
+        max={layer.maxzoom.maximum}
+        default={layer.maxzoom.maximum}
         data-wd-key="max-zoom.input"
       />
     </Block>

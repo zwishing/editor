@@ -18,7 +18,6 @@ import LayerListItem from "./LayerListItem";
 import ModalAdd from "./modals/ModalAdd";
 
 import type { LayerSpecification, SourceSpecification } from "maplibre-gl";
-import generateUniqueId from "../libs/document-uid";
 import { layerPrefix } from "../libs/layer";
 import { type WithTranslation, withTranslation } from "react-i18next";
 import { type MappedError, type OnMoveLayerCallback } from "../libs/definitions";
@@ -51,14 +50,12 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
 }) => {
   const [collapsedGroups, setCollapsedGroups] = React.useState<Record<string, boolean>>({});
   const [areAllGroupsExpanded, setAreAllGroupsExpanded] = React.useState(false);
-  const [modalKeys, setModalKeys] = React.useState({ add: +generateUniqueId() });
   const [modalOpen, setModalOpen] = React.useState({ add: false });
 
   const selectedItemRef = React.useRef<any>(null);
   const scrollContainerRef = React.useRef<HTMLElement | null>(null);
 
   const toggleModal = (modalName: string) => {
-    setModalKeys((prev) => ({ ...prev, [modalName]: +generateUniqueId() }));
     setModalOpen((prev) => ({ ...prev, [modalName]: !prev[modalName as keyof typeof prev] }));
   };
 
@@ -158,30 +155,34 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
         (error) => error.parsed && error.parsed.type === "layer" && error.parsed.data.index === currentIdx
       );
 
-      listItems.push(
-        <LayerListItem
-          className={cn(
-            layersGrp.length > 1 &&
-            isCollapsed(groupPrefix, firstIdxInGroup) &&
-            currentIdx !== selectedLayerIndex &&
-            "absolute max-h-0 overflow-hidden p-0 opacity-0 invisible",
-            idxInGroup === layersGrp.length - 1 && layersGrp.length > 1 && "border-b-2 border-panel-border",
-            !!layerError && "text-red-600"
-          )}
-          key={layer.key}
-          id={layer.key}
-          layerId={layer.id}
-          layerIndex={currentIdx}
-          layerType={layer.type}
-          visibility={(layer.layout || {}).visibility as any}
-          isSelected={currentIdx === selectedLayerIndex}
-          onLayerSelect={onLayerSelect}
-          onLayerDestroy={onLayerDestroy}
-          onLayerCopy={onLayerCopy}
-          onLayerVisibilityToggle={onLayerVisibilityToggle}
-          ref={currentIdx === selectedLayerIndex ? selectedItemRef : undefined}
-        />
-      );
+      // Use conditional rendering instead of CSS hiding to prevent DOM bloat
+      const shouldRender =
+        layersGrp.length === 1 || // Always render single layers
+        !isCollapsed(groupPrefix, firstIdxInGroup) || // Render if group is expanded
+        currentIdx === selectedLayerIndex; // Always render selected layer
+
+      if (shouldRender) {
+        listItems.push(
+          <LayerListItem
+            className={cn(
+              idxInGroup === layersGrp.length - 1 && layersGrp.length > 1 && "border-b-2 border-panel-border",
+              !!layerError && "text-red-600"
+            )}
+            key={layer.key}
+            id={layer.key}
+            layerId={layer.id}
+            layerIndex={currentIdx}
+            layerType={layer.type}
+            visibility={(layer.layout || {}).visibility as any}
+            isSelected={currentIdx === selectedLayerIndex}
+            onLayerSelect={onLayerSelect}
+            onLayerDestroy={onLayerDestroy}
+            onLayerCopy={onLayerCopy}
+            onLayerVisibilityToggle={onLayerVisibilityToggle}
+            ref={currentIdx === selectedLayerIndex ? selectedItemRef : undefined}
+          />
+        );
+      }
       globalIdx++;
     });
   });
@@ -195,7 +196,6 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
       ref={scrollContainerRef}
     >
       <ModalAdd
-        key={modalKeys.add}
         layers={layers}
         sources={sources}
         isOpen={modalOpen.add}

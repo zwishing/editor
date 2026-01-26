@@ -69,6 +69,12 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      zIndex: {
+        dropdown: "1000",
+        modal: "2000",
+        popover: "3000",
+        tooltip: "4000",
+      },
     },
   },
   plugins: [tailwindcssAnimate],

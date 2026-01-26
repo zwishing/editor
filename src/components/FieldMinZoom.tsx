@@ -1,5 +1,5 @@
 import React from "react";
-import latest from "@maplibre/maplibre-gl-style-spec/dist/latest.json";
+import { layer } from "@maplibre/maplibre-gl-style-spec/dist/latest.json";
 import Block from "./Block";
 import InputNumber from "./InputNumber";
 import { useTranslation } from "react-i18next";
@@ -15,7 +15,7 @@ const FieldMinZoom: React.FC<FieldMinZoomProps> = ({ value, onChange, error }) =
   return (
     <Block
       label={t("Min Zoom")}
-      fieldSpec={latest.layer.minzoom}
+      fieldSpec={layer.minzoom}
       error={error}
       inline={true}
       data-wd-key="min-zoom"
@@ -24,9 +24,9 @@ const FieldMinZoom: React.FC<FieldMinZoomProps> = ({ value, onChange, error }) =
         allowRange={true}
         value={value}
         onChange={onChange}
-        min={latest.layer.minzoom.minimum}
-        max={latest.layer.minzoom.maximum}
-        default={latest.layer.minzoom.minimum}
+        min={layer.minzoom.minimum}
+        max={layer.minzoom.maximum}
+        default={layer.minzoom.minimum}
         data-wd-key="min-zoom.input"
       />
     </Block>

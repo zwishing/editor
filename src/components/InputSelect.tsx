@@ -49,15 +49,15 @@ const InputSelect: React.FC<InputSelectProps> = ({
         style={style}
         title={title}
         aria-label={ariaLabel}
-        className={cn("w-full h-8 text-[11px] px-2", className)}
+        className={cn("w-full h-8 text-xs px-2", className)}
       >
         <SelectValue placeholder="Select option..." />
       </SelectTrigger>
-      <SelectContent className="z-[3000]">
+      <SelectContent className="z-popover">
         {(options as [string, any][]).map(([val, label]) => {
           const itemValue = val === "" ? EMPTY_VALUE : val;
           return (
-            <SelectItem key={itemValue} value={itemValue} className="text-[11px]">
+            <SelectItem key={itemValue} value={itemValue} className="text-xs">
               {label}
             </SelectItem>
           );
