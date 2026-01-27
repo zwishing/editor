@@ -25,11 +25,12 @@ const FunctionInputButtons: React.FC<FunctionInputButtonsProps> = (props) => {
   if (props.fieldSpec.expression?.parameters.includes("zoom")) {
     return (
       <TooltipProvider>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center mr-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <InputButton
                 onClick={props.onExpressionClick}
+                className="rounded-none first:rounded-l-md last:rounded-r-md border border-input -ml-px first:ml-0 z-0 hover:z-10 focus:z-10 px-2"
               >
                 <TbMathFunction className="h-4 w-4" />
               </InputButton>
@@ -44,6 +45,7 @@ const FunctionInputButtons: React.FC<FunctionInputButtonsProps> = (props) => {
               <TooltipTrigger asChild>
                 <InputButton
                   onClick={props.onDataClick}
+                  className="rounded-none first:rounded-l-md last:rounded-r-md border border-input -ml-px first:ml-0 z-0 hover:z-10 focus:z-10 px-2"
                 >
                   <MdInsertChart className="h-4 w-4" />
                 </InputButton>
@@ -58,6 +60,7 @@ const FunctionInputButtons: React.FC<FunctionInputButtonsProps> = (props) => {
             <TooltipTrigger asChild>
               <InputButton
                 onClick={props.onZoomClick}
+                className="rounded-none first:rounded-l-md last:rounded-r-md border border-input -ml-px first:ml-0 z-0 hover:z-10 focus:z-10 px-2"
               >
                 <MdFunctions className="h-4 w-4" />
               </InputButton>
@@ -72,7 +75,7 @@ const FunctionInputButtons: React.FC<FunctionInputButtonsProps> = (props) => {
   } else if (props.fieldSpec.expression?.parameters.includes("elevation")) {
     return (
       <TooltipProvider>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 mr-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <InputButton

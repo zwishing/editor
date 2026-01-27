@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
+import { cn } from "@/lib/utils";
 
 export type InputNumberProps = {
   value?: number
@@ -13,6 +14,7 @@ export type InputNumberProps = {
   "data-wd-key"?: string
   required?: boolean
   "aria-label"?: string
+  className?: string
 };
 
 const InputNumber: React.FC<InputNumberProps> = ({
@@ -25,7 +27,8 @@ const InputNumber: React.FC<InputNumberProps> = ({
   rangeStep = 1,
   "data-wd-key": dataWdKey,
   required,
-  "aria-label": ariaLabel
+  "aria-label": ariaLabel,
+  className
 }) => {
   const [editing, setEditing] = useState(false);
   const [editingRange, setEditingRange] = useState(false);
@@ -171,7 +174,7 @@ const InputNumber: React.FC<InputNumberProps> = ({
     <Input
       aria-label={ariaLabel}
       spellCheck="false"
-      className="w-full h-8 text-[11px]"
+      className={cn("w-full h-8 text-[11px]", className)}
       placeholder={defaultValue?.toString()}
       value={displayValue === undefined ? "" : displayValue}
       onChange={(e) => changeValue(e.target.value)}

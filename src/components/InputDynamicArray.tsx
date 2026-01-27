@@ -86,7 +86,7 @@ const InputDynamicArray: React.FC<InputDynamicArrayProps> = (props) => {
     if (props.type === "url") {
       input = <InputUrl {...commonProps} />;
     } else if (props.type === "number") {
-      input = <InputNumber {...commonProps} />;
+      input = <InputNumber {...commonProps} className="w-24" />;
     } else if (props.type === "enum") {
       const options = Object.keys(props.fieldSpec?.values || {}).map((ov) => [ov, capitalize(ov)]) as [
         string,
@@ -101,7 +101,7 @@ const InputDynamicArray: React.FC<InputDynamicArrayProps> = (props) => {
 
     return (
       <div key={i} className="flex items-center gap-2 group">
-        <div className="flex-1 min-w-0">{input}</div>
+        <div className="w-auto min-w-0">{input}</div>
         <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
           <DeleteValueInputButton onClick={() => deleteValue(i)} />
         </div>

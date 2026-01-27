@@ -20,6 +20,7 @@ const FieldSource: React.FC<FieldSourceProps> = ({
   error,
 }) => {
   const { t } = useTranslation();
+  const options = React.useMemo(() => sourceIds?.map((src) => [src, src]), [sourceIds]);
   return (
     <Block
       label={t("Source")}
@@ -30,7 +31,7 @@ const FieldSource: React.FC<FieldSourceProps> = ({
       <InputAutocomplete
         value={value}
         onChange={onChange}
-        options={sourceIds?.map((src) => [src, src])}
+        options={options}
       />
     </Block>
   );

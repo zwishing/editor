@@ -9,6 +9,12 @@ import InputNumber from "./InputNumber";
 import InputString from "./InputString";
 import InputSelect from "./InputSelect";
 import Block from "./Block";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import docUid from "../libs/document-uid";
 import sortNumerically from "../libs/sort-numerically";
 import { findDefaultFromSpec } from "../libs/spec-helper";
@@ -299,18 +305,34 @@ const DataProperty: React.FC<DataPropertyProps> = (props) => {
             </div>
           )}
 
-          <div className="flex flex-wrap gap-2 pt-2">
-            {dataFields && (
-              <InputButton onClick={() => props.onAddStop?.()}>
-                <PiListPlusBold className="mr-1" />
-                {t("Add stop")}
-              </InputButton>
-            )}
-            <InputButton onClick={() => props.onExpressionClick?.()}>
-              <TbMathFunction className="mr-1" />
-              {t("Convert to expression")}
-            </InputButton>
-          </div>
+          <TooltipProvider>
+            <div className="flex justify-end gap-2 pt-2">
+              {dataFields && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InputButton onClick={() => props.onAddStop?.()}>
+                      <PiListPlusBold className="mr-1" />
+                      {t("Add stop")}
+                    </InputButton>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{t("Add stop")}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <InputButton onClick={() => props.onExpressionClick?.()}>
+                    <TbMathFunction className="mr-1" />
+                    {t("Convert to expression")}
+                  </InputButton>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{t("Convert to expression")}</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
         </div>
       </fieldset>
     </div>

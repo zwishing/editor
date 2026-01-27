@@ -22,6 +22,7 @@ export default function InputAutocomplete({
   "aria-label": ariaLabel,
 }: InputAutocompleteProps) {
   const [inputValue, setInputValue] = React.useState(value || "");
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   // Update internal state when value prop changes externally
   React.useEffect(() => {
@@ -32,6 +33,12 @@ export default function InputAutocomplete({
     const resolvedValue = val || "";
     setInputValue(resolvedValue);
     onChange(resolvedValue === "" ? undefined : resolvedValue);
+
+    // Remove focus highlight after selection (deferred to avoid blocking selection logic)
+    if (inputRef.current) {
+      const el = inputRef.current;
+      setTimeout(() => el.blur(), 0);
+    }
   };
 
   return (
@@ -41,6 +48,7 @@ export default function InputAutocomplete({
         onValueChange={handleValueChange}
       >
         <ComboboxInput
+          ref={inputRef}
           placeholder=""
           aria-label={ariaLabel}
           className="w-full"
@@ -49,11 +57,11 @@ export default function InputAutocomplete({
         <ComboboxContent className="z-50 min-w-[200px]">
           <ComboboxEmpty>No results found.</ComboboxEmpty>
           <ComboboxList>
-            {options.map((option) => (
+            {React.useMemo(() => options.map((option) => (
               <ComboboxItem key={option[0]} value={option[0]}>
                 {option[1] || option[0]}
               </ComboboxItem>
-            ))}
+            )), [options])}
           </ComboboxList>
         </ComboboxContent>
       </Combobox>

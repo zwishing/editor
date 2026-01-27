@@ -37,7 +37,7 @@ const InputButton = React.forwardRef<HTMLButtonElement, InputButtonProps>(({
       disabled={disabled}
       aria-label={ariaLabel}
       className={cn(
-        "h-6 w-6 p-0 text-muted-foreground hover:text-foreground",
+        "h-7 w-auto px-2 text-muted-foreground hover:text-foreground hover:bg-accent/40",
         className
       )}
       data-wd-key={dataWdKey}

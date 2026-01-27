@@ -248,18 +248,8 @@
     margin-bottom: 10px;
   }
 
-  input:focus,
-  textarea:focus,
-  select:focus {
-    outline: 2px solid #2563EB;
-    outline-offset: -1px;
-  }
+  /* Removed global focus styles to use component-level shadcn/tailwind focus rings */
 
-  button:focus-visible,
-  *[role="button"]:focus-visible {
-    outline: 2px solid #2563EB;
-    outline-offset: -1px;
-  }
 
   ol, ul {
     list-style: none;

@@ -82,6 +82,7 @@
     "pmtiles": "^4.3.0",
     "pnpm": "^10.28.1",
     "prop-types": "^15.8.1",
+    "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-accessible-accordion": "^5.0.1",
     "react-aria-menubutton": "^7.0.3",

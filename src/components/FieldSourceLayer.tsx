@@ -18,6 +18,7 @@ const FieldSourceLayer: React.FC<FieldSourceLayerProps> = ({
   error,
 }) => {
   const { t } = useTranslation();
+  const options = React.useMemo(() => sourceLayerIds?.map((l) => [l, l]), [sourceLayerIds]);
   return (
     <Block
       label={t("Source Layer")}
@@ -28,7 +29,7 @@ const FieldSourceLayer: React.FC<FieldSourceLayerProps> = ({
       <InputAutocomplete
         value={value}
         onChange={onChange}
-        options={sourceLayerIds?.map((l) => [l, l])}
+        options={options}
       />
     </Block>
   );

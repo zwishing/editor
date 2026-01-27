@@ -49,7 +49,7 @@ const Block: React.FC<BlockProps> = (props) => {
     "border-none shadow-none bg-transparent p-0 m-0", // Override standard Card styles to fit existing layout density
     {
       "maputnik-input-block--wide block w-full": props.wideMode,
-      "maputnik-input-block--inline flex items-center gap-2": props.inline,
+      "maputnik-input-block--inline flex items-center gap-2 my-2": props.inline,
       "maputnik-action-block": props.action,
       "maputnik-input-block--error text-destructive": props.error,
       "flex flex-wrap items-center my-3": !props.wideMode && !props.inline, // Default layout from SCSS (.maputnik-input-block)
@@ -86,7 +86,7 @@ const Block: React.FC<BlockProps> = (props) => {
       </div>
 
       <div className={classnames("maputnik-input-block-action shrink-0", {
-        "w-auto text-right": !props.inline
+        "w-auto text-right mr-2": true
       })}>
         {props.action}
       </div>

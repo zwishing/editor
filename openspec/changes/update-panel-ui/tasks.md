@@ -8,5 +8,5 @@
 - [x] 1.7 Add subtle transitions for chrome/controls; respect prefers-reduced-motion.
 - [x] 1.8 Update CHANGELOG.md under the "main" section.
 ## 2. Validation
-- [ ] 2.1 Visual check at 375px, 768px, 1024px, 1440px to confirm no horizontal scroll and good spacing.
-- [ ] 2.2 Optional: npm run lint (if available in your environment).
+- [x] 2.1 Visual check at 375px, 768px, 1024px, 1440px to confirm no horizontal scroll and good spacing.
+- [x] 2.2 Optional: npm run lint (if available in your environment).
