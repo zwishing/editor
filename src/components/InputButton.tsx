@@ -13,6 +13,7 @@ export type InputButtonProps = {
   type?: "button" | "submit" | "reset"
   id?: string
   title?: string
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
 };
 
 const InputButton = React.forwardRef<HTMLButtonElement, InputButtonProps>(({
@@ -25,7 +26,8 @@ const InputButton = React.forwardRef<HTMLButtonElement, InputButtonProps>(({
   className,
   "data-wd-key": dataWdKey,
   style,
-  children
+  children,
+  variant = "ghost"
 }, ref) => {
   return (
     <Button
@@ -37,12 +39,12 @@ const InputButton = React.forwardRef<HTMLButtonElement, InputButtonProps>(({
       disabled={disabled}
       aria-label={ariaLabel}
       className={cn(
-        "h-7 w-auto px-2 text-muted-foreground hover:text-foreground hover:bg-accent/40",
+        "h-7 w-auto px-2 text-panel-muted hover:text-panel-text hover:bg-panel-hover",
         className
       )}
       data-wd-key={dataWdKey}
       style={style}
-      variant="ghost"
+      variant={variant}
     >
       {children}
     </Button>

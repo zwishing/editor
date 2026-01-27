@@ -135,21 +135,21 @@ export const ColorPicker = ({
     }
   }, [hue, saturation, lightness, alpha, onChange, value, mode]);
 
+  const contextValue = useMemo(() => ({
+    hue,
+    saturation,
+    lightness,
+    alpha,
+    mode,
+    setHue,
+    setSaturation,
+    setLightness,
+    setAlpha,
+    setMode,
+  }), [hue, saturation, lightness, alpha, mode, setHue, setSaturation, setLightness, setAlpha, setMode]);
+
   return (
-    <ColorPickerContext.Provider
-      value={{
-        hue,
-        saturation,
-        lightness,
-        alpha,
-        mode,
-        setHue,
-        setSaturation,
-        setLightness,
-        setAlpha,
-        setMode,
-      }}
-    >
+    <ColorPickerContext.Provider value={contextValue}>
       <div
         className={cn("flex size-full flex-col gap-4", className)}
         {...props}

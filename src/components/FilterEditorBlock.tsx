@@ -10,8 +10,8 @@ type FilterEditorBlockInternalProps = PropsWithChildren & {
 class FilterEditorBlockInternal extends React.Component<FilterEditorBlockInternalProps> {
   render() {
     const t = this.props.t;
-    return <div className="maputnik-filter-editor-block">
-      <div className="maputnik-filter-editor-block-content">
+    return <div className="maputnik-filter-editor-block flex items-center gap-2">
+      <div className="maputnik-filter-editor-block-content flex-1 min-w-0">
         {this.props.children}
       </div>
       <div className="maputnik-filter-editor-block-action">

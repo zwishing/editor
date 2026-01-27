@@ -203,7 +203,7 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
         onLayersChange={onLayersChange}
       />
       <header
-        className="flex flex-col sticky top-0 z-[2001] bg-card"
+        className="flex flex-col sticky top-0 z-[2001] bg-panel-surface"
         data-wd-key="layer-list.header"
       >
         <div className="h-12 px-3 flex flex-row items-center justify-between flex-none">
@@ -227,7 +227,7 @@ const LayerListContainerInternal: React.FC<LayerListContainerInternalProps> = ({
             </button>
           </div>
         </div>
-        <Separator className="w-full bg-border" />
+        <Separator className="w-full bg-panel-border" />
       </header>
       <div role="navigation" aria-label={t("Layers list")}>
         <ul className="p-0 m-0 pb-6 pt-2 flex-1 overflow-x-hidden overflow-y-visible space-y-px">{listItems}</ul>

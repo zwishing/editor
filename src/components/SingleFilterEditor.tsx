@@ -61,8 +61,8 @@ export default class SingleFilterEditor extends React.Component<SingleFilterEdit
     const propertyName = f[1];
     const filterArgs = f.slice(2);
 
-    return <div className="maputnik-filter-editor-single">
-      <div className="maputnik-filter-editor-property">
+    return <div className="maputnik-filter-editor-single flex items-center gap-2 w-full">
+      <div className="maputnik-filter-editor-property flex-[2] min-w-0">
         <InputAutocomplete
           aria-label="key"
           value={propertyName}
@@ -70,7 +70,7 @@ export default class SingleFilterEditor extends React.Component<SingleFilterEdit
           onChange={(newPropertyName: string) => this.onFilterPartChanged(filterOp, newPropertyName, filterArgs)}
         />
       </div>
-      <div className="maputnik-filter-editor-operator">
+      <div className="maputnik-filter-editor-operator flex-1 min-w-[80px]">
         <InputSelect
           aria-label="function"
           value={filterOp}
@@ -79,7 +79,7 @@ export default class SingleFilterEditor extends React.Component<SingleFilterEdit
         />
       </div>
       {filterArgs.length > 0 &&
-      <div className="maputnik-filter-editor-args">
+      <div className="maputnik-filter-editor-args flex-[2] min-w-0">
         <InputString
           aria-label="value"
           value={filterArgs.join(",")}

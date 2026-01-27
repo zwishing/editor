@@ -27,6 +27,22 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
 }) => {
   const { t } = useTranslation();
   const fsa = useMemo(() => fieldSpecAdditional(t), [t]);
+  const projectionOptions = useMemo<[string, string][]>(
+    () => [
+      ["", "Undefined"],
+      ["mercator", "Mercator"],
+      ["globe", "Globe"],
+      ["vertical-perspective", "Vertical Perspective"],
+    ],
+    []
+  );
+  const rendererOptions = useMemo<[string, string][]>(
+    () => [
+      ["mlgljs", "MapLibreGL JS"],
+      ["ol", t("Open Layers (experimental)")],
+    ],
+    [t]
+  );
 
   const changeStyleProperty = useCallback(
     (property: keyof StyleSpecification | "owner", value: any) => {
@@ -153,12 +169,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <FieldSelect
               label={t("Projection")}
               data-wd-key="modal:settings.projection"
-              options={[
-                ["", "Undefined"],
-                ["mercator", "Mercator"],
-                ["globe", "Globe"],
-                ["vertical-perspective", "Vertical Perspective"],
-              ]}
+              options={projectionOptions}
               value={projection?.type?.toString() || ""}
               onChange={(value: any) => changeProjectionType(value)}
             />
@@ -167,10 +178,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
               label={fsa.maputnik.style_renderer.label}
               fieldSpec={fsa.maputnik.style_renderer}
               data-wd-key="modal:settings.maputnik:renderer"
-              options={[
-                ["mlgljs", "MapLibreGL JS"],
-                ["ol", t("Open Layers (experimental)")],
-              ]}
+              options={rendererOptions}
               value={metadata["maputnik:renderer"] || "mlgljs"}
               onChange={(value: any) =>
                 onChangeMetadataProperty("maputnik:renderer", value)

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { MdAddCircleOutline, MdDelete } from "react-icons/md";
 import latest from "@maplibre/maplibre-gl-style-spec/dist/latest.json";
 import type { GeoJSONSourceSpecification, RasterDEMSourceSpecification, RasterSourceSpecification, SourceSpecification, VectorSourceSpecification } from "maplibre-gl";
@@ -113,6 +113,22 @@ type AddSourceProps = {
 
 const AddSource: React.FC<AddSourceProps> = ({ onAdd }) => {
   const { t } = useTranslation();
+  const sourceTypeOptions = useMemo<[string, string][]>(
+    () => [
+      ["geojson_json", t("GeoJSON (JSON)")],
+      ["geojson_url", t("GeoJSON (URL)")],
+      ["tilejson_vector", t("Vector (TileJSON URL)")],
+      ["tile_vector", t("Vector (Tile URLs)")],
+      ["tilejson_raster", t("Raster (TileJSON URL)")],
+      ["tile_raster", t("Raster (Tile URLs)")],
+      ["tilejson_raster-dem", t("Raster DEM (TileJSON URL)")],
+      ["tilexyz_raster-dem", t("Raster DEM (XYZ URLs)")],
+      ["pmtiles_vector", t("Vector (PMTiles)")],
+      ["image", t("Image")],
+      ["video", t("Video")],
+    ],
+    [t]
+  );
 
   const defaultSource = useCallback((mode: EditorMode, currentSource?: any): SourceSpecification => {
     const source = currentSource || {};
@@ -242,19 +258,7 @@ const AddSource: React.FC<AddSourceProps> = ({ onAdd }) => {
       <FieldSelect
         label={t("Source Type")}
         fieldSpec={sourceTypeFieldSpec}
-        options={[
-          ["geojson_json", t("GeoJSON (JSON)")],
-          ["geojson_url", t("GeoJSON (URL)")],
-          ["tilejson_vector", t("Vector (TileJSON URL)")],
-          ["tile_vector", t("Vector (Tile URLs)")],
-          ["tilejson_raster", t("Raster (TileJSON URL)")],
-          ["tile_raster", t("Raster (Tile URLs)")],
-          ["tilejson_raster-dem", t("Raster DEM (TileJSON URL)")],
-          ["tilexyz_raster-dem", t("Raster DEM (XYZ URLs)")],
-          ["pmtiles_vector", t("Vector (PMTiles)")],
-          ["image", t("Image")],
-          ["video", t("Video")],
-        ]}
+        options={sourceTypeOptions}
         onChange={(m) => {
           const newMode = m as EditorMode;
           setMode(newMode);

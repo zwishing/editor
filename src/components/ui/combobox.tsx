@@ -26,7 +26,7 @@ function ComboboxTrigger({
   return (
     <ComboboxPrimitive.Trigger
       data-slot="combobox-trigger"
-      className={cn("[&_svg:not([class*='size-'])]:size-4", className)}
+      className={cn("[&_svg:not([class*='size-'])]:size-4 cursor-pointer", className)}
       {...props}
     >
       {children}
@@ -134,13 +134,13 @@ function ComboboxItem({
     <ComboboxPrimitive.Item
       data-slot="combobox-item"
       className={cn(
-        "data-highlighted:bg-accent/25 data-highlighted:text-accent-foreground gap-2 rounded-md py-1 pr-2 pl-8 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex w-full cursor-default items-center outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "data-highlighted:bg-panel-active data-highlighted:text-accent-foreground gap-2 rounded-md py-1 px-2 text-sm [&_svg:not([class*='size-'])]:size-4 relative flex w-full cursor-pointer items-center justify-between outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className
       )}
       {...props}
     >
-      <ComboboxPrimitive.ItemIndicator render={<span className="pointer-events-none absolute left-2 flex size-4 items-center justify-center"><CheckIcon className="pointer-events-none" /></span>} />
       {children}
+      <ComboboxPrimitive.ItemIndicator render={<span className="pointer-events-none flex size-4 items-center justify-center"><CheckIcon className="pointer-events-none" /></span>} />
     </ComboboxPrimitive.Item>
   );
 }

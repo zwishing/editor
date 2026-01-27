@@ -111,6 +111,9 @@ class FilterEditorInternal extends React.Component<FilterEditorInternalProps, Fi
     filter: ["all"],
   };
 
+  private combiningOptionsCache?: [string, string][];
+  private combiningOptionsT?: FilterEditorInternalProps["t"];
+
   constructor (props: FilterEditorInternalProps) {
     super(props);
     this.state = {
@@ -119,8 +122,20 @@ class FilterEditorInternal extends React.Component<FilterEditorInternalProps, Fi
     };
   }
 
+  private getCombiningOptions(t: FilterEditorInternalProps["t"]) {
+    if (this.combiningOptionsT !== t) {
+      this.combiningOptionsT = t;
+      this.combiningOptionsCache = [
+        ["all", t("every filter matches")],
+        ["none", t("no filter matches")],
+        ["any", t("any filter matches")],
+      ];
+    }
+    return this.combiningOptionsCache!;
+  }
+
   // Convert filter to combining filter
-  onFilterPartChanged(filterIdx: number, newPart: any[]) {
+  onFilterPartChanged(filterIdx: number, newPart: any) {
     const newFilter = combiningFilter(this.props).slice(0) as LegacyFilterSpecification | ExpressionSpecification;
     newFilter[filterIdx] = newPart;
     this.props.onChange(newFilter);
@@ -187,6 +202,7 @@ class FilterEditorInternal extends React.Component<FilterEditorInternalProps, Fi
       doc: latest.layer.filter.doc + " Combine multiple filters together by using a compound filter."
     };
     const defaultFilter = ["all"] as LegacyFilterSpecification | ExpressionSpecification;
+    const combiningOptions = this.getCombiningOptions(t);
 
     const isNestedCombiningFilter = displaySimpleFilter && hasNestedCombiningFilter(combiningFilter(this.props));
 
@@ -225,7 +241,7 @@ class FilterEditorInternal extends React.Component<FilterEditorInternalProps, Fi
         const error = errors![`filter[${idx+1}]`];
 
         return (
-          <div key={`block-${idx}`}>
+          <div key={`block-${idx}`} className="mt-2">
             <FilterEditorBlock key={idx} onDelete={this.deleteFilterItem.bind(this, idx)}>
               <SingleFilterEditor
                 properties={this.props.properties}
@@ -251,25 +267,22 @@ class FilterEditorInternal extends React.Component<FilterEditorInternalProps, Fi
           >
             <InputSelect
               value={combiningOp}
-              onChange={(v: [string, any]) => this.onFilterPartChanged(0, v)}
-              options={[
-                ["all", t("every filter matches")],
-                ["none", t("no filter matches")],
-                ["any", t("any filter matches")]
-              ]}
+              onChange={(value: string) => this.onFilterPartChanged(0, value)}
+              options={combiningOptions}
             />
           </Block>
           {editorBlocks}
           <div
             key="buttons"
-            className="maputnik-filter-editor-add-wrapper"
+            className="maputnik-filter-editor-add-wrapper mt-2 text-right"
           >
             <InputButton
               data-wd-key="layer-filter-button"
-              className="maputnik-add-filter"
+              className="maputnik-add-filter w-auto h-8 px-2"
               onClick={this.addFilterItem}
+              variant="outline"
             >
-              <PiListPlusBold style={{ verticalAlign: "text-bottom" }} />
+              <PiListPlusBold style={{ verticalAlign: "middle" }} className="mr-1" />
               {t("Add filter")}
             </InputButton>
           </div>

@@ -3,118 +3,27 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  /* Slate 50 */
-  --background: 210 40% 98%;
-  /* Slate 900 */
-  --foreground: 222.2 47.4% 11.2%;
-
-  /* Indigo 600 */
-  --primary: 243.4 75.4% 58.6%;
-  --primary-foreground: 210 40% 98%;
-
-  /* Slate 100 */
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-
-  /* Rose 500 */
-  --destructive: 346.8 77.2% 49.8%;
-  --destructive-foreground: 210 40% 98%;
-
-  /* Slate 100 */
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-
-  /* Indigo 500 */
-  --accent: 238.7 83.5% 66.7%; 
-  --accent-foreground: 222.2 47.4% 11.2%;
-
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 243.4 75.4% 58.6%;
-
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 47.4% 11.2%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 47.4% 11.2%;
-
-  --radius: 0.5rem;
-
-  --sidebar: 0 0% 98%;
-  --sidebar-foreground: 240 5.3% 26.1%;
-  --sidebar-primary: 240 5.9% 10%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 240 4.8% 95.9%;
-  --sidebar-accent-foreground: 240 5.9% 10%;
-  --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 217.2 91.2% 59.8%;
-}
-
-.dark {
-  /* Slate 950 */
-  --background: 222.2 84% 4.9%;
-  /* Slate 50 */
-  --foreground: 210 40% 98%;
-
-  /* Indigo 500 */
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-
-  /* Slate 800 */
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-
-  /* Rose 900 */
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-
-  /* Slate 800 */
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-
-  /* Slate 800 */
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
-
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-
-  --sidebar: 240 5.9% 10%;
-  --sidebar-foreground: 240 4.8% 95.9%;
-  --sidebar-primary: 224.3 76.3% 48%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 240 3.7% 15.9%;
-  --sidebar-accent-foreground: 240 4.8% 95.9%;
-  --sidebar-border: 240 3.7% 15.9%;
-  --sidebar-ring: 217.2 91.2% 59.8%;
-}
-
 @theme inline {
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -129,19 +38,19 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* Maputnik Design Tokens */
-  --color-panel-bg: var(--background);
-  --color-panel-surface: var(--card);
-  --color-panel-border: var(--border);
-  --color-panel-text: var(--foreground);
-  --color-panel-muted: var(--muted-foreground);
-  --color-panel-muted-2: var(--muted);
-  --color-panel-hover: var(--accent);
-  --color-panel-active: hsl(var(--primary) / 0.1);
-  --color-panel-accent: var(--primary);
+  --color-panel-bg: var(--color-panel-bg);
+  --color-panel-surface: var(--color-panel-surface);
+  --color-panel-border: var(--color-panel-border);
+  --color-panel-text: var(--color-panel-text);
+  --color-panel-muted: var(--color-panel-muted);
+  --color-panel-hover: var(--color-panel-hover);
+  --color-panel-active: var(--color-panel-active);
+  --color-panel-accent: var(--color-panel-accent);
+  --color-panel-muted-2: var(--color-panel-muted-2);
 
   --spacing-maputnik-1: 2px;
-  --spacing-maputnik-2: 4px; /* Aligned to 4px grid */
-  --spacing-maputnik-3: 8px; /* Aligned to 4px grid */
+  --spacing-maputnik-2: 4px;
+  --spacing-maputnik-3: 8px;
   --spacing-maputnik-4: 16px;
   --spacing-maputnik-5: 24px;
 
@@ -177,6 +86,125 @@
   }
 }
 
+:root {
+  /* --- Primitives --- */
+  /* Brand: Green */
+  --brand-base: 118.2 37.7% 51%;
+  
+  /* Neutral Scale (Slate) */
+  --slate-50: 210 40% 98%;
+  --slate-100: 210 40% 96.1%;
+  --slate-200: 214.3 31.8% 91.4%;
+  --slate-300: 212.7 26.8% 83.9%;
+  --slate-400: 215.4 16.3% 46.9%;
+  --slate-500: 215.3 19.3% 34.5%;
+  --slate-600: 215.3 25% 26.7%;
+  --slate-700: 217.2 32.6% 17.5%;
+  --slate-800: 215.3 25% 15.1%;
+  --slate-900: 222.2 47.4% 11.2%;
+  --slate-950: 222.2 84% 4.9%;
+
+  /* --- Semantics: Light Mode --- */
+  /* Note: V4 defines colors in hsl() format usually, but here we define channels for hsl(var(...)) usage */
+  --background: hsl(var(--slate-50));
+  --foreground: hsl(var(--slate-900));
+
+  --primary: hsl(var(--brand-base));
+  --primary-foreground: hsl(var(--slate-50));
+
+  --secondary: hsl(var(--slate-100));
+  --secondary-foreground: hsl(var(--slate-900));
+
+  --muted: hsl(var(--slate-100));
+  --muted-foreground: hsl(var(--slate-400));
+
+  --accent: hsl(var(--brand-base));
+  --accent-foreground: hsl(var(--slate-900));
+
+  --destructive: hsl(346.8 77.2% 49.8%);
+  --destructive-foreground: hsl(var(--slate-50));
+
+  --border: hsl(var(--slate-200));
+  --input: hsl(var(--slate-200));
+  --ring: hsl(var(--brand-base));
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(var(--slate-900));
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(var(--slate-900));
+
+  --radius: 0.5rem;
+
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(var(--brand-base));
+  
+  /* --- Components: Maputnik Specific --- */
+  --color-panel-bg: var(--background);
+  --color-panel-surface: var(--card);
+  --color-panel-border: var(--border);
+  --color-panel-text: var(--foreground);
+  --color-panel-muted: var(--muted-foreground);
+  --color-panel-muted-2: var(--muted);
+  --color-panel-hover: var(--accent);
+  --color-panel-active: hsl(var(--brand-base) / 0.1);
+  --color-panel-accent: var(--primary);
+}
+
+.dark {
+  /* Slate 950 */
+  --background: hsl(var(--slate-950));
+  --foreground: hsl(var(--slate-50));
+
+  --primary: hsl(var(--brand-base));
+  --primary-foreground: hsl(222.2 47.4% 11.2%);
+
+  --secondary: hsl(var(--slate-800));
+  --secondary-foreground: hsl(var(--slate-50));
+
+  --muted: hsl(var(--slate-800));
+  --muted-foreground: hsl(215 20.2% 65.1%);
+
+  --accent: hsl(var(--brand-base));
+  --accent-foreground: hsl(var(--slate-50));
+
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(var(--slate-50));
+
+  --border: hsl(var(--slate-800));
+  --input: hsl(var(--slate-800));
+  --ring: hsl(var(--brand-base));
+
+  --card: hsl(var(--slate-950));
+  --card-foreground: hsl(var(--slate-50));
+  --popover: hsl(var(--slate-950));
+  --popover-foreground: hsl(var(--slate-50));
+
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(var(--brand-base));
+
+  --color-panel-bg: var(--background);
+  --color-panel-surface: var(--card);
+  --color-panel-border: var(--border);
+  --color-panel-text: var(--foreground);
+  --color-panel-muted: var(--muted-foreground);
+  --color-panel-muted-2: var(--muted);
+  --color-panel-hover: var(--accent);
+  --color-panel-active: hsl(var(--brand-base) / 0.1);
+  --color-panel-accent: var(--primary);
+}
+
 @layer base {
   body {
     @apply bg-background text-foreground;
@@ -188,7 +216,6 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif;
   }
-
 
   @font-face {
     font-family: 'Roboto';
@@ -248,9 +275,6 @@
     margin-bottom: 10px;
   }
 
-  /* Removed global focus styles to use component-level shadcn/tailwind focus rings */
-
-
   ol, ul {
     list-style: none;
   }
@@ -300,7 +324,6 @@
 
 @layer components {
   /* Legacy Component Compatibility Classes */
-  /* Legacy Component Compatibility Classes */
   .maputnik-input,
   .maputnik-string,
   .maputnik-number,
@@ -328,7 +351,7 @@
     @apply inline-block cursor-pointer bg-panel-surface text-panel-text text-xs p-1.5 border border-panel-border rounded-full shadow-sm select-none no-underline transition-colors;
   }
   .maputnik-button:hover:not(:disabled) {
-    @apply bg-panel-hover border-[#33373e];
+    @apply bg-panel-hover border-panel-accent;
   }
   .maputnik-button:disabled {
     @apply bg-panel-hover text-panel-muted-2 cursor-not-allowed opacity-50;
@@ -363,7 +386,6 @@
      @apply p-3 flex flex-col;
   }
 
-  /* Add other modal classes if strictly needed, but try to use Tailwind in Modal.tsx */
   .maputnik-export-modal .maputnik-input-block-label { @apply w-1/2 self-center; }
   .maputnik-export-modal .maputnik-input-block-action { @apply w-0; }
 

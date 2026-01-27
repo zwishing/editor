@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 
 import IconLayer from "./IconLayer";
 
+const ICON_CONTEXT_VALUE = { size: "16px" };
+
 
 type DraggableLabelProps = {
   layerId: string
@@ -114,7 +116,7 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
   const refObject = ref as React.MutableRefObject<HTMLLIElement | null> | null;
 
   return (
-    <IconContext.Provider value={{ size: "16px" }}>
+    <IconContext.Provider value={ICON_CONTEXT_VALUE}>
       <li
         ref={(node) => {
           setNodeRef(node);
@@ -127,7 +129,7 @@ const LayerListItem = React.forwardRef<HTMLLIElement, LayerListItemProps>((props
         onClick={() => props.onLayerSelect(props.layerIndex)}
         data-wd-key={"layer-list-item:" + props.layerId}
         className={cn(
-          "group flex items-center bg-panel-surface hover:bg-accent/40 py-1.5 px-2 select-none transition-all duration-160 mb-0.5 rounded-sm mx-1",
+          "group flex items-center bg-panel-surface hover:bg-panel-hover/20 py-1.5 px-2 select-none transition-all duration-160 mb-0.5 rounded-sm mx-1",
           isSelected && "bg-panel-active text-panel-text ring-1 ring-panel-accent/50",
           className
         )}

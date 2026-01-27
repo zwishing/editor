@@ -4,6 +4,8 @@ import { type WithTranslation, withTranslation } from "react-i18next";
 import { IconContext } from "react-icons";
 import { cn } from "@/lib/utils";
 
+const ICON_CONTEXT_VALUE = { size: "14px" };
+
 type AppLayoutInternalProps = {
   toolbar: React.ReactElement
   iconRail?: React.ReactElement // New Prop
@@ -31,7 +33,7 @@ const AppLayout: React.FC<AppLayoutInternalProps> = ({
   document.body.dir = i18n.dir();
 
   return (
-    <IconContext.Provider value={{ size: "14px" }}>
+    <IconContext.Provider value={ICON_CONTEXT_VALUE}>
       <div className="h-screen overflow-hidden font-sans text-foreground">
         {toolbar}
         <div className="fixed bottom-0 top-12 left-0 right-0 z-[1] flex bg-background overflow-hidden supports-[height:100dvh]:h-[calc(100dvh-3rem)]">
@@ -45,7 +47,7 @@ const AppLayout: React.FC<AppLayoutInternalProps> = ({
             <>
               <div
                 className={cn(
-                  "w-[320px] bg-card shadow-sm text-card-foreground flex flex-col transition-all duration-160 border-r border-border shrink-0",
+                  "w-[320px] bg-panel-surface shadow-sm text-panel-text flex flex-col transition-all duration-160 border-r border-panel-border shrink-0",
                   listClassName === "maputnik-layout-list--wide" && "w-[450px]",
                   listClassName === "maputnik-layout-list--extra-wide" && "w-[800px]",
                   listClassName
@@ -54,7 +56,7 @@ const AppLayout: React.FC<AppLayoutInternalProps> = ({
                 {layerList}
               </div>
               {layerEditor && (
-                <div className="w-layout-editor bg-card border-r border-border shadow-sm text-card-foreground relative transition-all duration-160 shrink-0">
+                <div className="w-layout-editor bg-panel-surface border-r border-panel-border shadow-sm text-panel-text relative transition-all duration-160 shrink-0">
                   <ScrollContainer>{layerEditor}</ScrollContainer>
                 </div>
               )}

@@ -376,7 +376,7 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
             </button>
           </div>
         </header>
-        <Separator className="w-full bg-border" />
+        <Separator className="w-full bg-panel-border" />
 
         {/* Tabs Component: Content grows, List fixed at bottom */}
         <Tabs defaultValue="style" className="flex flex-col grow overflow-hidden">
@@ -392,7 +392,7 @@ const LayerEditorInternal: React.FC<LayerEditorInternalProps> = ({
             </TabsContent>
           </div>
           
-          <Separator className="w-full bg-border" />
+          <Separator className="w-full bg-panel-border" />
           <div className="shrink-0 p-3 pb-5 bg-panel-surface">
              <TabsList className="w-full grid w-full grid-cols-3 bg-muted h-10">
               <TabsTrigger value="style" className="text-sm data-[state=active]:font-bold data-[state=active]:text-primary">{t("Style")}</TabsTrigger>

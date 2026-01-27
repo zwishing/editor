@@ -68,6 +68,17 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        panel: {
+          bg: "hsl(var(--color-panel-bg))",
+          surface: "hsl(var(--color-panel-surface))",
+          border: "hsl(var(--color-panel-border))",
+          text: "hsl(var(--color-panel-text))",
+          muted: "hsl(var(--color-panel-muted))",
+          "muted-2": "hsl(var(--color-panel-muted-2))",
+          hover: "hsl(var(--color-panel-hover))",
+          active: "var(--color-panel-active)",
+          accent: "hsl(var(--color-panel-accent))",
+        },
       },
       zIndex: {
         dropdown: "1000",

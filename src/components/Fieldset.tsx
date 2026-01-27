@@ -1,5 +1,5 @@
 import React, { type PropsWithChildren, type ReactElement } from "react";
-import classnames from "classnames";
+import { cn } from "@/lib/utils";
 import FieldDocLabel from "./FieldDocLabel";
 import Doc from "./Doc";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ const Fieldset: React.FC<FieldsetProps> = (props) => {
 
   return (
     <div
-      className={classnames("mb-6 space-y-3", {
+      className={cn("mb-6 space-y-3", {
         "text-destructive": props.error,
       })}
       role="group"
@@ -54,4 +54,3 @@ const Fieldset: React.FC<FieldsetProps> = (props) => {
 };
 
 export default Fieldset;
-

@@ -42,6 +42,22 @@ const ModalSettings: React.FC<ModalSettingsProps> = ({
 }) => {
   const { t } = useTranslation();
   const fsa = useMemo(() => fieldSpecAdditional(t), [t]);
+  const projectionOptions = useMemo<[string, string][]>(
+    () => [
+      ["", "Undefined"],
+      ["mercator", "Mercator"],
+      ["globe", "Globe"],
+      ["vertical-perspective", "Vertical Perspective"],
+    ],
+    []
+  );
+  const rendererOptions = useMemo<[string, string][]>(
+    () => [
+      ["mlgljs", "MapLibreGL JS"],
+      ["ol", t("Open Layers (experimental)")],
+    ],
+    [t]
+  );
 
   const changeStyleProperty = useCallback(
     (property: keyof StyleSpecification | "owner", value: any) => {
@@ -155,7 +171,7 @@ const ModalSettings: React.FC<ModalSettingsProps> = ({
           fieldSpec={latest.$root.glyphs}
           data-wd-key="modal:settings.glyphs"
           value={mapStyle.glyphs as string}
-          onChange={(value) => changeStyleProperty("glyphs", value)}
+          onChange={(value: string) => changeStyleProperty("glyphs", value)}
         />
 
         <FieldString
@@ -319,24 +335,16 @@ const ModalSettings: React.FC<ModalSettingsProps> = ({
         <FieldSelect
           label={t("Projection")}
           data-wd-key="modal:settings.projection"
-          options={[
-            ["", "Undefined"],
-            ["mercator", "Mercator"],
-            ["globe", "Globe"],
-            ["vertical-perspective", "Vertical Perspective"],
-          ]}
+          options={projectionOptions}
           value={projection?.type?.toString() || ""}
-          onChange={(value) => changeProjectionType(value)}
+          onChange={(value: string) => changeProjectionType(value)}
         />
 
         <FieldSelect
           label={fsa.maputnik.style_renderer.label}
           fieldSpec={fsa.maputnik.style_renderer}
           data-wd-key="modal:settings.maputnik:renderer"
-          options={[
-            ["mlgljs", "MapLibreGL JS"],
-            ["ol", t("Open Layers (experimental)")],
-          ]}
+          options={rendererOptions}
           value={metadata["maputnik:renderer"] || "mlgljs"}
           onChange={(value) =>
             onChangeMetadataProperty("maputnik:renderer", value)

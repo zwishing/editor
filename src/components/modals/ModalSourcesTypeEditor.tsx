@@ -12,6 +12,9 @@ import FieldArray from "../FieldArray";
 import FieldJson from "../FieldJson";
 import FieldCheckbox from "../FieldCheckbox";
 
+const DEFAULT_COORDINATE: [number, number] = [0, 0];
+const EMPTY_URLS: string[] = [];
+
 
 export type EditorMode = "video" | "image" | "tilejson_vector" | "tile_raster" | "tilejson_raster" | "tilexyz_raster-dem" | "tilejson_raster-dem" | "pmtiles_vector" | "tile_vector" | "geojson_url" | "geojson_json" | null;
 
@@ -32,7 +35,7 @@ class TileJSONSourceEditor extends React.Component<TileJSONSourceEditorProps> {
         label={t("TileJSON URL")}
         fieldSpec={latest.source_vector.url}
         value={this.props.source.url}
-        onChange={url => this.props.onChange({
+        onChange={(url: string) => this.props.onChange({
           ...this.props.source,
           url: url
         })}
@@ -147,22 +150,22 @@ class ImageSourceEditor extends React.Component<ImageSourceEditorProps> {
         label={t("Image URL")}
         fieldSpec={latest.source_image.url}
         value={this.props.source.url}
-        onChange={url => this.props.onChange({
+        onChange={(url: string) => this.props.onChange({
           ...this.props.source,
           url,
         })}
       />
       {createCornerLabels(t).map(({label, key}, idx) => {
         return (
-          <FieldArray
-            label={label}
-            key={key}
-            length={2}
-            type="number"
-            value={this.props.source.coordinates[idx]}
-            default={[0, 0]}
-            onChange={(val: [number, number]) => changeCoord(idx, val)}
-          />
+            <FieldArray
+              label={label}
+              key={key}
+              length={2}
+              type="number"
+              value={this.props.source.coordinates[idx]}
+              default={DEFAULT_COORDINATE}
+              onChange={(val: [number, number]) => changeCoord(idx, val)}
+            />
         );
       })}
     </div>;
@@ -203,20 +206,20 @@ class VideoSourceEditor extends React.Component<VideoSourceEditorProps> {
         fieldSpec={latest.source_video.urls}
         type="string"
         value={this.props.source.urls}
-        default={[]}
+        default={EMPTY_URLS}
         onChange={changeUrls}
       />
       {createCornerLabels(t).map(({label, key}, idx) => {
         return (
-          <FieldArray
-            label={label}
-            key={key}
-            length={2}
-            type="number"
-            value={this.props.source.coordinates[idx]}
-            default={[0, 0]}
-            onChange={(val: [number, number]) => changeCoord(idx, val)}
-          />
+            <FieldArray
+              label={label}
+              key={key}
+              length={2}
+              type="number"
+              value={this.props.source.coordinates[idx]}
+              default={DEFAULT_COORDINATE}
+              onChange={(val: [number, number]) => changeCoord(idx, val)}
+            />
         );
       })}
     </div>;
@@ -237,7 +240,7 @@ class GeoJSONSourceUrlEditor extends React.Component<GeoJSONSourceUrlEditorProps
       label={t("GeoJSON URL")}
       fieldSpec={latest.source_geojson.data}
       value={this.props.source.data}
-      onChange={data => this.props.onChange({
+      onChange={(data: string) => this.props.onChange({
         ...this.props.source,
         data: data
       })}
@@ -261,7 +264,7 @@ class GeoJSONSourceFieldJsonEditor extends React.Component<GeoJSONSourceFieldJso
         <FieldJson
           value={this.props.source.data}
           lintType="json"
-          onChange={data => {
+          onChange={(data: object) => {
             this.props.onChange({
               ...this.props.source,
               data,

@@ -1,5 +1,5 @@
 import React from "react";
-import Markdown from "react-markdown";
+import Markdown, { type Components } from "react-markdown";
 
 const headers = {
   js: "JS",
@@ -49,23 +49,30 @@ const Doc: React.FC<DocProps> = ({ fieldSpec }) => {
     return value;
   };
 
+  const markdownComponents = React.useMemo<Components>(() => ({
+    a: ({ node: _node, className, ...props }) => (
+      <a
+        {...props}
+        target="_blank"
+        className={className ? `text-primary underline ${className}` : "text-primary underline"}
+      />
+    ),
+    code: ({ className, children, ...props }) => (
+      <code
+        {...props}
+        className={className ? `bg-muted px-1 py-0.5 rounded font-mono text-xs ${className}` : "bg-muted px-1 py-0.5 rounded font-mono text-xs"}
+      >
+        {children}
+      </code>
+    )
+  }), []);
+
   return (
     <div className="space-y-4 text-xs text-muted-foreground p-1">
       {doc && (
         <div className="prose prose-sm prose-invert dark:prose-invert max-w-none">
           <div data-wd-key='spec-field-doc' className="leading-relaxed">
-            <Markdown components={{
-              a: ({ node: _node, href, children, ...props }) => (
-                <a href={href} target="_blank" className="text-primary underline" {...props}>
-                  {children}
-                </a>
-              ),
-              code: ({ children }) => (
-                <code className="bg-muted px-1 py-0.5 rounded font-mono text-xs">
-                  {children}
-                </code>
-              )
-            }}>{doc}</Markdown>
+            <Markdown components={markdownComponents}>{doc}</Markdown>
           </div>
           {renderValues && (
             <ul className="mt-2 list-none space-y-2">

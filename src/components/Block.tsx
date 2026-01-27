@@ -1,5 +1,5 @@
 import React, { useState, useRef, type CSSProperties, type PropsWithChildren, type SyntheticEvent } from "react";
-import classnames from "classnames";
+import { cn } from "@/lib/utils";
 import FieldDocLabel from "./FieldDocLabel";
 import Doc from "./Doc";
 import { Card } from "@/components/ui/card";
@@ -44,7 +44,7 @@ const Block: React.FC<BlockProps> = (props) => {
     }
   };
 
-  const containerClasses = classnames(
+  const containerClasses = cn(
     "maputnik-input-block", // Keep for legacy global styles if any
     "border-none shadow-none bg-transparent p-0 m-0", // Override standard Card styles to fit existing layout density
     {
@@ -63,7 +63,7 @@ const Block: React.FC<BlockProps> = (props) => {
       className={containerClasses}
       onClick={onLabelClick}
     >
-      <div className={classnames("maputnik-input-block-label shrink-0", {
+      <div className={cn("maputnik-input-block-label shrink-0", {
         "w-[70px]": !props.wideMode && !props.inline && !props.action,
         "w-[80px] mb-3": !!props.action && !props.inline,
         "w-auto min-w-[80px] mb-0": props.inline,
@@ -77,7 +77,7 @@ const Block: React.FC<BlockProps> = (props) => {
           // Pass Label component if FieldDocLabel supports it, otherwise it renders its own
           />
         ) : (
-          <Label className={classnames("text-inherit font-medium text-xs", {
+          <Label className={cn("text-inherit font-medium text-xs", {
             "text-destructive": props.error
           })}>
             {props.label}
@@ -85,14 +85,14 @@ const Block: React.FC<BlockProps> = (props) => {
         )}
       </div>
 
-      <div className={classnames("maputnik-input-block-action shrink-0", {
+      <div className={cn("maputnik-input-block-action shrink-0", {
         "w-auto text-right mr-2": true
       })}>
         {props.action}
       </div>
 
       <div
-        className={classnames("maputnik-input-block-content", {
+        className={cn("maputnik-input-block-content", {
           "flex-1 min-w-0 w-auto": !props.wideMode && !props.inline,
           "block w-auto flex-1": props.wideMode,
           "flex-1 w-auto": props.inline

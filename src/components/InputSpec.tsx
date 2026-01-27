@@ -44,6 +44,19 @@ const InputSpec: React.FC<InputSpecProps> = ({
   label,
   action
 }) => {
+  const enumOptions = React.useMemo(
+    () => Object.keys(fieldSpec?.values || {}).map((v) => [v, capitalize(v)] as [string, string]),
+    [fieldSpec?.values]
+  );
+  const autocompleteOptions = React.useMemo(
+    () => (Array.isArray(fieldSpec?.values) ? fieldSpec.values : []).map((f) => [f, f] as [string, string]),
+    [fieldSpec?.values]
+  );
+  const normalizedArrayValue = React.useMemo(
+    () => (Array.isArray(value) ? value : [value]) as (string | number | undefined)[],
+    [value]
+  );
+
   const commonProps = {
     fieldSpec,
     label,
@@ -70,18 +83,16 @@ const InputSpec: React.FC<InputSpecProps> = ({
           />
         );
       case "enum": {
-        const options = Object.keys(fieldSpec.values || {}).map((v) => [v, capitalize(v)]) as [string, string][];
-        return <InputEnum {...(commonProps as Omit<InputEnumProps, "options">)} options={options} />;
+        return <InputEnum {...(commonProps as Omit<InputEnumProps, "options">)} options={enumOptions} />;
       }
       case "resolvedImage":
       case "formatted":
       case "string":
         if (fieldName && iconProperties.indexOf(fieldName) >= 0) {
-          const options = fieldSpec.values || [];
           return (
             <InputAutocomplete
               {...(commonProps as Omit<InputAutocompleteProps, "options">)}
-              options={options.map((f) => [f, f])}
+              options={autocompleteOptions}
             />
           );
         } else {
@@ -117,7 +128,7 @@ const InputSpec: React.FC<InputSpecProps> = ({
             {...(commonProps as InputDynamicArrayProps)}
             fieldSpec={fieldSpec}
             type="number"
-            value={(Array.isArray(value) ? value : [value]) as (string | number | undefined)[]}
+            value={normalizedArrayValue}
           />
         );
       case "colorArray":
@@ -126,7 +137,7 @@ const InputSpec: React.FC<InputSpecProps> = ({
             {...(commonProps as InputDynamicArrayProps)}
             fieldSpec={fieldSpec}
             type="color"
-            value={(Array.isArray(value) ? value : [value]) as (string | number | undefined)[]}
+            value={normalizedArrayValue}
           />
         );
       case "padding":
@@ -134,7 +145,7 @@ const InputSpec: React.FC<InputSpecProps> = ({
           <InputArray
             {...(commonProps as InputArrayProps)}
             type="number"
-            value={(Array.isArray(value) ? value : [value]) as (string | number | undefined)[]}
+            value={normalizedArrayValue}
             length={4}
           />
         );
@@ -152,4 +163,3 @@ const InputSpec: React.FC<InputSpecProps> = ({
 };
 
 export default InputSpec;
-

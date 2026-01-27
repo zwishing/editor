@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
 import { cn } from "@/lib/utils";
@@ -116,12 +116,24 @@ const InputNumber: React.FC<InputNumberProps> = ({
   };
 
   const isRangeMode = min !== undefined && max !== undefined && allowRange;
-
-  if (isRangeMode) {
+  const rangeState = useMemo(() => {
+    if (!isRangeMode) {
+      return null;
+    }
     const displayValue = editing ? dirtyValue : value;
     const inputValue = editingRange ? value : displayValue;
     const fallbackValue = defaultValue ?? min!;
     const sliderValue = getRangeValue(editingRange ? value : displayValue, fallbackValue);
+    return {
+      displayValue,
+      inputValue,
+      sliderValue,
+      sliderValueArray: [sliderValue],
+    };
+  }, [isRangeMode, editing, dirtyValue, editingRange, value, defaultValue, min]);
+
+  if (isRangeMode) {
+    const { inputValue, sliderValueArray } = rangeState!;
 
     return (
       <div className="flex w-full items-center gap-2">
@@ -130,7 +142,7 @@ const InputNumber: React.FC<InputNumberProps> = ({
           min={min}
           max={max}
           step={rangeStep}
-          value={[sliderValue]}
+          value={sliderValueArray}
           onValueChange={onChangeRange}
           onKeyDown={() => setKeyboardEvent(true)}
           onPointerDown={() => {
