@@ -1,7 +1,7 @@
-import {derefLayers} from "@maplibre/maplibre-gl-style-spec";
-import type {StyleSpecification, LayerSpecification} from "maplibre-gl";
+import { derefLayers } from "@maplibre/maplibre-gl-style-spec";
+import type { StyleSpecification, LayerSpecification } from "maplibre-gl";
 import tokens from "../config/tokens.json";
-import type {StyleSpecificationWithId} from "./definitions";
+import type { StyleSpecificationWithId } from "./definitions";
 
 // Empty style is always used if no style could be restored or fetched
 const emptyStyle = ensureStyleValidity({
@@ -15,7 +15,7 @@ function generateId() {
 }
 
 function ensureHasId(style: StyleSpecification & { id?: string }): StyleSpecificationWithId {
-  if(!("id" in style) || !style.id) {
+  if (!("id" in style) || !style.id) {
     style.id = generateId();
   }
   return style as StyleSpecificationWithId;
@@ -41,37 +41,70 @@ function ensureHasNoRefs(style: StyleSpecificationWithId) {
   };
 }
 
+function fixLineMetrics(style: StyleSpecificationWithId): StyleSpecificationWithId {
+  // Deep clone to avoid mutating the original recursively if needed, 
+  // but here we construct a new object by mapping.
+  // We need to check sources for lineMetrics if line-gradient is used.
+
+  const sources = { ...style.sources };
+  const layers = style.layers.map(layer => {
+    if (layer.type === 'line' && layer.paint && (layer.paint as any)['line-gradient']) {
+      const sourceId = layer.source;
+      const source = sources[sourceId];
+      if (source && source.type === 'geojson') {
+        // Ensure lineMetrics is true for GeoJSON sources using line-gradient
+        if (!source.lineMetrics) {
+          sources[sourceId] = { ...source, lineMetrics: true };
+        }
+        return layer;
+      } else {
+        // Remove line-gradient if source is not geojson (not supported)
+        const newPaint = { ...layer.paint };
+        delete (newPaint as any)['line-gradient'];
+        return { ...layer, paint: newPaint };
+      }
+    }
+    return layer;
+  });
+
+  return {
+    ...style,
+    sources,
+    layers
+  };
+}
+
 function ensureStyleValidity(style: StyleSpecification): StyleSpecificationWithId {
-  return ensureHasNoInteractive(ensureHasNoRefs(ensureHasId(style)));
+  return fixLineMetrics(ensureHasNoInteractive(ensureHasNoRefs(ensureHasId(style))));
 }
 
 function indexOfLayer(layers: LayerSpecification[], layerId: string) {
   for (let i = 0; i < layers.length; i++) {
-    if(layers[i].id === layerId) {
+    if (layers[i].id === layerId) {
       return i;
     }
   }
   return null;
 }
 
-function getAccessToken(sourceName: string, mapStyle: StyleSpecification, opts: {allowFallback?: boolean}) {
+function getAccessToken(sourceName: string, mapStyle: StyleSpecification, opts: { allowFallback?: boolean }) {
   const metadata = mapStyle.metadata || {} as any;
   let accessToken = metadata[`maputnik:${sourceName}_access_token`];
 
-  if(opts.allowFallback && !accessToken) {
+  if (opts.allowFallback && !accessToken) {
     accessToken = tokens[sourceName as keyof typeof tokens];
   }
 
   return accessToken;
 }
 
-function replaceSourceAccessToken(mapStyle: StyleSpecification, sourceName: string, opts={}) {
+function replaceSourceAccessToken(mapStyle: StyleSpecification, sourceName: string, opts = {}) {
   const source = mapStyle.sources[sourceName];
-  if(!source) return mapStyle;
-  if(!("url" in source) || !source.url) return mapStyle;
+  if (!source) return mapStyle;
+  if (!("url" in source) || !source.url) return mapStyle;
 
   let authSourceName = sourceName;
-  if(sourceName === "thunderforest_transport" || sourceName === "thunderforest_outdoors") {
+  if (sourceName === "thunderforest_transport" || sourceName === "thunderforest_outdoors") {
     authSourceName = "thunderforest";
   }
   else if (("url" in source) && source.url?.match(/\.stadiamaps\.com/)) {
@@ -85,7 +118,7 @@ function replaceSourceAccessToken(mapStyle: StyleSpecification, sourceName: stri
 
   const accessToken = getAccessToken(authSourceName, mapStyle, opts);
 
-  if(!accessToken) {
+  if (!accessToken) {
     // Early exit.
     return mapStyle;
   }
@@ -114,7 +147,7 @@ function replaceSourceAccessToken(mapStyle: StyleSpecification, sourceName: stri
   return changedStyle;
 }
 
-function replaceAccessTokens(mapStyle: StyleSpecification, opts={}) {
+function replaceAccessTokens(mapStyle: StyleSpecification, opts = {}) {
   let changedStyle = mapStyle;
 
   Object.keys(mapStyle.sources).forEach((sourceName) => {

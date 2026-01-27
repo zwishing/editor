@@ -5,7 +5,12 @@ export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> { }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type, value, ...props }, ref) => {
+    // Prevent "controlled to uncontrolled" warning by ensuring value is defined
+    // if it looks like a controlled input (no defaultValue present, or explicit value usage).
+    // We default to "" if value is undefined, unless defaultValue is provided (uncontrolled mode).
+    const safeValue = value === undefined && props.defaultValue === undefined ? "" : value;
+
     return (
       <input
         type={type}
@@ -14,6 +19,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className
         )}
         ref={ref}
+        value={safeValue}
         {...props}
       />
     );

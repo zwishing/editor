@@ -374,6 +374,7 @@ export default class App extends React.Component<any, AppState> {
   };
 
   onStyleChanged = (newStyle: StyleSpecificationWithId, opts: OnStyleChangedOpts = {}): void => {
+    newStyle = style.ensureStyleValidity(newStyle);
     opts = {
       save: true,
       addRevision: true,

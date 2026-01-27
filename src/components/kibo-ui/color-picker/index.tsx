@@ -56,7 +56,7 @@ export const useColorPicker = () => {
 export type ColorPickerProps = HTMLAttributes<HTMLDivElement> & {
   value?: Parameters<typeof Color>[0];
   defaultValue?: Parameters<typeof Color>[0];
-  onChange?: (value: Parameters<typeof Color.rgb>[0]) => void;
+  onChange?: (value: Parameters<typeof Color.rgb>[0], formatted?: string) => void;
 };
 
 export const ColorPicker = ({
@@ -86,12 +86,12 @@ export const ColorPicker = ({
   // Update color when controlled value changes
   useEffect(() => {
     if (value) {
-      const color = Color.rgb(value).rgb().object();
+      const color = Color(value);
 
-      setHue(color.r);
-      setSaturation(color.g);
-      setLightness(color.b);
-      setAlpha(color.a);
+      setHue(color.hue());
+      setSaturation(color.saturationl());
+      setLightness(color.lightness());
+      setAlpha(color.alpha() * 100);
     }
   }, [value]);
 
@@ -99,11 +99,41 @@ export const ColorPicker = ({
   useEffect(() => {
     if (onChange) {
       const color = Color.hsl(hue, saturation, lightness).alpha(alpha / 100);
-      const rgba = color.rgb().array();
+      const rgba = color.rgb().array(); // [r, g, b]
 
-      onChange([rgba[0], rgba[1], rgba[2], alpha / 100]);
+      let formattedString = "";
+      if (mode === "hex") {
+        formattedString = color.hex();
+      } else if (mode === "rgb") {
+        formattedString = `rgba(${rgba.map(Math.round).join(", ")}, ${alpha / 100})`;
+      } else if (mode === "css") {
+        // App uses rgba(r,g,b,a) usually.
+        formattedString = `rgba(${rgba[0].toFixed(0)}, ${rgba[1].toFixed(0)}, ${rgba[2].toFixed(0)}, ${alpha / 100})`;
+      } else if (mode === "hsl") {
+        const hsl = color.hsl().array();
+        formattedString = `hsla(${hsl[0].toFixed(0)}, ${hsl[1].toFixed(0)}%, ${hsl[2].toFixed(0)}%, ${alpha / 100})`;
+      } else {
+        formattedString = `rgba(${rgba.map(Math.round).join(", ")}, ${alpha / 100})`;
+      }
+
+      // Compare with current value to avoid infinite loop
+      const currentValue = Color(value || "#000000");
+      const currentRgba = currentValue.rgb().array(); // [r, g, b]
+      const currentAlpha = currentValue.alpha(); // 0-1
+
+      // Check RGB difference (threshold > 1 for r,g,b)
+      const rgbDiff = rgba.some((v, i) => Math.abs(v - (currentRgba[i] || 0)) > 1);
+      // Check Alpha difference (threshold > 0.01)
+      const alphaDiff = Math.abs((alpha / 100) - currentAlpha) > 0.01;
+      // Check format mismatch (e.g. Hex vs RGB)
+      const formatDiff = value !== formattedString;
+
+      if (rgbDiff || alphaDiff || formatDiff) {
+        // Pass both raw and formatted
+        onChange([rgba[0], rgba[1], rgba[2], alpha / 100], formattedString);
+      }
     }
-  }, [hue, saturation, lightness, alpha, onChange]);
+  }, [hue, saturation, lightness, alpha, onChange, value, mode]);
 
   return (
     <ColorPickerContext.Provider
@@ -146,9 +176,9 @@ export const ColorPickerSelection = memo(
 
     const handlePointerMove = useCallback(
       (event: PointerEvent) => {
-        if (!(isDragging && containerRef.current)) {
-          return;
-        }
+        if (!isDragging) return;
+        if (!containerRef.current) return;
+
         const rect = containerRef.current.getBoundingClientRect();
         const x = Math.max(
           0,
@@ -170,25 +200,41 @@ export const ColorPickerSelection = memo(
     );
 
     useEffect(() => {
-      const handlePointerUp = () => setIsDragging(false);
+      const handlePointerUp = (e: PointerEvent) => {
+        setIsDragging(false);
+        if (containerRef.current) {
+          try {
+            containerRef.current.releasePointerCapture(e.pointerId);
+          } catch (err) {
+            // ignore
+          }
+        }
+      };
 
       if (isDragging) {
+        // Force crosshair cursor on body during drag to prevent flickering
+        const originalCursor = document.body.style.cursor;
+        document.body.style.cursor = "crosshair";
+
         window.addEventListener("pointermove", handlePointerMove);
         window.addEventListener("pointerup", handlePointerUp);
-      }
 
-      return () => {
-        window.removeEventListener("pointermove", handlePointerMove);
-        window.removeEventListener("pointerup", handlePointerUp);
-      };
+        return () => {
+          document.body.style.cursor = originalCursor;
+          window.removeEventListener("pointermove", handlePointerMove);
+          window.removeEventListener("pointerup", handlePointerUp);
+        };
+      }
     }, [isDragging, handlePointerMove]);
 
     return (
       <div
-        className={cn("relative size-full cursor-crosshair rounded", className)}
+        className={cn("relative size-full cursor-crosshair rounded touch-none select-none", className)}
         onPointerDown={(e) => {
           e.preventDefault();
           setIsDragging(true);
+          // @ts-ignore
+          e.currentTarget.setPointerCapture(e.pointerId);
           handlePointerMove(e.nativeEvent);
         }}
         ref={containerRef}
